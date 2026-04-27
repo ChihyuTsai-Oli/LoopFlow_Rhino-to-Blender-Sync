@@ -30,17 +30,10 @@
 !docs/*.html
 !docs/**/*.svg
 
-# 發佈資料夾
+# 發佈資料夾（pre-release：追蹤全部檔案）
 !releases/
 !releases/**/
-!releases/**/*.py
-!releases/**/*.bat
-!releases/**/*.rhc
-!releases/**/*.xlsx
-!releases/**/*.ps1
-!releases/**/*.txt
-!releases/**/*.md
-!releases/**/*.blend
+!releases/**
 
 # 系統排除
 **/__pycache__/
