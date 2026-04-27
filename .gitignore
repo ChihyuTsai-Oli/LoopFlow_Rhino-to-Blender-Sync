@@ -12,6 +12,7 @@
 !CREDITS.md
 !CHANGELOG.md
 !build.ps1
+!todo.md
 
 # GitHub 設定資料夾
 !.github/
@@ -47,9 +48,10 @@
 **/.DS_Store
 **/Thumbs.db
 
-# Cursor IDE（本機設定，不同步）
-.cursorrules
-.cursor/
+# Cursor IDE 設定（隨專案同步）
+!.cursor/
+!.cursor/**/
+!.cursor/**/*.mdc
 
 # 本機個人備忘（不發布）
 GitHub_Commands.md

@@ -1,0 +1,12 @@
+---
+description: 專案功能概述
+alwaysApply: true
+---
+
+# Rhino to Blender 同步工具
+
+本專案實作 Rhino 與 Blender 之間的單向同步，主要功能如下：
+
+- **模型同步**：一鍵匯出乾淨 3dm 模型，Blender 可隨時更新模型並維持既有材質
+- **相機視角同步**：將 Rhino 的相機視角同步至 Blender
+- **燈光對齊**：Rhino Points 位置同步，Blender 根據點位將燈光與燈具自動對齊
