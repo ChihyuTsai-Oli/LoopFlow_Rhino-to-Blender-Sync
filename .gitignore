@@ -47,5 +47,5 @@
 !.cursor/**/*.mdc
 
 # 本機個人備忘（不發布）
-GitHub_Commands.md
+!GitHub_Commands.md
 !memo.md
