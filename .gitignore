@@ -41,11 +41,5 @@
 **/.DS_Store
 **/Thumbs.db
 
-# Cursor IDE 設定（隨專案同步）
-!.cursor/
-!.cursor/**/
-!.cursor/**/*.mdc
-
-# 本機個人備忘（不發布）
-!GitHub_Commands.md
-!memo.md
+# 本機開發檔案（不發布）
+# .cursor/、memo.md、GitHub_Commands.md 不追蹤，請自行保管於本機

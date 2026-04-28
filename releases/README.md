@@ -1,6 +1,6 @@
 # LoopFlow Rhino-to-Blender Sync — Releases
 
-[▶ Watch on YouTube](https://www.youtube.com/@LoopFlow) · [🏠 Project Page](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync)
+[▶ Watch on YouTube](https://www.youtube.com/@LoopFlow) · [▶ Project Page](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync)
 
 ---
 
@@ -14,10 +14,10 @@
 
 **Blender Side (Addons)**
 
-4. In Blender, go to **Edit > Preferences > Add-ons > Install**
-5. Install the following addons as ZIP files:
-   - `LoopFlow_Toolkit.zip` — Export / Rename / Selection toolkit
-   - `LoopFlow_import_3dm.zip` — 3DM model importer
+1. In Blender, go to **Edit > Preferences > Add-ons > Install**
+2. Install the following addons as ZIP files:
+  - `LoopFlow_Toolkit.zip` — Export / Rename / Selection toolkit
+  - `LoopFlow_import_3dm.zip` — 3DM model importer
 
 > Package each addon folder as a ZIP before installing (select the folder, compress to ZIP).
 
@@ -25,13 +25,15 @@
 
 ## Included Files
 
-| File / Folder | Description |
-|---|---|
-| `LoopFlow_Rhino-to-Blender-Sync/` | Rhino-side Python scripts |
-| `LoopFlow_Toolkit/` | Blender Addon source (package as `LoopFlow_Toolkit.zip`) |
-| `LoopFlow_import_3dm/` | Blender Addon source (package as `LoopFlow_import_3dm.zip`) |
-| `install_LoopFlow_R2B.bat` | Rhino-side auto-installer |
-| `LoopFlow_R2B.rhc` | Rhino toolbar definition |
+
+| File / Folder                     | Description                                                 |
+| --------------------------------- | ----------------------------------------------------------- |
+| `LoopFlow_Rhino-to-Blender-Sync/` | Rhino-side Python scripts                                   |
+| `LoopFlow_Toolkit/`               | Blender Addon source (package as `LoopFlow_Toolkit.zip`)    |
+| `LoopFlow_import_3dm/`            | Blender Addon source (package as `LoopFlow_import_3dm.zip`) |
+| `install_LoopFlow_R2B.bat`        | Rhino-side auto-installer                                   |
+| `LoopFlow_R2B.rhc`                | Rhino toolbar definition                                    |
+
 
 ---
 
@@ -59,4 +61,4 @@ releases/
 ## Credits
 
 - **LoopFlow_import_3dm** is a fork of [import_3dm](https://github.com/jesterKing/import_3dm) by [Nathan Letwory (jesterKing)](https://github.com/jesterKing), licensed under MIT
-- Developed with [Cursor](https://cursor.sh) + Claude Sonnet 4.6
+
