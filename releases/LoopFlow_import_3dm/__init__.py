@@ -3,51 +3,56 @@
 ====================================
 Import Rhinoceros 3D (R2B Pro)
 ====================================
-版本 (Version) : v5.0
-日期 (Date)    : 2026-04-27
-開發者 (Author) : Cursor + Claude Sonnet 4.6
-開發環境 (Env)  : Blender 4.5.0 / Python 3.11
-位置 (Location) : 3D Viewport 側邊欄 (N-Panel > LoopFlow 3dm > Rhino Live Link)
+Version            : v5.0
+Date               : 2026-04-27
+Author             : Cursor + Claude Sonnet 4.6
+Environment        : Blender 4.5.0 / Python 3.11
+Location           : 3D Viewport sidebar (N-Panel > LoopFlow 3dm > Rhino Live Link)
 
-【系統概述 / System Overview】
-本外掛為「Rhino into Blender 工作流」的 Blender 端接收器。
-旨在打破雙軟體間的壁壘，提供包含幾何體無縫更新、雙 JSON 效能分離連動、
-全自動燈光組裝，以及 BIM 自動材質指派等自動化Render解決方案。
+[System Overview]
+This addon is the Blender-side receiver for the "Rhino into Blender" workflow.
+It breaks the barrier between the two applications by providing seamless geometry
+updates, dual-JSON performance sync, fully automated light assembly, and BIM
+auto-material assignment.
 
-【核心功能與操作指南 / Core Features & Operations】
+[Core Features & Operations]
 
-1. 幾何體無縫更新 (Model Sync & State Memory)
-   ▶ 功能描述：支援首次載入與後續更新。更新時會自動防呆去重，並完美保留
-      使用者在 Blender 中手動設定的「排除、隱藏、算圖關閉」與效能顯示模式(Bounds)。
-   ▶ 操作方式：Rhino 端執行 LiveLink_R2B_Models.py（選擇圖層後產生 R2B.3dm）；
-      Blender 端點擊 [Import Models] 或 [Update Models]。
+1. Seamless Geometry Update (Model Sync & State Memory)
+   - Supports first-time import and subsequent updates. On update it deduplicates
+     automatically and perfectly preserves any manually configured "exclude, hide,
+     render-off" states and Bounds display mode set inside Blender.
+   - Usage: on the Rhino side run LiveLink_R2B_Models.py (choose a layer to produce R2B.3dm);
+     on the Blender side click [Import Models] or [Update Models].
 
-2. 雙 JSON 引擎：攝影機與燈光同步 (Dual Engine Real-time Sync)
-   ▶ 功能描述：
-      - 攝影機 (Camera)：背景每 CAMERA_POLL_INTERVAL 秒掃描 R2B_Camera_Sync.json，極度輕量保證 60FPS。
-      - 燈光 (Lights)：獨立為「手動更新」，讀取 R2B_Light_Sync.json。
-      - 精確對位與防殘留：採用精確對位更新法，強制復位被亂移的燈具。具備同生共死引擎，
-        Rhino 刪除點位，Blender 端乾淨回收，徹底杜絕 StructRNA 幽靈報錯。
-   ▶ 操作方式：
-      - 建立 COL_FIXTURES (放模型) 與 COL_LIGHTING (放燈光) 集合，並對齊母體。
-      - 在面板的 [Sync Folder] 指定 JSON 所在目錄。
-      - 攝影機：點擊 [Start Camera Sync] 啟動背景連動。
-      - 燈光：Rhino 端匯出點位後，點擊 [Sync Rhino Lights] 進行一鍵更新。
+2. Dual-JSON Engine: Camera & Light Sync
+   - Camera: background timer polls R2B_Camera_Sync.json every CAMERA_POLL_INTERVAL seconds;
+     extremely lightweight, keeps 60 FPS unaffected.
+   - Lights: manual update, reads R2B_Light_Sync.json.
+   - Precise alignment & orphan cleanup: forces displaced fixtures back to their correct
+     positions. Built-in "life-link" engine — when a Rhino point is deleted, Blender
+     cleanly removes the corresponding object, eliminating StructRNA ghost errors.
+   - Usage:
+     - Create COL_FIXTURES (for fixture models) and COL_LIGHTING (for lights), and set up templates.
+     - Set the [Sync Folder] in the panel to the directory containing the JSON files.
+     - Camera: click [Start Camera Sync] to activate background sync.
+     - Lights: after exporting points from Rhino, click [Sync Rhino Lights] for a one-click update.
 
-3. 全自動基礎材質指派 (Auto Basic Material Assigner)
-   ▶ 功能描述：
-      - 通用與特化綁定：切除前綴後智慧全場指派；並強制 LAYER_SUFFIX_LT 巢狀圖層內所有物件
-        (含無材質空槽) 無痛綁定為指定發光材質。
-      - 終極防護印章與本尊機制：內建「本尊尋找機制」。更新模型時若產生無印章的 .001，
-        腳本會自動將其靈魂轉移回「已手動調整並蓋過印章的本尊材質」，徹底根除材質增生與覆蓋。
-   ▶ 操作方式：
-      - 在 `Materials` 放入物件並賦予母體材質（如 DW_Glass, D_Frame；LAYER_SUFFIX_LT 指定為 MAT_PRESET_LT_K）。
-      - 點擊 [Assign Basic Mat.] 按鈕，瞬間完成全場精確替換。
+3. Auto Basic Material Assigner
+   - General and specialised binding: strips prefixes and intelligently assigns materials
+     scene-wide; forces all objects (including empty material slots) inside LAYER_SUFFIX_LT
+     nested layers to bind the designated emissive material.
+   - Stamp & prototype mechanism: built-in prototype lookup. If a model update generates
+     an unstamped .001 duplicate, the script automatically re-routes it back to the
+     manually adjusted stamped prototype, eliminating material proliferation and overwriting.
+   - Usage:
+     - Place objects in the `Materials` collection and assign prototype materials
+       (e.g. DW_Glass, D_Frame; LAYER_SUFFIX_LT mapped to MAT_PRESET_LT_K).
+     - Click [Assign Basic Mat.] to instantly replace all matching materials scene-wide.
 
-【變數連動與注意事項 / Notes】
-- 同步目錄由 RHINO_OT_ResetPath 自動填入 R2B_Path.txt 的 DataPath 目錄。
-- 燈光同步依賴於 COL_FIXTURES 與 COL_LIGHTING 集合中的母體物件名稱。
-- 攝影機同步為背景 Timer 運作，關閉外掛或 Blender 前建議先點擊 [Stop Camera Sync]。
+[Notes]
+- The sync directory is auto-populated by RHINO_OT_ResetPath using the DataPath from R2B_Path.txt.
+- Light sync relies on the template object names inside COL_FIXTURES and COL_LIGHTING.
+- Camera sync runs as a background Timer; stop it with [Stop Camera Sync] before closing the addon or Blender.
 
 """
 
@@ -57,7 +62,7 @@ bl_info = {
     "version": (0, 0, 50),
     "blender": (4, 5, 0),
     "location": "N-Panel > LoopFlow 3dm",
-    "description": "R2B 雙 JSON 效能版 (V50 常數集中化 + LoopFlow 3dm Panel)",
+    "description": "R2B Dual-JSON performance build (V50 centralised constants + LoopFlow 3dm Panel)",
     "category": "Import-Export",
 }
 
@@ -70,31 +75,31 @@ from .read3dm import read_3dm
 from bpy_extras.io_utils import ImportHelper
 
 # -------------------------------------------------------------------
-# 模組層級常數（集中管理，方便日後調整）
+# Module-level constants (centralised for easy tuning)
 # -------------------------------------------------------------------
 
-# 同步檔名
+# Sync file names
 CAMERA_SYNC_FILE   = "R2B_Camera_Sync.json"
 LIGHT_SYNC_FILE    = "R2B_Light_Sync.json"
 
-# Collection 名稱
+# Collection names
 COL_FIXTURES       = "Lighting Fixtures"
 COL_LIGHTING       = "Lighting"
 COL_LIGHT_POINTS   = "R2B Lighting Points"
-COL_MATERIALS      = "Materials"       # Assign Basic Mat. 母體庫 Collection（功能暫停用）
+    COL_MATERIALS      = "Materials"       # Prototype library Collection for Assign Basic Mat. (currently disabled)
 
-# 材質相關常數
+# Material constants
 MAT_PRESET_LT_K    = "Preset_Lighting_K"
 LAYER_SUFFIX_LT    = "5_LT"
 MAT_AUTO_5LT       = "Auto_5LT_Light"
 
-# 技術參數
-CAMERA_POLL_INTERVAL = 0.03     # 攝影機輪詢間隔（秒）
-DEFAULT_LENS         = 50.0     # 焦距預設值（mm）
-EMPTY_DISPLAY_SIZE   = 0.3      # 燈光點位 Empty 顯示大小
+# Technical parameters
+CAMERA_POLL_INTERVAL = 0.03     # Camera poll interval (seconds)
+DEFAULT_LENS         = 50.0     # Default focal length (mm)
+EMPTY_DISPLAY_SIZE   = 0.3      # Display size for light-point Empties
 
 # -------------------------------------------------------------------
-# 1. 核心輔助函數
+# 1. Core helper functions
 # -------------------------------------------------------------------
 def merge_duplicate_materials():
     count = 0
@@ -129,7 +134,7 @@ def get_all_objects_in_collection(collection):
     return objs
 
 # -------------------------------------------------------------------
-# 2. 視窗同步引擎 (純攝影機 - 極度輕量化)
+# 2. Viewport sync engine (camera only - ultra-lightweight)
 # -------------------------------------------------------------------
 def update_viewport_from_json():
     wm = bpy.context.window_manager
@@ -192,12 +197,12 @@ def update_viewport_from_json():
     return CAMERA_POLL_INTERVAL
 
 # -------------------------------------------------------------------
-# 3. 燈光同步引擎 (手動按鈕觸發)
+# 3. Light sync engine (triggered by manual button)
 # -------------------------------------------------------------------
 class RHINO_OT_SyncLights(bpy.types.Operator):
     bl_idname = "import_3dm.sync_lights"
     bl_label = "Sync Rhino Lights"
-    bl_description = "讀取 R2B_Light_Sync.json，手動執行燈光母體對位、生成與孤兒回收"
+    bl_description = "Read R2B_Light_Sync.json and manually align/generate fixtures and clean up orphans"
 
     def execute(self, context):
         scene = context.scene
@@ -206,7 +211,7 @@ class RHINO_OT_SyncLights(bpy.types.Operator):
         scale_factor = scene.rhino_cam_scale
 
         if not os.path.exists(json_path):
-            self.report({'WARNING'}, f"找不到檔案: {json_path}！請確認目錄正確。")
+            self.report({'WARNING'}, f"File not found: {json_path}! Please verify the directory.")
             return {'CANCELLED'}
 
         try:
@@ -214,7 +219,7 @@ class RHINO_OT_SyncLights(bpy.types.Operator):
                 data = json.load(f)
 
             if "points" not in data:
-                self.report({'INFO'}, "JSON 中沒有燈光點位資料。")
+                self.report({'INFO'}, "No light point data found in JSON.")
                 return {'FINISHED'}
 
             light_col = bpy.data.collections.get(COL_LIGHT_POINTS)
@@ -309,7 +314,7 @@ class RHINO_OT_SyncLights(bpy.types.Operator):
                     except ReferenceError:
                         pass
 
-            # 【V49 修復】點位刪除連坐機制
+            # [V49 fix] Cascade-delete orphaned empties when Rhino points are removed
             empties_to_remove = []
             for obj in light_col.objects:
                 try:
@@ -336,35 +341,36 @@ class RHINO_OT_SyncLights(bpy.types.Operator):
                 except ReferenceError:
                     pass
 
-            self.report({'INFO'}, f"✨ 燈光同步完成！共處理了 {len(data['points'])} 個點位。")
+            self.report({'INFO'}, f"Light sync complete! Processed {len(data['points'])} point(s).")
         except Exception as e:
-            self.report({'ERROR'}, f"同步失敗: {e}")
+            self.report({'ERROR'}, f"Sync failed: {e}")
 
         return {'FINISHED'}
 
 # -------------------------------------------------------------------
-# 4. 其他功能運算子 (Operators)
+# 4. Additional operators
 # -------------------------------------------------------------------
 
 # ===========================================================================
-# [DISABLED] RHINO_OT_AssignBasicMat — Assign Basic Mat. 全場材質自動指派
-# 取消下方所有 # 前綴可重新啟用；同時需取消 classes tuple 與 Panel draw 中的對應註解
+# [DISABLED] RHINO_OT_AssignBasicMat — Assign Basic Mat. full-scene auto-assign
+# Remove all leading '#' below to re-enable; also uncomment corresponding entries
+# in the classes tuple and Panel draw method.
 # ===========================================================================
 # class RHINO_OT_AssignBasicMat(bpy.types.Operator):
 #     bl_idname = "import_3dm.assign_basic_mat"
 #     bl_label = "Assign Basic Mat."
-#     bl_description = "自動掃描 Materials 母體庫，以關鍵字替換全場材質"
+#     bl_description = "Auto-scan the Materials library collection and replace scene materials by keyword"
 #
 #     def execute(self, context):
 #         mat_col = bpy.data.collections.get(COL_MATERIALS)
 #         if not mat_col:
-#             self.report({'WARNING'}, "找不到 'Materials' Collection，請先建立並放入母體物件！")
+#             self.report({'WARNING'}, "'Materials' Collection not found. Please create it and add source objects!")
 #             return {'CANCELLED'}
 #
 #         assigned_phase1 = 0
 #         assigned_phase2 = 0
 #
-#         # 第一階段：特化規則 LAYER_SUFFIX_LT（本尊尋找防呆版）
+#         # Phase 1: specialised rule LAYER_SUFFIX_LT (prototype-lookup safe version)
 #         preset_k_mat = None
 #         for obj in mat_col.objects:
 #             if MAT_PRESET_LT_K in obj.name and obj.material_slots and obj.material_slots[0].material:
@@ -378,7 +384,7 @@ class RHINO_OT_SyncLights(bpy.types.Operator):
 #                 break
 #
 #         if not preset_k_mat:
-#             self.report({'WARNING'}, f"在 {COL_MATERIALS} 集合中找不到包含 '{MAT_PRESET_LT_K}' 的材質，跳過 {LAYER_SUFFIX_LT} 綁定！")
+#             self.report({'WARNING'}, f"No material containing '{MAT_PRESET_LT_K}' found in {COL_MATERIALS}. Skipping {LAYER_SUFFIX_LT} binding!")
 #         else:
 #             target_objs = set()
 #             for col in bpy.data.collections:
@@ -419,7 +425,7 @@ class RHINO_OT_SyncLights(bpy.types.Operator):
 #                                     new_mat["r2b_auto_assigned"] = True
 #                                     assigned_phase1 += 1
 #
-#         # 第二階段：通用規則（本尊尋找防呆版）
+#         # Phase 2: general rule (prototype-lookup safe version)
 #         source_mats = {}
 #         for obj in mat_col.objects:
 #             for slot in obj.material_slots:
@@ -464,29 +470,29 @@ class RHINO_OT_SyncLights(bpy.types.Operator):
 #                         new_mat["r2b_auto_assigned"] = True
 #                         assigned_phase2 += 1
 #
-#         self.report({'INFO'}, f"✨ 魔法完成！{LAYER_SUFFIX_LT} 強制替換 {assigned_phase1} 個，基礎材質替換 {assigned_phase2} 個。")
+#         self.report({'INFO'}, f"Done! {LAYER_SUFFIX_LT} forced {assigned_phase1} replacement(s); basic materials replaced {assigned_phase2}.")
 #         return {'FINISHED'}
 # ===========================================================================
 
 class RHINO_OT_ResetProp(bpy.types.Operator):
     bl_idname = "import_3dm.reset_prop"
     bl_label = "Reset Property"
-    bl_description = "恢復為預設值"
+    bl_description = "Reset to default value"
     target: bpy.props.StringProperty()
 
     def execute(self, context):
         if self.target == "scale":
             context.scene.rhino_cam_scale = 0.01
-            self.report({'INFO'}, "Scale Factor 已恢復預設值 (0.01)")
+            self.report({'INFO'}, "Scale Factor reset to default (0.01)")
         elif self.target == "lens":
             context.scene.rhino_cam_lens_mult = 1.80
-            self.report({'INFO'}, "Lens Multiplier 已恢復預設值 (1.80)")
+            self.report({'INFO'}, "Lens Multiplier reset to default (1.80)")
         return {'FINISHED'}
 
 class RHINO_OT_ToggleCamSync(bpy.types.Operator):
     bl_idname = "import_3dm.toggle_cam_sync"
     bl_label = "Toggle Camera Sync"
-    bl_description = "啟動或關閉與 Rhino 的視窗鏡頭同步"
+    bl_description = "Start or stop camera viewport sync with Rhino"
 
     def execute(self, context):
         wm = context.window_manager
@@ -494,32 +500,32 @@ class RHINO_OT_ToggleCamSync(bpy.types.Operator):
 
         if current_state == 1:
             wm["livelink_viewport_active"] = 0
-            self.report({'INFO'}, "鏡頭同步：已關閉")
+            self.report({'INFO'}, "Camera sync: stopped")
         else:
             wm["livelink_viewport_active"] = 1
             wm["livelink_last_mtime"] = 0.0
             bpy.app.timers.register(update_viewport_from_json)
-            self.report({'INFO'}, "鏡頭同步：已啟動")
+            self.report({'INFO'}, "Camera sync: started")
 
         return {'FINISHED'}
 
 class RHINO_OT_ShowHelp(bpy.types.Operator):
     bl_idname = "import_3dm.show_help"
-    bl_label = "Rhino Live Link 快速指南"
-    bl_description = "顯示 R2B 工作流的操作步驟與注意事項"
+    bl_label = "Rhino Live Link Quick Guide"
+    bl_description = "Show the R2B workflow steps and notes"
 
     def draw(self, context):
         layout = self.layout
         box = layout.box()
-        box.label(text="【模型同步】", icon='MESH_DATA')
-        box.label(text="1. Rhino: 執行 LiveLink_R2B_Models.py（選擇圖層後產生 R2B.3dm）")
-        box.label(text="2. Blender: 點擊 'Import Models' 或 'Update Models'")
+        box.label(text="[Model Sync]", icon='MESH_DATA')
+        box.label(text="1. Rhino: run LiveLink_R2B_Models.py (select a layer to produce R2B.3dm)")
+        box.label(text="2. Blender: click 'Import Models' or 'Update Models'")
         layout.separator()
         box2 = layout.box()
-        box2.label(text="【自動材質與燈光】", icon='LIGHT')
-        box2.label(text="1. 將母體物件放入 Materials 以使用 Assign Basic Mat")
-        box2.label(text=f"2. 建立 {COL_FIXTURES} / {COL_LIGHTING} 以連動 Rhino 點位")
-        box2.label(text="3. 設定 Sync Folder（點 Auto-Detect 自動填入），即可一鍵更新燈光與鏡頭")
+        box2.label(text="[Auto Material & Lights]", icon='LIGHT')
+        box2.label(text="1. Place prototype objects in Materials to use Assign Basic Mat")
+        box2.label(text=f"2. Create {COL_FIXTURES} / {COL_LIGHTING} to link Rhino point positions")
+        box2.label(text="3. Set Sync Folder (click Auto-Detect to fill automatically), then update lights and camera in one click")
 
     def execute(self, context):
         return {'FINISHED'}
@@ -530,25 +536,25 @@ class RHINO_OT_ShowHelp(bpy.types.Operator):
 class RHINO_OT_ResetPath(bpy.types.Operator):
     bl_idname = "import_3dm.reset_path"
     bl_label = "Auto-Detect Paths"
-    bl_description = "自動將模型路徑設為 //R2B.3dm，並將 JSON 同步目錄設為 R2B_Path.txt 的 DataPath"
+    bl_description = "Auto-set the model path to //R2B.3dm and the JSON sync directory to DataPath from R2B_Path.txt"
 
     def execute(self, context):
         blend_path = bpy.data.filepath
         if not blend_path:
-            self.report({'ERROR'}, "請先儲存 Blender 檔案以取得目錄")
+            self.report({'ERROR'}, "Please save the Blender file first to obtain its directory")
             return {'CANCELLED'}
 
-        # 模型路徑：相對於 Blender 檔案的 R2B.3dm
+        # Model path: R2B.3dm relative to the Blender file
         context.scene.rhino_update_path = "//R2B.3dm"
 
-        # Sync Folder：指向 R2B_Path.txt 的 DataPath（AppData 絕對路徑）
+        # Sync Folder: points to DataPath from R2B_Path.txt (absolute AppData path)
         data_dir = os.path.join(
             os.getenv("APPDATA", ""),
             "McNeel", "Rhinoceros", "8.0", "scripts", "LoopFlow_R2B", "Data"
         )
         context.scene.rhino_json_dir = data_dir
 
-        self.report({'INFO'}, "路徑已自動設定（模型: //R2B.3dm, JSON: {})".format(data_dir))
+        self.report({'INFO'}, "Paths auto-configured (Model: //R2B.3dm, JSON: {})".format(data_dir))
         return {'FINISHED'}
 
 class RHINO_OT_QuickSync(bpy.types.Operator):
@@ -558,15 +564,15 @@ class RHINO_OT_QuickSync(bpy.types.Operator):
     @classmethod
     def description(cls, context, properties):
         if getattr(properties, 'update_mats', False):
-            return "匯入模型並更新材質 (適合首次載入，會覆蓋現有未保護之材質)"
-        return "僅更新模型幾何體，完美保留 Blender 內已調整過的材質與圖層狀態"
+            return "Import model and update materials (recommended for first import; overwrites unprotected materials)"
+        return "Update geometry only, perfectly preserving materials and layer states already configured in Blender"
 
     update_mats: bpy.props.BoolProperty(default=False)
 
     def execute(self, context):
         path = bpy.path.abspath(context.scene.rhino_update_path)
         if not os.path.exists(path):
-            self.report({'ERROR'}, f"找不到檔案: {path}")
+            self.report({'ERROR'}, f"File not found: {path}")
             return {'CANCELLED'}
 
         col_states = {}
@@ -624,14 +630,14 @@ class RHINO_OT_QuickSync(bpy.types.Operator):
                 obj.display_bounds_type = state.get('display_bounds_type', 'BOX')
 
         if merged > 0:
-            self.report({'INFO'}, f"模型已更新 (保留狀態，合併 {merged} 材質)")
+            self.report({'INFO'}, f"Model updated (states preserved, merged {merged} material(s))")
         else:
-            self.report({'INFO'}, "模型已更新 (保留狀態)")
+            self.report({'INFO'}, "Model updated (states preserved)")
 
         return {'FINISHED'}
 
 # -------------------------------------------------------------------
-# 5. 介面板與匯入定義
+# 5. Panel and import operator
 # -------------------------------------------------------------------
 class Import3dm(bpy.types.Operator, ImportHelper):
     bl_idname = "import_3dm.some_data"
@@ -709,7 +715,7 @@ class RHINO_PT_QuickUpdate(bpy.types.Panel):
         layout.operator("import_3dm.show_help", text="Help & Guide", icon='HELP')
 
 # -------------------------------------------------------------------
-# 6. 註冊邏輯
+# 6. Registration
 # -------------------------------------------------------------------
 classes = (
     Import3dm,
@@ -734,10 +740,10 @@ def register():
         name="Sync Folder", default="//", subtype='DIR_PATH'
     )
     bpy.types.Scene.rhino_cam_scale = bpy.props.FloatProperty(
-        name="Scale Factor", description="單位轉換比例 (公分為 0.01)", default=0.01, min=0.0001, max=100.0
+        name="Scale Factor", description="Unit conversion ratio (0.01 for centimetres)", default=0.01, min=0.0001, max=100.0
     )
     bpy.types.Scene.rhino_cam_lens_mult = bpy.props.FloatProperty(
-        name="Lens Multiplier", description="畫面太廣時，調高此數值", default=1.80, min=0.1, max=5.0
+        name="Lens Multiplier", description="Increase this value if the view appears too wide", default=1.80, min=0.1, max=5.0
     )
 
 def unregister():

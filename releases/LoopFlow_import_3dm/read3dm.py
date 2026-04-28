@@ -1,4 +1,4 @@
-# [read3dm.py 完整程式碼]
+# [read3dm.py full source]
 
 import os.path
 import bpy
@@ -51,15 +51,15 @@ def read_3dm(context : bpy.types.Context, options : Dict[str, Any]) -> Set[str]:
     scale = r3d.UnitSystem.UnitScale(model.Settings.ModelUnitSystem, r3d.UnitSystem.Meters) / context.scene.unit_settings.scale_length
     layerids, materials = {}, {}
 
-    # 使用者原本的選項 (決定是否覆蓋節點)
+    # User's original option (determines whether to overwrite node trees)
     update_mats_flag = options.get("update_materials", False)
 
-    # 1. 執行材質同步 (material.py 已經改寫為：若 flag 為 False 且已有節點，則跳過內容覆蓋)
+    # 1. Run material sync (material.py is written to skip node overwriting when flag=False and nodes already exist)
     converters.handle_materials(context, model, materials, update_mats_flag)
     converters.handle_layers(context, model, toplayer, layerids, materials, update_mats_flag, True)
 
-    # 2. 強制開啟「材質連結」開關
-    # 這是為了確保即便按下 [X]，新匯入的幾何體也會正確地「連上」那顆保留了編輯內容的材質球
+    # 2. Force-enable material linking
+    # Ensures newly imported geometry is correctly linked to the preserved, edited material even when [X] is used
     link_options = options.copy()
     link_options["update_materials"] = True 
 
@@ -70,7 +70,7 @@ def read_3dm(context : bpy.types.Context, options : Dict[str, Any]) -> Set[str]:
         
         object_name = attr.Name if attr.Name else f"{str(og.ObjectType).split('.')[1]} {str(attr.Id)}"
         
-        # 取得材質名稱
+        # Get material name
         mat_index = attr.MaterialIndex
         if attr.MaterialSource == r3d.ObjectMaterialSource.MaterialFromLayer:
             mat_index = rhinolayer.RenderMaterialIndex
@@ -83,12 +83,12 @@ def read_3dm(context : bpy.types.Context, options : Dict[str, Any]) -> Set[str]:
 
         view_color = rhinolayer.Color if attr.ColorSource == r3d.ObjectColorSource.ColorFromLayer else attr.ObjectColor
         
-        # 從對照表中抓取材質 (可能是已更名、已保留編輯的舊材質)
+        # Look up the material in the mapping table (may be a renamed/preserved existing material)
         blmat = materials.get(matname, materials[converters.material.DEFAULT_RHINO_MATERIAL])
         
         layer = layerids[str(rhinolayer.Id)][1]
         
-        # 執行幾何體轉換，並帶入強制連結開關
+        # Convert geometry and pass in the forced-link flag
         converters.convert_object(context, ob, object_name, layer, blmat, view_color, scale, link_options)
 
     if toplayer.name not in context.scene.collection.children:

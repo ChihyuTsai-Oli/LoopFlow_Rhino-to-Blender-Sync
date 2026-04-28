@@ -9,7 +9,7 @@ from typing import Any, Dict
 
 def tag_data(idblock : bpy.types.ID, tag_dict: Dict[str, Any]) -> None:
     """
-    將 Rhino 的原始數據寫入 Blender 物件的自定義屬性中
+    Write Rhino source data into Blender object custom properties.
     """
     idblock['rhid'] = str(tag_dict.get('rhid', None))
     idblock['rhname'] = tag_dict.get('rhname', None)
@@ -28,14 +28,14 @@ all_dict = dict()
 
 def clear_all_dict():
     """
-    相容性修正：Addon 原始的清理函式名稱
+    Compatibility shim: original cleanup function name from the base addon.
     """
     global all_dict
     all_dict = dict()
 
 def reset_all_dict(context):
     """
-    執行清理並重新初始化快取字典
+    Run cleanup and reinitialise the cache dictionary.
     """
     clear_all_dict()
     bases = [
@@ -45,7 +45,7 @@ def reset_all_dict(context):
         context.blend_data.curves
     ]
     for base in bases:
-        # 取得類型名稱作為 key
+        # Use the type name as key
         t = repr(base).split(',')[1]
         dct = all_dict.setdefault(t, dict())
         for item in base:
@@ -55,13 +55,13 @@ def reset_all_dict(context):
 
 def get_dict_for_base(base):
     global all_dict
-    # 從 repr 獲取集合類型字串，例如 'objects'
+    # Derive the collection type string from repr, e.g. 'objects'
     t = repr(base).split(',')[1]
     return all_dict.setdefault(t, dict())
 
 def get_or_create_iddata(base : bpy.types.bpy_prop_collection, tag_dict: Dict[str, Any], obdata : bpy.types.ID) -> bpy.types.ID:
     """
-    取得或建立數據塊，並同步名稱
+    Get or create a data block and sync its display name.
     """
     founditem : bpy.types.ID = None
     guid = tag_dict.get('rhid', None)
@@ -75,7 +75,7 @@ def get_or_create_iddata(base : bpy.types.bpy_prop_collection, tag_dict: Dict[st
 
     if founditem:
         theitem = founditem
-        # 同步顯示名稱
+        # Sync display name
         if name and theitem.name != name:
             theitem.name = name
         theitem['rhname'] = name
@@ -83,7 +83,7 @@ def get_or_create_iddata(base : bpy.types.bpy_prop_collection, tag_dict: Dict[st
         if obdata and type(theitem) != type(obdata):
             theitem.data = obdata
     else:
-        # 建立新數據
+        # Create new data block
         if obdata:
             theitem = base.new(name=name, object_data=obdata)
         else:

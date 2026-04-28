@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 """
 ============================================================
-程式名稱 (Program) : LiveLink R2B 快速開啟工具
-版本 (Version)     : v1.0
-日期 (Date)        : 2026-04-28
-開發者 (Author)    : Cursor + Claude Sonnet 4.6
-開發環境 (Env)     : Rhino 8 (CPython 3.9) / Python 3
+Script Name        : LiveLink R2B Quick Open Utility
+Version            : v1.0
+Date               : 2026-04-28
+Author             : Cursor + Claude Sonnet 4.6
+Environment        : Rhino 8 (CPython 3.9) / Python 3
 ============================================================
-【功能說明】
-在 Rhino 指令列提供三個快速開啟選項：
-  Config     → 開啟 R2B_Path.txt 設定檔
-  DataFolder → 開啟 Data\ 資料夾
-  DebugLog   → 開啟 cursor_R2B_debug_log.txt 除錯日誌
+[Description]
+Provides three quick-open options from the Rhino command line:
+  Config     → Open R2B_Path.txt config file
+  DataFolder → Open the Data\ folder
+  DebugLog   → Open cursor_R2B_debug_log.txt debug log
 
-【Rhino 工具列按鈕 Macro】
-  ! _-RunPythonScript "%APPDATA%\McNeel\Rhinoceros\8.0\scripts\LoopFlow_R2B\Python\LiveLink_R2B_Open.py"
+[Rhino Toolbar Button Macro]
+  ! _-RunPythonScript "%APPDATA%\McNeel\Rhinoceros\8.0\scripts\LoopFlow_R2B\Py\LiveLink_R2B_Open.py"
 ============================================================
 """
 import rhinoscriptsyntax as rs
@@ -23,27 +23,27 @@ import sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _HERE)
-from LiveLink_R2B_Config import CONFIG_FILE, DATA_DIR, DEBUG_LOG_FILE, load_r2b_config
+from LiveLink_R2B__Config import CONFIG_FILE, DATA_DIR, DEBUG_LOG_FILE, load_r2b_config
 
-mode = rs.GetString("R2B 開啟", "Config", ["Config", "DataFolder", "DebugLog"])
+mode = rs.GetString("R2B Open", "Config", ["Config", "DataFolder", "DebugLog"])
 
 if not mode:
-    pass  # 使用者按 Esc，靜默結束
+    pass  # User pressed Esc — exit silently
 
 elif mode == "Config":
-    load_r2b_config()  # 確保設定檔存在
+    load_r2b_config()  # Ensure config file exists
     os.startfile(CONFIG_FILE)
-    print("R2B: 已開啟 {}".format(CONFIG_FILE))
+    print("R2B: Opened {}".format(CONFIG_FILE))
 
 elif mode == "DataFolder":
     if not os.path.exists(DATA_DIR):
-        load_r2b_config()  # 觸發自動建立 Data\ 目錄
+        load_r2b_config()  # Trigger auto-creation of Data\ directory
     os.startfile(DATA_DIR)
-    print("R2B: 已開啟 {}".format(DATA_DIR))
+    print("R2B: Opened {}".format(DATA_DIR))
 
 elif mode == "DebugLog":
-    load_r2b_config()  # 確保 Data\ 目錄存在
+    load_r2b_config()  # Ensure Data\ directory exists
     if not os.path.exists(DEBUG_LOG_FILE):
-        open(DEBUG_LOG_FILE, 'a').close()  # 首次使用時建立空白日誌
+        open(DEBUG_LOG_FILE, 'a').close()  # Create empty log on first use
     os.startfile(DEBUG_LOG_FILE)
-    print("R2B: 已開啟 {}".format(DEBUG_LOG_FILE))
+    print("R2B: Opened {}".format(DEBUG_LOG_FILE))

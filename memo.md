@@ -14,8 +14,8 @@
 │   ├── R2B_Camera_Sync.json      ← Camera.py 輸出，Blender 讀取
 │   └── R2B_Light_Sync.json       ← Light.py 輸出，Blender 讀取
 │
-└── Python\                       ← Rhino 端 Python 腳本
-    ├── LiveLink_R2B_Config.py
+└── Py\                           ← Rhino 端 Python 腳本
+    ├── LiveLink_R2B__Config.py
     ├── LiveLink_R2B_Camera.py
     ├── LiveLink_R2B_Light.py
     ├── LiveLink_R2B_Models.py

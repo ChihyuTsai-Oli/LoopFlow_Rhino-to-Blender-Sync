@@ -1,45 +1,45 @@
 # -*- coding: utf-8 -*-
 """
 ============================================================
-模組名稱 (Module)  : LiveLink_R2B_Config
-版本 (Version)     : v1.0
-日期 (Date)        : 2026-04-27
-開發者 (Author)    : Cursor + Claude Sonnet 4.6
-開發環境 (Env)     : Rhino 8 (CPython 3.9) / Python 3
+Module Name        : LiveLink_R2B__Config
+Version            : v1.0
+Date               : 2026-04-28
+Author             : Cursor + Claude Sonnet 4.6
+Environment        : Rhino 8 (CPython 3.9) / Python 3
 ============================================================
-【功能說明】
-LiveLink R2B 系列腳本的共用設定模組。
-統一管理 R2B_Path.txt 的讀取、寫入與預設值，
-確保所有腳本使用一致的設定邏輯。
+[Description]
+Shared configuration module for the LiveLink R2B script series.
+Centralizes reading, writing, and default values for R2B_Path.txt,
+ensuring consistent configuration logic across all scripts.
 
-【放置位置】
-%APPDATA%\McNeel\Rhinoceros\8.0\scripts\LoopFlow_R2B\Python\LiveLink_R2B_Config.py
+[Install Location]
+%APPDATA%\McNeel\Rhinoceros\8.0\scripts\LoopFlow_R2B\Py\LiveLink_R2B__Config.py
 
-【使用方式】
-各腳本開頭加入：
+[Usage]
+Add the following lines to the top of each script:
     import os, sys
     _HERE = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, _HERE)
-    from LiveLink_R2B_Config import load_r2b_config, save_r2b_config, DATA_DIR
+    from LiveLink_R2B__Config import load_r2b_config, save_r2b_config, DATA_DIR
 
-【變數連動注意事項】
-- 設定檔：%APPDATA%\McNeel\Rhinoceros\8.0\scripts\LoopFlow_R2B\Data\R2B_Path.txt
-- 除錯日誌：%APPDATA%\McNeel\Rhinoceros\8.0\scripts\LoopFlow_R2B\Data\cursor_R2B_debug_log.txt
+[Variable Notes]
+- Config file : %APPDATA%\McNeel\Rhinoceros\8.0\scripts\LoopFlow_R2B\Data\R2B_Path.txt
+- Debug log   : %APPDATA%\McNeel\Rhinoceros\8.0\scripts\LoopFlow_R2B\Data\cursor_R2B_debug_log.txt
 ============================================================
 """
 import os
 
-# ── 全域路徑推算（依安裝位置自動推算，不依賴硬編碼） ──────────────────
+# ── Global path resolution (auto-derived from install location, no hard-coding) ──
 _PYTHON_DIR    = os.path.dirname(os.path.abspath(__file__))
 INSTALL_DIR    = os.path.dirname(_PYTHON_DIR)
 DATA_DIR       = os.path.join(INSTALL_DIR, "Data")
 CONFIG_FILE    = os.path.join(DATA_DIR, "R2B_Path.txt")
 DEBUG_LOG_FILE = os.path.join(DATA_DIR, "cursor_R2B_debug_log.txt")
 
-# 所有腳本共用的完整預設值（單一真理來源）
+# Complete default values shared by all scripts (single source of truth)
 DEFAULT_CONFIG = {
     "DataPath":       DATA_DIR,
-    "ModelDir":       "",           # 空白 = fallback 至 Rhino 作業檔同目錄
+    "ModelDir":       "",           # Empty = fallback to same directory as Rhino working file
     "LightLayer":     "R2B_LT_Points",
     "CameraFile":     "R2B_Camera_Sync.json",
     "LightFile":      "R2B_Light_Sync.json",
@@ -48,7 +48,7 @@ DEFAULT_CONFIG = {
     "LastModelLayer": "",
 }
 
-# 寫入設定檔時的欄位順序
+# Field order when writing the config file
 _FIELD_ORDER = [
     "DataPath",
     "ModelDir",
@@ -63,10 +63,10 @@ _FIELD_ORDER = [
 
 def load_r2b_config():
     """
-    讀取全域設定檔 R2B_Path.txt。
-    - 若檔案不存在：自動建立並寫入所有預設欄位。
-    - 若檔案存在但缺少欄位：自動補齊缺少的欄位並回寫。
-    - 確保 DataPath 資料夾存在。
+    Load the global config file R2B_Path.txt.
+    - If missing: auto-create and write all default fields.
+    - If present but incomplete: backfill missing fields and rewrite.
+    - Ensures the DataPath directory exists.
     """
     config = DEFAULT_CONFIG.copy()
 
@@ -87,7 +87,7 @@ def load_r2b_config():
         except Exception:
             pass
 
-        # 補齊缺少的欄位
+        # Backfill any missing fields
         needs_update = False
         try:
             with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
@@ -112,7 +112,7 @@ def load_r2b_config():
 
 
 def save_r2b_config(config):
-    """依固定順序寫入設定檔，保留使用者已修改的值。"""
+    """Write the config file in a fixed field order, preserving any user-modified values."""
     if not os.path.exists(DATA_DIR):
         try:
             os.makedirs(DATA_DIR)

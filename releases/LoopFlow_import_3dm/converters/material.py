@@ -1,4 +1,4 @@
-# [material.py 完整程式碼]
+# [material.py full source]
 
 import binascii
 import struct
@@ -18,7 +18,7 @@ DEFAULT_TEXT_MATERIAL = "Rhino Default Text"
 DEFAULT_RHINO_MATERIAL_ID = uuid.UUID("00000000-ABCD-EF01-2345-000000000000")
 DEFAULT_RHINO_TEXT_MATERIAL_ID = uuid.UUID("00000000-ABCD-EF01-6789-000000000000")
 
-_white = (0.8, 0.8, 0.8, 1.0) # 修正為灰白色
+_white = (0.8, 0.8, 0.8, 1.0) # Corrected to off-white
 
 def tobytes(d):
     t = type(d)
@@ -43,7 +43,7 @@ def get_float_field(rm, field_name):
 def material_name(m): return m.Name if m and m.Name else DEFAULT_RHINO_MATERIAL
 def rendermaterial_name(m): return m.Name if m and m.Name else DEFAULT_RHINO_MATERIAL
 
-# --- 材質轉換處理器 (全部導向 Principled BSDF) ---
+# --- Material conversion handlers (all routed to Principled BSDF) ---
 
 def paint_material(rm, bm):
     p = PrincipledBSDFWrapper(bm, is_readonly=False)
@@ -99,20 +99,20 @@ def harvest_from_rendercontent(model, mat, bm):
 def handle_embedded_files(model): pass
 
 def handle_materials(context, model : r3d.File3dm, materials, update):
-    """智慧材質同步邏輯"""
+    """Smart material sync logic."""
     handle_embedded_files(model)
 
-    # 處理預設材質
+    # Handle default materials
     for d_name, d_id, d_handler in [(DEFAULT_RHINO_MATERIAL, DEFAULT_RHINO_MATERIAL_ID, default_material), (DEFAULT_TEXT_MATERIAL, DEFAULT_RHINO_TEXT_MATERIAL_ID, default_text_material)]:
         if d_name not in materials:
             tags = utils.create_tag_dict(d_id, d_name)
             blmat = utils.get_or_create_iddata(context.blend_data.materials, tags, None)
-            # 若為全新材質 (無節點)，則執行初始設定
+            # If brand-new (no nodes), run initial setup
             if not blmat.use_nodes:
                 d_handler(blmat)
             materials[d_name] = blmat
 
-    # 處理 Rhino 模型材質
+    # Handle Rhino model materials
     for mat in model.Materials:
         if not mat.PhysicallyBased: mat.ToPhysicallyBased()
         m = model.RenderContent.FindId(mat.RenderMaterialInstanceId)
@@ -120,12 +120,12 @@ def handle_materials(context, model : r3d.File3dm, materials, update):
         
         matname = rendermaterial_name(m)
         
-        # 1. 透過 GUID 在 Blender 資料庫尋找對象 (會自動處理更名)
+        # 1. Look up the material in Blender's data by GUID (handles renames automatically)
         tags = utils.create_tag_dict(m.Id, m.Name)
         blmat = utils.get_or_create_iddata(context.blend_data.materials, tags, None)
         
-        # 2. 智慧判定：是否執行 Harvest (覆蓋節點)
-        # 條件：(按下 [O] 按鈕) 或 (這是一顆完全沒有節點的全新材質)
+        # 2. Smart decision: whether to harvest (overwrite nodes)
+        # Condition: ([O] button pressed) OR (brand-new material with no nodes)
         if update or not blmat.use_nodes:
             harvest_from_rendercontent(model, m, blmat)
             

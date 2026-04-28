@@ -1,19 +1,95 @@
 # -*- coding: utf-8 -*-
 """
 ==============================================================================
-工具名稱: LoopFlow Toolkit (合併 Export / Rename / Selection 三工具)
-版本資訊: v1.0.0 (Unified Addon)
-開發日期: 2026-04-27
-開發者: Cursor (Claude Sonnet 4.6)
-開發環境: Blender 4.5.0+ (Python 3.11 / CPython 核心)
+Tool Name          : LoopFlow Toolkit (Export / Rename / Selection unified package)
+Version            : v1.0
+Date               : 2026-04-28
+Author             : Cursor + Claude Sonnet 4.6
+Environment        : Blender 4.5.0+ (Python 3.11 / CPython core)
 ==============================================================================
 
-此 addon 整合三支獨立工具為單一統一套件，N Panel 統一分類為 'LoopFlow Toolkit'。
+This addon consolidates three independent tools into a single unified package.
+All panels are grouped under the 'LoopFlow Toolkit' N-Panel category.
 
-子工具包含：
-1. Export Tools：全場景批次匯出 + 精準複選匯出 USDZ
-2. Rename Tools：Collection 與 Object 的智慧批次命名
-3. Selection Tools：群組化、解散、壓平與材質隔離
+Included tools:
+1. Export Tools   — Full-scene batch export + selective multi-collection USDZ export
+2. Rename Tools   — Smart batch naming for Collections and Objects
+3. Selection Tools — Group, ungroup, flatten, and material isolation
+
+==============================================================================
+[ Export Tools — Features & Operations ]
+
+1. Export All to USD (Full scene batch)
+   - Automatically exports every top-level Collection in the scene.
+
+2. Selective Export (Multi-selection export)
+   - Provides a checklist for selecting specific Collections to export.
+   - Includes All / None buttons for quick select/deselect.
+
+[ Export Tools — Alignment Logic ]
+- Before export, the root object's origin is moved to (0,0,0); children follow.
+- After export, all objects are restored to their original positions.
+
+[ Export Tools — Variable Notes ]
+- `bpy.types.Collection.r2b_export_selected`: dynamically added to Blender's native Collection
+  in register(). Must be manually deleted with `del` in unregister() to avoid data block leaks.
+- `pos_history`: stores original world coordinates keyed by root object name. If an exception
+  occurs mid-export, positions may not be restored — use Ctrl+Z to recover.
+
+==============================================================================
+[ Rename Tools — Features & Operations ]
+
+1. Rename Collections (Batch sequential naming)
+   - Batch-renames Collections selected in the Outliner (cross-window), and enables Render.
+   - Usage: select one or more Collections in the Outliner, click and enter a base name.
+
+2. Rename Objects by Collections (Collection-driven object naming)
+   - Auto-numbers objects inside a Collection using the Collection name as a base.
+   - Built-in dual counter: detects Alt+D shared meshes and appends `_Ins` suffix,
+     while syncing the underlying Mesh data name.
+   - Usage: select the Collection or objects inside it, then click.
+
+3. Rename Objects (XY spatial array numbering)
+   - Pure sequential numbering ignoring hierarchy. Forces ordering from the bottom-left
+     corner, advancing along +Y then wrapping along +X.
+   - X-axis has 1mm tolerance to prevent mis-ordering due to micro-offsets.
+     Active object gets the base name with no suffix and is placed first.
+   - Usage: select all objects to number, ensure Active is the primary object, then click.
+
+[ Rename Tools — Variable Notes ]
+- `cached_target_names` uses `"|||"` as a Collection name separator;
+  ensure Collection names do not contain this string.
+- The dual counter uses `obj.data.users > 1` to detect instances and syncs Mesh Data names.
+- Rename Objects sorts with `round(location.x, 3)` for X-axis tolerance; adjust if needed.
+
+==============================================================================
+[ Selection Tools — Features & Operations ]
+
+1. Group (Parent anchor)
+   - Usage: select multiple child Meshes, add one Mesh as Active last, then click.
+
+2. Un-Group (Batch unparent)
+   - Usage: select any member of the group to dissolve, then click.
+
+3. Re-Group (Flatten hierarchy)
+   - Usage: select a complex hierarchy, add the target Mesh as Active last, then click.
+
+4. Select All in Group (Recursive selection)
+   - Usage: select any child object in a group, then click.
+
+5. Delete Objects From Group (Smart delete)
+   - Usage: select the parent object to delete, then click.
+
+6. Material Isolator (Per-object material)
+   - Usage: select objects that need independent materials, then click.
+   * Manual follow-up: Properties panel (bottom-right) → Material tab →
+     switch the material Link dropdown from "Data" to "Object".
+
+[ Selection Tools — Variable Notes ]
+- context.active_object and context.selected_objects are the primary inputs; run in OBJECT mode.
+- Group creates a same-named Collection simultaneously; if one already exists it is reused.
+- Material Isolator calls copy() on materials; copies receive a `_Unique` suffix —
+  avoid naming conflicts with existing materials.
 
 ==============================================================================
 """
@@ -24,7 +100,7 @@ bl_info = {
     "version": (1, 0, 0),
     "blender": (4, 5, 0),
     "location": "View3D > N Panel > LoopFlow Toolkit",
-    "description": "Export、Rename、Selection 整合工具包",
+    "description": "Integrated toolkit: Export, Rename, and Selection tools",
     "category": "Object",
 }
 
@@ -113,7 +189,7 @@ def run_collection_export(context, target_col, output_dir, states):
 class EXPORTTOOLS_OT_export_multi_usd(bpy.types.Operator):
     bl_idname  = "exporttools.export_multi_usd"
     bl_label   = "Export All to USD"
-    bl_description = "匯出場景中所有頂層 Collection"
+    bl_description = "Export all top-level Collections in the scene"
     bl_options = {'REGISTER'}
 
     directory: bpy.props.StringProperty(subtype="DIR_PATH")
@@ -137,14 +213,14 @@ class EXPORTTOOLS_OT_export_multi_usd(bpy.types.Operator):
             if success: count += 1
 
         restore_visibility(master, states)
-        self.report({"INFO"}, f"全場景批次匯出完成：共 {count} 個檔案")
+        self.report({"INFO"}, f"Full-scene batch export complete: {count} file(s)")
         return {"FINISHED"}
 
 
 class EXPORTTOOLS_OT_export_selected_usd(bpy.types.Operator):
     bl_idname  = "exporttools.export_selected_usd"
     bl_label   = "Export Selected to USD"
-    bl_description = "僅匯出上方勾選的 Collection"
+    bl_description = "Export only the checked Collections above"
     bl_options = {'REGISTER'}
 
     directory: bpy.props.StringProperty(subtype="DIR_PATH")
@@ -153,7 +229,7 @@ class EXPORTTOOLS_OT_export_selected_usd(bpy.types.Operator):
         master = context.scene.collection
         selected_cols = [c for c in master.children if c.r2b_export_selected]
         if not selected_cols:
-            self.report({"ERROR"}, "請至少勾選一個 Collection！")
+            self.report({"ERROR"}, "Please check at least one Collection!")
             return {"CANCELLED"}
             
         context.window_manager.fileselect_add(self)
@@ -176,14 +252,14 @@ class EXPORTTOOLS_OT_export_selected_usd(bpy.types.Operator):
         
         restore_visibility(master, states)
         
-        self.report({"INFO"}, f"局部複選匯出成功：共 {count} 個檔案")
+        self.report({"INFO"}, f"Selective export complete: {count} file(s)")
         return {"FINISHED"}
 
 
 class EXPORTTOOLS_OT_select_all_cols(bpy.types.Operator):
     bl_idname  = "exporttools.select_all_cols"
     bl_label   = "Select / Deselect All"
-    bl_description = "全選或清除所有勾選狀態"
+    bl_description = "Select or deselect all Collections"
     bl_options = {'REGISTER', 'UNDO'}
 
     action: bpy.props.EnumProperty(
@@ -239,10 +315,10 @@ class EXPORTTOOLS_PT_panel(bpy.types.Panel):
 class LIGHTHOUSE_OT_rename_collections(bpy.types.Operator):
     bl_idname = "lighthouse.rename_collections"
     bl_label = "Rename Collections"
-    bl_description = "跨視窗批次連號命名大綱視圖中選取的 Collection，並同步開啟 Render"
+    bl_description = "Batch sequential renaming of Collections selected in the Outliner (cross-window); also enables Render"
     bl_options = {'REGISTER', 'UNDO'}
 
-    new_base_name: bpy.props.StringProperty(name="基礎名稱", default="LHT_Group")
+    new_base_name: bpy.props.StringProperty(name="Base Name", default="LHT_Group")
     cached_target_names: bpy.props.StringProperty(options={'HIDDEN'})
 
     def invoke(self, context, event):
@@ -270,7 +346,7 @@ class LIGHTHOUSE_OT_rename_collections(bpy.types.Operator):
             if active_lc and active_lc.collection: target_cols = [active_lc.collection]
 
         if not target_cols: 
-            self.report({'WARNING'}, "請選取至少一個 Collection！")
+            self.report({'WARNING'}, "Please select at least one Collection!")
             return {'CANCELLED'}
             
         self.cached_target_names = "|||".join([col.name for col in target_cols])
@@ -297,7 +373,7 @@ class LIGHTHOUSE_OT_rename_collections(bpy.types.Operator):
 class LIGHTHOUSE_OT_rename_objects_by_collections(bpy.types.Operator):
     bl_idname = "lighthouse.rename_objects_by_collections"
     bl_label = "Rename Objects by Collections"
-    bl_description = "以所屬 Collection 為基準自動連號命名。支援 Instance 雙軌計數，並同步底層 Mesh 名稱"
+    bl_description = "Auto-number objects using their Collection name as base. Supports instance dual-counter and syncs Mesh data names"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -325,7 +401,7 @@ class LIGHTHOUSE_OT_rename_objects_by_collections(bpy.types.Operator):
 
         target_cols = list(set(target_cols))
         if not target_cols: 
-            self.report({'WARNING'}, "請選取 Collection 或裡面的物件！")
+            self.report({'WARNING'}, "Please select a Collection or objects inside one!")
             return {'CANCELLED'}
 
         for col in target_cols:
@@ -371,21 +447,21 @@ class LIGHTHOUSE_OT_rename_objects_by_collections(bpy.types.Operator):
                     processed_data.add(obj.data)
 
         for area in context.screen.areas: area.tag_redraw()
-        self.report({'INFO'}, f"依 Collection 命名完成！處理了 {len(target_cols)} 個資料夾。")
+        self.report({'INFO'}, f"Rename by Collections complete! Processed {len(target_cols)} collection(s).")
         return {'FINISHED'}
 
 
 class LIGHTHOUSE_OT_rename_objects(bpy.types.Operator):
     bl_idname = "lighthouse.rename_objects"
     bl_label = "Rename Objects"
-    bl_description = "無視層級的純序列編碼。以左下角為起點(XY陣列)精確排序，Active 物件享首位免後綴特權"
+    bl_description = "Pure sequential numbering ignoring hierarchy. XY spatial sort from bottom-left; Active object gets the base name with no suffix"
     bl_options = {'REGISTER', 'UNDO'}
 
-    new_base_name: bpy.props.StringProperty(name="物件基礎名稱", default="Object")
+    new_base_name: bpy.props.StringProperty(name="Object Base Name", default="Object")
 
     def invoke(self, context, event):
         if not context.selected_objects:
-            self.report({'WARNING'}, "請先選取要更名的物件！")
+            self.report({'WARNING'}, "Please select objects to rename first!")
             return {'CANCELLED'}
         
         if context.active_object and context.active_object in context.selected_objects:
@@ -431,7 +507,7 @@ class LIGHTHOUSE_OT_rename_objects(bpy.types.Operator):
                 processed_data.add(obj.data)
 
         for area in context.screen.areas: area.tag_redraw()
-        self.report({'INFO'}, f"XY 空間陣列編碼完成！共處理 {len(sorted_objs)} 個物件。")
+        self.report({'INFO'}, f"XY spatial array numbering complete! Processed {len(sorted_objs)} object(s).")
         return {'FINISHED'}
 
 
@@ -459,7 +535,7 @@ class LIGHTHOUSE_PT_rename_tools_panel(bpy.types.Panel):
 class LIGHTHOUSE_OT_group(bpy.types.Operator):
     bl_idname = "lighthouse.group"
     bl_label = "Group"
-    bl_description = "以 Active 物件為父級進行群組化，並同步建立同名 Collection。維持世界座標"
+    bl_description = "Parent selected objects under the Active object and sync to a same-named Collection. Preserves world coordinates"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
@@ -467,10 +543,10 @@ class LIGHTHOUSE_OT_group(bpy.types.Operator):
         selected_objs = [obj for obj in context.selected_objects if obj.type == 'MESH']
 
         if not active_obj or active_obj.type != 'MESH':
-            self.report({'WARNING'}, "請先選取一個 Mesh 作為 Active 物件（主錨點）")
+            self.report({'WARNING'}, "Please select a Mesh as the Active object (main anchor) first")
             return {'CANCELLED'}
         if len(selected_objs) < 1:
-            self.report({'WARNING'}, "請選取至少一個子物件進行群組化")
+            self.report({'WARNING'}, "Please select at least one child object to group")
             return {'CANCELLED'}
 
         old_parents = set()
@@ -487,6 +563,8 @@ class LIGHTHOUSE_OT_group(bpy.types.Operator):
         
         if not target_col:
             target_col = bpy.data.collections.new(target_col_name)
+            context.scene.collection.children.link(target_col)
+        elif target_col_name not in context.scene.collection.children.keys():
             context.scene.collection.children.link(target_col)
         
         if active_obj.name not in target_col.objects:
@@ -515,21 +593,23 @@ class LIGHTHOUSE_OT_group(bpy.types.Operator):
             if col != target_col and len(col.objects) == 0 and col != context.scene.collection:
                 bpy.data.collections.remove(col)
 
-        context.view_layer.objects.active = active_obj
-        self.report({'INFO'}, f"Group 成功：已同步至 '{target_col_name}'")
+        context.view_layer.update()
+        if active_obj.name in context.view_layer.objects:
+            context.view_layer.objects.active = active_obj
+        self.report({'INFO'}, f"Group complete: synced to '{target_col_name}'")
         return {'FINISHED'}
 
 
 class LIGHTHOUSE_OT_un_group(bpy.types.Operator):
     bl_idname = "lighthouse.un_group"
     bl_label = "Un-Group"
-    bl_description = "自動追溯頂層父級，批次解除連結並鎖定世界座標。支援同時解散多個群組"
+    bl_description = "Trace to root parent and unparent all children while preserving world coordinates. Supports multiple groups at once"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         selected_initial = context.selected_objects
         if not selected_initial:
-            self.report({'WARNING'}, "請選取要解散的群組成員")
+            self.report({'WARNING'}, "Please select a member of the group to dissolve")
             return {'CANCELLED'}
 
         unique_roots = set()
@@ -553,20 +633,20 @@ class LIGHTHOUSE_OT_un_group(bpy.types.Operator):
                 bpy.data.objects.remove(root, do_unlink=True)
 
         context.view_layer.update()
-        self.report({'INFO'}, f"Un-Group 成功：已處理 {len(unique_roots)} 個群組")
+        self.report({'INFO'}, f"Un-Group complete: processed {len(unique_roots)} group(s)")
         return {'FINISHED'}
 
 
 class LIGHTHOUSE_OT_re_group(bpy.types.Operator):
     bl_idname = "lighthouse.re_group"
     bl_label = "Re-Group"
-    bl_description = "極限壓平所有複雜階層，自動套用 Armature，將子 Mesh 掛載於 Active 下"
+    bl_description = "Flatten complex hierarchies and apply Armature modifiers, parenting all Meshes under the Active object"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         active_obj = context.active_object
         if not active_obj or active_obj.type != 'MESH':
-            self.report({'WARNING'}, "請選取一個 Mesh 作為最終的主錨點")
+            self.report({'WARNING'}, "Please select a Mesh as the final main anchor")
             return {'CANCELLED'}
 
         selected_objs = [obj for obj in context.selected_objects]
@@ -617,20 +697,20 @@ class LIGHTHOUSE_OT_re_group(bpy.types.Operator):
         active_obj.select_set(True)
         context.view_layer.objects.active = active_obj
 
-        self.report({'INFO'}, f"Re-Group 成功：已壓平至 '{active_obj.name}'")
+        self.report({'INFO'}, f"Re-Group complete: flattened under '{active_obj.name}'")
         return {'FINISHED'}
 
 
 class LIGHTHOUSE_OT_select_all_in_group(bpy.types.Operator):
     bl_idname = "lighthouse.select_all_in_group"
     bl_label = "Select All in Group"
-    bl_description = "自動向上追溯至最頂層，並全選該群組下的所有層級物件"
+    bl_description = "Trace up to the root parent and select all objects in the hierarchy"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         selected_initial = context.selected_objects
         if not selected_initial:
-            self.report({'WARNING'}, "請先選取至少一個物件")
+            self.report({'WARNING'}, "Please select at least one object first")
             return {'CANCELLED'}
 
         target_roots = set()
@@ -646,20 +726,20 @@ class LIGHTHOUSE_OT_select_all_in_group(bpy.types.Operator):
                 child.select_set(True)
 
         context.view_layer.update()
-        self.report({'INFO'}, f"選取完畢：已連選 {len(target_roots)} 個群組")
+        self.report({'INFO'}, f"Selection complete: selected {len(target_roots)} group(s)")
         return {'FINISHED'}
 
 
 class LIGHTHOUSE_OT_delete_objects_from_group(bpy.types.Operator):
     bl_idname = "lighthouse.delete_objects_from_group"
     bl_label = "Delete Objects From Group"
-    bl_description = "釋放子物件並鎖定世界座標，隨即刪除父級物件以利 Render 最佳化"
+    bl_description = "Unparent children while preserving world coordinates, then delete the parent object for render optimisation"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         active_obj = context.active_object
         if not active_obj:
-            self.report({'WARNING'}, "請選取要刪除的父級物件")
+            self.report({'WARNING'}, "Please select the parent object to delete")
             return {'CANCELLED'}
 
         children = [child for child in active_obj.children]
@@ -678,20 +758,20 @@ class LIGHTHOUSE_OT_delete_objects_from_group(bpy.types.Operator):
             if len(col.objects) == 0 and col != context.scene.collection:
                 bpy.data.collections.remove(col)
 
-        self.report({'INFO'}, f"已刪除 '{target_name}'，保留 {len(children)} 個子物件")
+        self.report({'INFO'}, f"Deleted '{target_name}', kept {len(children)} child object(s)")
         return {'FINISHED'}
 
 
 class LIGHTHOUSE_OT_material_isolator(bpy.types.Operator):
     bl_idname = "lighthouse.material_isolator"
     bl_label = "Material Isolator"
-    bl_description = "將材質連結切換至 Object 模式，讓 Alt+D 的分身可擁有獨立材質"
+    bl_description = "Switch material link to Object mode so Alt+D instances can have independent materials"
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
         selected_objs = [obj for obj in context.selected_objects if obj.type == 'MESH']
         if not selected_objs:
-            self.report({'WARNING'}, "請選取需要隔離材質的 Mesh 物件")
+            self.report({'WARNING'}, "Please select Mesh objects that need isolated materials")
             return {'CANCELLED'}
 
         for obj in selected_objs:
@@ -704,7 +784,7 @@ class LIGHTHOUSE_OT_material_isolator(bpy.types.Operator):
                     new_mat.name = f"{slot.material.name}_Unique"
                     slot.material = new_mat
 
-        self.report({'INFO'}, f"隔離成功：已切換 {len(selected_objs)} 個物件")
+        self.report({'INFO'}, f"Material isolation complete: switched {len(selected_objs)} object(s)")
         return {'FINISHED'}
 
 
@@ -730,7 +810,7 @@ class LIGHTHOUSE_PT_selection_tools(bpy.types.Panel):
 
 
 # ===============================================
-# 註冊與註銷
+# Registration
 # ===============================================
 
 classes = (
@@ -760,7 +840,7 @@ def register():
     
     bpy.types.Collection.r2b_export_selected = bpy.props.BoolProperty(
         name="Export",
-        description="勾選以進行局部批次匯出",
+        description="Check to include in selective batch export",
         default=False
     )
 
