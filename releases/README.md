@@ -26,13 +26,15 @@
 ## Included Files
 
 
-| File / Folder                     | Description                                                 |
-| --------------------------------- | ----------------------------------------------------------- |
-| `LoopFlow_Rhino-to-Blender-Sync/` | Rhino-side Python scripts                                   |
-| `LoopFlow_Toolkit/`               | Blender Addon source (package as `LoopFlow_Toolkit.zip`)    |
-| `LoopFlow_import_3dm/`            | Blender Addon source (package as `LoopFlow_import_3dm.zip`) |
-| `install_LoopFlow_R2B.bat`        | Rhino-side auto-installer                                   |
-| `LoopFlow_R2B.rhc`                | Rhino toolbar definition                                    |
+| File / Folder                                        | Description                                                 |
+| ---------------------------------------------------- | ----------------------------------------------------------- |
+| `LoopFlow_Rhino-to-Blender-Sync/Python/`             | Rhino-side Python scripts                                   |
+| `LoopFlow_Rhino-to-Blender-Sync/LoopFlow_Toolkit/`   | Blender Addon source (package as `LoopFlow_Toolkit.zip`)    |
+| `LoopFlow_Rhino-to-Blender-Sync/LoopFlow_import_3dm/`| Blender Addon source (package as `LoopFlow_import_3dm.zip`) |
+| `LoopFlow_Rhino-to-Blender-Sync/install_LoopFlow_R2B.bat` | Rhino-side auto-installer                              |
+| `LoopFlow_Rhino-to-Blender-Sync/LoopFlow_R2B.rhc`   | Rhino toolbar definition                                    |
+| `LoopFlow_Rhino-to-Blender-Sync/LoopFlow_import_3dm.zip` | Pre-packaged Blender addon                             |
+| `LoopFlow_Rhino-to-Blender-Sync/LoopFlow_Toolkit.zip`| Pre-packaged Blender addon                                  |
 
 
 ---
@@ -41,17 +43,20 @@
 
 ```
 releases/
-  LoopFlow_Rhino-to-Blender-Sync/   ← Rhino-side Python scripts
-    LiveLink_R2B_*.py
-    LiveLink_R2B__Config.py
-  LoopFlow_import_3dm/               ← Blender Addon (package as LoopFlow_import_3dm.zip)
-    __init__.py
-    converters/
-    rhino3dm/
-  LoopFlow_Toolkit/                  ← Blender Addon (package as LoopFlow_Toolkit.zip)
-    __init__.py
-  install_LoopFlow_R2B.bat
-  LoopFlow_R2B.rhc
+  LoopFlow_Rhino-to-Blender-Sync/
+    Python/                          ← Rhino-side Python scripts
+      LiveLink_R2B_*.py
+      LiveLink_R2B__Config.py
+    LoopFlow_import_3dm/             ← Blender Addon source (package as LoopFlow_import_3dm.zip)
+      __init__.py
+      converters/
+      rhino3dm/
+    LoopFlow_Toolkit/                ← Blender Addon source (package as LoopFlow_Toolkit.zip)
+      __init__.py
+    install_LoopFlow_R2B.bat
+    LoopFlow_R2B.rhc
+    LoopFlow_import_3dm.zip          ← pre-packaged addon ZIP
+    LoopFlow_Toolkit.zip             ← pre-packaged addon ZIP
   README.md
   README_zh-TW.md
 ```

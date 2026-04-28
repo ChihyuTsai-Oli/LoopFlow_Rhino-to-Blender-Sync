@@ -9,7 +9,7 @@ echo.
 
 set "ROOT_DIR=%~dp0"
 if "%ROOT_DIR:~-1%"=="\" set "ROOT_DIR=%ROOT_DIR:~0,-1%"
-set "SRC_PY=%ROOT_DIR%\LoopFlow_Rhino-to-Blender-Sync"
+set "SRC_PY=%ROOT_DIR%\Python"
 set "DST_ROOT=%APPDATA%\McNeel\Rhinoceros\8.0\scripts\LoopFlow_R2B"
 set "DST_PY=%DST_ROOT%\Py"
 
@@ -19,8 +19,8 @@ if not exist "%SRC_PY%\" (
     echo         %SRC_PY%\
     echo.
     echo         Expected layout after unzip:
-    echo           install_LoopFlow_R2B.bat
-    echo           LoopFlow_Rhino-to-Blender-Sync\LiveLink_R2B_*.py
+    echo           LoopFlow_Rhino-to-Blender-Sync\install_LoopFlow_R2B.bat
+    echo           LoopFlow_Rhino-to-Blender-Sync\Python\LiveLink_R2B_*.py
     echo.
     goto :END_FAIL
 )
