@@ -28,8 +28,8 @@
 
 ## 也許你還有興趣
 
-- [LoopFlow](https://github.com/ChihyuTsai-Oli/LoopFlow)
-- [LoopFlow_Rhino-to-Octane-Sync](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Octane-Sync)
+- [LoopFlow｜Half-automatic 2D/3D Sync](https://github.com/ChihyuTsai-Oli/LoopFlow)
+- [LoopFlow｜Rhino to Octane Sync](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Octane-Sync)
 
 ## 致謝
 
