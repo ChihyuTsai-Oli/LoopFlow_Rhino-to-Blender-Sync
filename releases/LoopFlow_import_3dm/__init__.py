@@ -86,7 +86,7 @@ LIGHT_SYNC_FILE    = "R2B_Light_Sync.json"
 COL_FIXTURES       = "Lighting Fixtures"
 COL_LIGHTING       = "Lighting"
 COL_LIGHT_POINTS   = "R2B Lighting Points"
-    COL_MATERIALS      = "Materials"       # Prototype library Collection for Assign Basic Mat. (currently disabled)
+COL_MATERIALS      = "Materials"       # Prototype library Collection for Assign Basic Mat. (currently disabled)
 
 # Material constants
 MAT_PRESET_LT_K    = "Preset_Lighting_K"
