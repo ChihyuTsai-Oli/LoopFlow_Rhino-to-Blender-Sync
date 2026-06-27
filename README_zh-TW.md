@@ -2,7 +2,12 @@
 
 [▶ How it works（YouTube）](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ 指令說明](./docs/USER_GUIDE_zh-TW.md)
 
+## 版本下載
 
+| Blender 版本 | Release | Python |
+|---|---|---|
+| **5.1.x**（推薦）| [v2.0.0](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/v2.0.0) | 3.13 |
+| 4.5.x | [v1.0.0](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/v1.0.0) | 3.11 |
 
 ## 主要功能
 
@@ -37,4 +42,4 @@
 
 ---
 
-*最後更新：2026 年 4 月*
+*最後更新：2026 年 6 月*

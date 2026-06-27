@@ -5,7 +5,7 @@
 > `LoopFlow_Toolkit` is an optional utility package and is not part of the sync workflow.
 > Developed and tested on Blender 5.1.2 (Python 3.13).
 
-Last updated: 2026-04-28
+Last updated: 2026-06-28
 
 ---
 

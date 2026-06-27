@@ -2,6 +2,13 @@
 
 [▶ How it works（YouTube）](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ User Guide](./docs/USER_GUIDE.md)
 
+## Version Downloads
+
+| Blender Version | Release | Python |
+|---|---|---|
+| **5.1.x** (Recommended) | [v2.0.0](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/v2.0.0) | 3.13 |
+| 4.5.x | [v1.0.0](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/v1.0.0) | 3.11 |
+
 ## Key Features
 
 - **Model Sync** — One-click 3DM export; update geometry in Blender at any time while preserving all materials
@@ -35,4 +42,4 @@ See **[releases/README.md](releases/README.md)** for step-by-step setup instruct
 
 ---
 
-*Last updated: April 2026*
+*Last updated: June 2026*
