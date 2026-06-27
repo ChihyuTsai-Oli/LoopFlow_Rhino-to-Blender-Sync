@@ -1,6 +1,6 @@
 # LoopFlow｜Rhino to Blender Sync
 
-[▶ How it works（YouTube）](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ 指令說明](./docs/USER_GUIDE_zh-TW.md)
+[▶ How it works（YouTube）](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ 指令說明](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/blob/main/docs/USER_GUIDE_zh-TW.md)
 
 ## 版本下載
 
@@ -29,7 +29,7 @@
 
 ## 安裝方式
 
-請參閱 **[releases/README.md](releases/README.md)** 的逐步安裝說明。
+請參閱 **[Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases)** 的逐步安裝說明。
 
 ## 也許你還有興趣
 
