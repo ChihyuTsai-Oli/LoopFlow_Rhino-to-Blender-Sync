@@ -3,7 +3,7 @@
 > All Rhino-side scripts run in the Rhino 8 (CPython 3.9) environment.
 > The `LoopFlow_import_3dm` addon is required on the Blender side (core import engine).
 > `LoopFlow_Toolkit` is an optional utility package and is not part of the sync workflow.
-> Developed and tested on Blender 4.5.4. Blender 5.x compatibility is not yet confirmed.
+> Developed and tested on Blender 5.1.2 (Python 3.13).
 
 Last updated: 2026-04-28
 

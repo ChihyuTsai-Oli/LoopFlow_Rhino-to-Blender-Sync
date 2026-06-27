@@ -3,7 +3,7 @@
 > 所有 Rhino 端指令皆在 Rhino 8 (CPython 3.9) 環境中執行。
 > Blender 端必須安裝 `LoopFlow_import_3dm` Addon（模型匯入核心）。
 > `LoopFlow_Toolkit` 為選擇性安裝的實用工具包，不參與同步流程。
-> 開發環境為 Blender 4.5.4，5.x 版本可能尚不支援。
+> 開發環境為 Blender 5.1.2（Python 3.13）。
 
 最後更新：2026-04-28
 

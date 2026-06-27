@@ -5,7 +5,7 @@ Tool Name          : LoopFlow Toolkit (Export / Rename / Selection unified packa
 Version            : v1.0
 Date               : 2026-04-28
 Author             : Cursor + Claude Sonnet 4.6
-Environment        : Blender 4.5.0+ (Python 3.11 / CPython core)
+Environment        : Blender 5.1.0+ (Python 3.13 / CPython core)
 ==============================================================================
 
 This addon consolidates three independent tools into a single unified package.
@@ -98,7 +98,7 @@ bl_info = {
     "name": "LoopFlow Toolkit",
     "author": "Python Partner",
     "version": (1, 0, 0),
-    "blender": (4, 5, 0),
+    "blender": (5, 1, 0),
     "location": "View3D > N Panel > LoopFlow Toolkit",
     "description": "Integrated toolkit: Export, Rename, and Selection tools",
     "category": "Object",

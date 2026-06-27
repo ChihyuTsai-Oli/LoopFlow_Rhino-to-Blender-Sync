@@ -6,7 +6,7 @@ Import Rhinoceros 3D (R2B Pro)
 Version            : v5.0
 Date               : 2026-04-27
 Author             : Cursor + Claude Sonnet 4.6
-Environment        : Blender 4.5.0 / Python 3.11
+Environment        : Blender 5.1.0 / Python 3.13
 Location           : 3D Viewport sidebar (N-Panel > LoopFlow 3dm > Rhino Live Link)
 
 [System Overview]
@@ -60,7 +60,7 @@ bl_info = {
     "name": "Import Rhinoceros 3D (R2B Pro)",
     "author": "Nathan 'jesterKing' Letwory, Joel Putnam, Tom Svilans, Lukas Fertig, Bernd Moeller, Workflow Partner",
     "version": (0, 0, 50),
-    "blender": (4, 5, 0),
+    "blender": (5, 1, 0),
     "location": "N-Panel > LoopFlow 3dm",
     "description": "R2B Dual-JSON performance build (V50 centralised constants + LoopFlow 3dm Panel)",
     "category": "Import-Export",
