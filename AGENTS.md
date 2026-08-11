@@ -8,8 +8,9 @@ AI 必須依序完整讀取：
 
 1. `docs/_R2B_使用說明.md`
 2. `docs/_R2B_系統設定.md`
-3. `docs/_R2B_重構計畫.md`
-4. `docs/architecture/PROGRESS.md`
+3. `docs/_R2B_命名與資料契約.md`
+4. `docs/_R2B_重構計畫.md`
+5. `docs/architecture/PROGRESS.md`
 
 公開的 `README*.md` 與 `docs/USER_GUIDE*.md` 是使用者文件，不是重構指令的權威來源；改變使用行為時仍須同步更新。
 
@@ -18,9 +19,17 @@ AI 必須依序完整讀取：
 - `main` 在 3.0 正式發布前維持穩定 2.x。
 - `v3-development` 是 3.0 整合分支，不直接承接未分批的大型修改。
 - 每項工作從 `v3-development` 建立 `codex/v3-<scope>` 短期分支。
-- 2.x P0 修復從 `main` 建立獨立 hotfix，發布後再同步至 `v3-development`。
+- `main` 原則上凍結；僅在使用者明確要求維護 2.x 時，才建立獨立 hotfix，發布後再同步必要修正至 `v3-development`。
 - 既有 `v2.0.0` tag 與 Release 永不移動、覆寫或重用；本輪重構目標固定為 `v3.0.0`。
 - `1.x` 歷史維護分支保持不動，除非使用者明確要求修補。
+
+## 重構模式
+
+- 3.0 採「新版乾淨重建、正式發布時一次切換」，不要求開發中的 v2／v3 指令互相相容。
+- `main`、v2 payload 與 fork 基準作為唯讀參考；3.0 在隔離 `src/`、Rhino 安裝與 Blender profile 建立。
+- 先完成工作流、命名、跨軟體 schema、Blender ID 與 fork 邊界，再建立新架構。
+- 新核心不長期保留 v2 alias、雙寫或 compatibility wrapper；升級集中於獨立 migration 工具。
+- 建造過程仍分批提交並做自動／fixture 測試；Rhino→Blender 端到端實機測試在主鏈串接完成後集中進行。
 
 ## 文件與語言
 
@@ -33,10 +42,10 @@ AI 必須依序完整讀取：
 ## AI 作業流程
 
 1. 確認 repo、branch、origin、upstream 與乾淨工作樹；只用 fast-forward pull。
-2. 讀取上述四份文件，從 `PROGRESS.md` 確認目前階段與限制。
+2. 讀取上述五份文件，從 `PROGRESS.md` 確認目前階段與限制。
 3. 建立短期工作分支，一批只處理一個 P0 或一條 feature。
-4. 使用隔離的 Rhino、Blender profile、測試 `.3dm` 與輸出目錄；不得用唯一正式專案作 migration。
-5. 修改前保存 golden workflow／fixture；完成後驗證成功、取消、失敗與中斷。
+4. 命名與 schema 尚未定案前，不建立正式 feature；先完成依賴盤點與 fixtures。
+5. 每段完成後做自動／contract 測試；主鏈串接後使用隔離 Rhino、Blender profile 與測試 `.3dm` 做端到端驗證。
 6. 同步更新使用說明、系統設定、重構計畫（若決策改變）與 `PROGRESS.md`。
 7. 檢查 diff、授權、binary、秘密與產物後提交、推送短期分支。
 

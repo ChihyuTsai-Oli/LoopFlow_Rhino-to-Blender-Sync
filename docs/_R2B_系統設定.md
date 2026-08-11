@@ -15,6 +15,14 @@
 | Rhino runtime | Rhino 8 / CPython 3.9 |
 | Blender runtime | v2.0.0 資產為 Blender 5.1.x / Python 3.13 |
 
+## 3.0 開發模式
+
+- `main`、`v2.0.0` 與既有 `releases/` 作為舊版／fork 基準，不在重構過程逐支改造成半新半舊系統。
+- 3.0 在新的 `src/`、隔離 Rhino 安裝與 Blender profile／package ID 中乾淨建立，正式發布時一次切換。
+- 建立 feature 前先完成 `_R2B_命名與資料契約.md` 的 command、schema、operator／property／collection 與 fork 邊界。
+- 新核心只使用 3.0 contract；v2 設定或 scene 升級由獨立 migration 工具負責。
+- 每個階段仍做自動／fixture 測試；完整 Rhino→Blender 實機測試於主鏈接通後執行。
+
 ## 目前 Repo 結構
 
 ```text
@@ -109,6 +117,7 @@ docs/
 ## 文件與程式註解規則
 
 - 維護 SSOT：本文件、`_R2B_使用說明.md`、`_R2B_重構計畫.md`、`architecture/PROGRESS.md`。
+- 命名與跨軟體 schema SSOT：`_R2B_命名與資料契約.md`。
 - 內部文件與新增／修改的第一方註解使用繁體中文。
 - 完整流程、schema、責任、副作用與回復方式寫入 docs；程式只保留必要原因、API 限制與 invariant。
 - 現有第一方 Python 與 fork 有大量英文註解。按 feature／patch 逐批遷移，不為翻譯產生跨整個 fork 的巨大 diff。

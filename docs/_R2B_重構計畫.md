@@ -9,6 +9,17 @@
 - `main` 在 3.0 發布前維持 2.x；3.0 使用 `v3-development` 與 `codex/v3-<scope>`。
 - 「LoopFlow Suite 2」可作整體名稱，但不要求三個 component 使用相同 tag。
 
+## 重構模式裁決
+
+本輪採「3.0 乾淨重建、正式發布時一次切換」：
+
+- `main`、`v2.0.0`、既有 payload 與 fork 基準凍結為舊版參考與回復點。
+- 3.0 在隔離 `src/`、Rhino 安裝、Blender profile／package ID 與測試資料建立，不要求開發中的半成品相容 v2。
+- 不把 v2 指令逐支包進新架構，也不在核心長期保留 alias、雙寫或 compatibility wrapper。
+- 開發仍按 contract、producer、consumer 與功能群分批提交；每段做自動／fixture／contract 測試。
+- Models／Camera／Light 與 importer 主鏈接通後，再集中做 Rhino→Blender 端到端實機測試。
+- v2 設定或 scene 若需升級，由獨立 migration 工具一次轉換。
+
 ## 產品邊界
 
 ### Rhino Producer
@@ -31,7 +42,8 @@ Models、Camera、Light、Open／Config。只從 Rhino 收集資料並安全發�
 
 - feature-first，不為 Rhino 端 5 支 script 建立過度層級。
 - Python-first，不主動增加 C#。
-- P0 先在現行 2.x 架構做最小安全修復，再同步進 3.0。
+- 命名、schema、Blender ID 與 fork 邊界先定義，完成前不建立正式 feature。
+- Models P0 安全要求直接納入 3.0 新實作；只有使用者明確要求維護舊版時才另開 2.x hotfix。
 - R2B／R2O 只共用文件層級的安全 pipeline、result 語彙與測試矩陣，不建立跨 repo runtime package。
 - 3.0 開發安裝、設定、輸出、RHC 與 Blender profile 必須和 2.x 隔離。
 - 不新增同步種類或 UI 功能。
@@ -134,7 +146,7 @@ validate request
 ## Git 與環境隔離
 
 - 3.0 工作由短期分支合入 `v3-development`。
-- 2.x P0 從 `main` 開 hotfix，驗證／發布後再同步 3.0。
+- `main` 原則上凍結；只有使用者明確要求舊版緊急修補時才從 `main` 開 2.x hotfix。
 - RC 通過才合入 `main` 並建立 `v3.0.0`。
 - Rhino Dev 使用獨立 scripts／data／RHC；Blender 使用測試 profile 或不同 package ID。
 - 不用唯一正式 `.blend`／`.3dm` 作 importer 或 migration 測試。
@@ -166,16 +178,19 @@ validate request
 
 實作前需重新驗證 Blender version、linked data、material slot、collection traversal、undo、重複執行與手動修改保留；不可按舊 memo line number 解除註解。
 
-## 遷移順序
+## 新版建造順序
 
-1. Models P0 與 golden files。
-2. Rhino bootstrap／catalog／foundation；Models 垂直切片。
-3. Camera／Light schema、atomic producer、consumer state。
-4. Blender registration／UI／sync 分層。
-5. fork upstream／patch／fixtures 與 integration 邊界。
-6. version／manifest／CHANGELOG／RHC／build。
-7. Toolkit 獨立整理。
-8. Auto Basic Material 只有使用者重新納入範圍後才處理。
+1. **工作流與依賴盤點**：Rhino Models／Camera／Light → Blender integration → importer fork，列出所有輸入、輸出、ID、state 與失敗條件。
+2. **命名與資料契約**：完成 `_R2B_命名與資料契約.md`，鎖定 command、config、檔案、JSON schema、operator／property／collection、version 與 ABI。
+3. **Fixtures 與 fork 邊界**：建立 Models／Camera／Light 與 importer fixtures，完成 `UPSTREAM.md`、`PATCHES.md` 與第一方 integration 邊界。
+4. **最小新架構**：建立 `src/`、bootstrap、catalog、foundation、validator、測試骨架與隔離載入方式。
+5. **Rhino producer**：依 Models → Camera → Light 建立；Models 直接採 explicit IDs、temporary data、pending、validate、atomic replace。
+6. **Blender consumer**：registration、UI、operators、timer／state、sync handlers 與 importer boundary。
+7. **主鏈端到端測試**：以隔離 Rhino／Blender、測試 `.3dm`／`.blend` 驗證正常、取消、失敗、中斷與 last good。
+8. **Toolkit**：在同步主鏈穩定後獨立整理，不擴充功能。
+9. **Migration／Build／切換**：v2 scanner、備份、一次轉換、manifest、CHANGELOG、RHC、ZIP、hash、RC，最後一次合入 `main` 發布 `v3.0.0`。
+
+每一步都要提交與自動測試；「一次切換」不等於「全部寫完才第一次測試」。Auto Basic Material 只有使用者重新納入範圍後才處理。
 
 ## 每批完成門檻
 
