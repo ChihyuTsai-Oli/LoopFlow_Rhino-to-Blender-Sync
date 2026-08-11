@@ -5,7 +5,11 @@
 - 整合分支：`v3-development`
 - 建立基準：`main` / `35bcd5d115b8f835f8023fac21634b2162c3873a`
 - 穩定回復點：`v2.0.0` / `48d554f2f6a844cf2d5fa07e5fd02c46ea0ea71c`
-- 狀態：隔離整合線已建立；尚未修改產品程式碼
+- 狀態：隔離整合線與繁中維護文件 SSOT 已建立；尚未修改產品程式碼
+
+## AI 接手入口
+
+本 repo 已建立自足的繁中維護文件。AI 開始前依序讀取根目錄 `AGENTS.md`、`docs/_R2B_使用說明.md`、`docs/_R2B_系統設定.md`、`docs/_R2B_重構計畫.md`，最後讀本文件確認即時進度。外部分析檔不再是必要輸入。
 
 ## Release 回復資產
 
@@ -53,6 +57,7 @@
 | 日期 | 分支 / commit | 檢查 | 結果 | 限制 |
 |---|---|---|---|---|
 | 2026-08-12 | `v3-development` 建立基準 | Git 同步、Release ZIP 完整性與 SHA-256、21 支 Python 靜態語法、RHC XML | 通過 | Blender CLI 不在 PATH；Rhino / Blender 實機流程由後續批次逐項驗證 |
+| 2026-08-12 | 文件 SSOT 建置 | 建立繁中使用說明、系統設定、重構計畫與 repo AI 規則；Markdown 本機連結檢查 | 通過 | 第一方註解依 feature 批次遷移；第三方 fork 原文與授權保留 |
 
 ## 下一步
 
