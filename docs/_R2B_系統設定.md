@@ -43,6 +43,31 @@ docs/
 
 目前 repo 內約 21 支 Python，包含 Rhino producer、importer fork 與 Toolkit。`releases/` 同時承擔 source 與 payload；只有在 3.0 build 管線完成後才切換 `src/` 為唯一來源。
 
+## 重構期間的 Rhino 測試入口
+
+重構期間直接從 repo 執行 Rhino producer 入口，不必先複製到 `%APPDATA%`。測試按鈕固定指向 `entrypoints/`，不要直接指向仍會調整的 feature 或 foundation 模組：
+
+```text
+E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\src\rhino\entrypoints\
+```
+
+按鈕巨集範例：
+
+```text
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\src\rhino\entrypoints\R2B_Models.py"
+```
+
+目前預計入口：
+
+```text
+R2B_Models.py
+R2B_Camera.py
+R2B_Light.py
+R2B_Open.py
+```
+
+這是開發期暫定清單，不是凍結的 3.0 command contract。功能增減、入口檔名或 repo 內路徑改變時，應同步更新本節與測試工具列；正式安裝／RC 驗證才改用隔離的 `%APPDATA%` Rhino 開發安裝位置。Blender add-on 仍使用隔離測試 profile，不經 Rhino 按鈕啟動。
+
 ## 現行安裝位置
 
 ```text
