@@ -38,6 +38,7 @@ releases/
 docs/
   USER_GUIDE*.md
   _R2B_*.md
+  architecture/DEVELOPMENT_ROADMAP.md
   architecture/PROGRESS.md
 ```
 
@@ -142,6 +143,7 @@ R2B_Open.py
 ## 文件與程式註解規則
 
 - 維護 SSOT：本文件、`_R2B_使用說明.md`、`_R2B_重構計畫.md`、`architecture/PROGRESS.md`。
+- 任務切分、依賴順序與雙機安全停點：`architecture/DEVELOPMENT_ROADMAP.md`。
 - 命名與跨軟體 schema SSOT：`_R2B_命名與資料契約.md`。
 - 內部文件與新增／修改的第一方註解使用繁體中文。
 - 完整流程、schema、責任、副作用與回復方式寫入 docs；程式只保留必要原因、API 限制與 invariant。

@@ -9,7 +9,7 @@
 
 ## AI 接手入口
 
-本 repo 已建立自足的繁中維護文件。AI 開始前依序讀取根目錄 `AGENTS.md`、`docs/_R2B_使用說明.md`、`docs/_R2B_系統設定.md`、`docs/_R2B_命名與資料契約.md`、`docs/_R2B_重構計畫.md`，最後讀本文件確認即時進度。外部分析檔不再是必要輸入。
+本 repo 已建立自足的繁中維護文件。AI 開始前依序讀取根目錄 `AGENTS.md`、`docs/_R2B_使用說明.md`、`docs/_R2B_系統設定.md`、`docs/_R2B_命名與資料契約.md`、`docs/_R2B_重構計畫.md`、`docs/architecture/DEVELOPMENT_ROADMAP.md`，最後讀本文件確認即時進度。外部分析檔不再是必要輸入。
 
 ## Release 回復資產
 
@@ -61,7 +61,8 @@ fixture 與預期結果應在對應功能建造前完成；實機結果則在主
 | 2026-08-12 | 文件 SSOT 建置 | 建立繁中使用說明、系統設定、重構計畫與 repo AI 規則；Markdown 本機連結檢查 | 通過 | 第一方註解依 feature 批次遷移；第三方 fork 原文與授權保留 |
 | 2026-08-12 | 重構模式裁決 | 新版乾淨重建、一次切換；命名與跨程式資料契約先於程式架構 | 通過 | 尚未開始命名盤點與產品程式碼修改 |
 | 2026-08-12 | 開發測試入口 | Rhino 測試按鈕暫定直接指向 repo 的 `src/rhino/entrypoints/`；功能或路徑變動時同步更新系統設定與工具列 | 已記錄 | 入口檔尚未建立；正式安裝／RC 另用隔離 `%APPDATA%` 路徑 |
+| 2026-08-12 | 任務切分與開發路徑 | 建立 A–G 階段、任務依賴、分支 scope、完成檢查與雙機安全停點 | 已記錄 | 路徑可隨 schema、ABI 與實測結果調整 |
 
 ## 下一步
 
-從 `v3-development` 建立 `codex/v3-naming-contract`，先盤點整套工作流及所有指令、設定、檔名、JSON schema、Blender ID、fork 與版本名稱。使用者確認契約前，不開始正式功能程式碼。
+依 `DEVELOPMENT_ROADMAP.md` 從 R2B-A01「端到端工作流盤點」開始，再完成命名、schema、Blender ID、fork 邊界與 fixtures。使用者確認契約前，不開始正式功能程式碼。
