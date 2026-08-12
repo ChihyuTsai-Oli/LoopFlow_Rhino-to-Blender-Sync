@@ -11,3 +11,5 @@ wip/
 ```
 
 大型 Rhino／Blender 工作檔、人工測試輸出與可由 Dropbox 同步的素材不放進 repo。其本機根目錄由環境變數 `LOOPFLOW_R2B_WORKFILES_ROOT` 指定，電腦對照與設定方式見工作區根目錄 `工作檔路徑.md`。
+
+Rhino 與 Blender 產生／讀取的即時交換 JSON 放在 `%LOOPFLOW_R2B_WORKFILES_ROOT%\exchange\`，不提交 Git。

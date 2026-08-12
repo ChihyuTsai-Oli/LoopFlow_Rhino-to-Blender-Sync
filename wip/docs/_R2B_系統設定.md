@@ -15,6 +15,14 @@
 | Rhino runtime | Rhino 8 / CPython 3.9 |
 | Blender runtime | v2.0.0 資產為 Blender 5.1.x / Python 3.13 |
 
+## 重構工作檔根目錄
+
+- 本機環境變數：`LOOPFLOW_R2B_WORKFILES_ROOT`
+- 公司電腦：`D:\Dropbox\LoopFlow_Series\Workfiles\WIP_R2B`
+- Rhino／Blender 交換 JSON：`%LOOPFLOW_R2B_WORKFILES_ROOT%\exchange\`
+
+3.0 producer／consumer 只透過環境變數解析工作根目錄，不寫死公司路徑。交換 JSON 的確切檔名與 schema 後續由資料契約固定；即時檔不提交 Git。
+
 ## 3.0 開發模式
 
 - `main`、`v2.0.0` 與既有 `releases/` 作為舊版／fork 基準，不在重構過程逐支改造成半新半舊系統。
@@ -62,6 +70,12 @@ E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 
 ```text
 _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Models.py"
+```
+
+Open 指令完整格式：
+
+```text
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Open.py"
 ```
 
 目前預計入口：
