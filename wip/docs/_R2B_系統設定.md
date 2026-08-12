@@ -18,7 +18,7 @@
 ## 3.0 開發模式
 
 - `main`、`v2.0.0` 與既有 `releases/` 作為舊版／fork 基準，不在重構過程逐支改造成半新半舊系統。
-- 3.0 在新的 `src/`、隔離 Rhino 安裝與 Blender profile／package ID 中乾淨建立，正式發布時一次切換。
+- 3.0 在新的 `wip/src/`、隔離 Rhino 安裝與 Blender profile／package ID 中乾淨建立，正式發布時一次切換。
 - 建立 feature 前先完成 `_R2B_命名與資料契約.md` 的 command、schema、operator／property／collection 與 fork 邊界。
 - 新核心只使用 3.0 contract；v2 設定或 scene 升級由獨立 migration 工具負責。
 - 每個階段仍做自動／fixture 測試；完整 Rhino→Blender 實機測試於主鏈接通後執行。
@@ -36,26 +36,32 @@ releases/
   LoopFlow_import_3dm/      # importer fork、rhino3dm binary、manifest
   LoopFlow_Toolkit/         # 獨立 Blender add-on
 docs/
-  USER_GUIDE*.md
-  _R2B_*.md
-  architecture/DEVELOPMENT_ROADMAP.md
-  architecture/PROGRESS.md
+  USER_GUIDE*.md           # 公開使用指南
+wip/
+  README.md
+  docs/
+    _R2B_*.md              # 重構維護 SSOT
+    architecture/DEVELOPMENT_ROADMAP.md
+    architecture/PROGRESS.md
+  src/                     # 3.0 原始碼（後續建立）
+  tests/                   # 測試（後續建立）
+  fixtures/                # 可提交的輕量測試資料（後續建立）
 ```
 
-目前 repo 內約 21 支 Python，包含 Rhino producer、importer fork 與 Toolkit。`releases/` 同時承擔 source 與 payload；只有在 3.0 build 管線完成後才切換 `src/` 為唯一來源。
+目前 repo 內約 21 支 Python，包含 Rhino producer、importer fork 與 Toolkit。`releases/` 同時承擔 source 與 payload；只有在 3.0 build 管線完成後才切換 `wip/src/` 為唯一來源。
 
 ## 重構期間的 Rhino 測試入口
 
 重構期間直接從 repo 執行 Rhino producer 入口，不必先複製到 `%APPDATA%`。測試按鈕固定指向 `entrypoints/`，不要直接指向仍會調整的 feature 或 foundation 模組：
 
 ```text
-E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\src\rhino\entrypoints\
+E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 ```
 
 按鈕巨集範例：
 
 ```text
-_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\src\rhino\entrypoints\R2B_Models.py"
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Models.py"
 ```
 
 目前預計入口：

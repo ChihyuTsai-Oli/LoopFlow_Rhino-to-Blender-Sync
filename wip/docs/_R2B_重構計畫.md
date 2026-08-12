@@ -14,7 +14,7 @@
 本輪採「3.0 乾淨重建、正式發布時一次切換」：
 
 - `main`、`v2.0.0`、既有 payload 與 fork 基準凍結為舊版參考與回復點。
-- 3.0 在隔離 `src/`、Rhino 安裝、Blender profile／package ID 與測試資料建立，不要求開發中的半成品相容 v2。
+- 3.0 在隔離 `wip/src/`、Rhino 安裝、Blender profile／package ID 與測試資料建立，不要求開發中的半成品相容 v2。
 - 不把 v2 指令逐支包進新架構，也不在核心長期保留 alias、雙寫或 compatibility wrapper。
 - 開發仍按 contract、producer、consumer 與功能群分批提交；每段做自動／fixture／contract 測試。
 - Models／Camera／Light 與 importer 主鏈接通後，再集中做 Rhino→Blender 端到端實機測試。
@@ -51,7 +51,7 @@ Models、Camera、Light、Open／Config。只從 Rhino 收集資料並安全發�
 ## 目標結構
 
 ```text
-src/
+wip/src/
   rhino/
     r2b_rhino/
       bootstrap.py
@@ -183,7 +183,7 @@ validate request
 1. **工作流與依賴盤點**：Rhino Models／Camera／Light → Blender integration → importer fork，列出所有輸入、輸出、ID、state 與失敗條件。
 2. **命名與資料契約**：完成 `_R2B_命名與資料契約.md`，鎖定 command、config、檔案、JSON schema、operator／property／collection、version 與 ABI。
 3. **Fixtures 與 fork 邊界**：建立 Models／Camera／Light 與 importer fixtures，完成 `UPSTREAM.md`、`PATCHES.md` 與第一方 integration 邊界。
-4. **最小新架構**：建立 `src/`、bootstrap、catalog、foundation、validator、測試骨架與隔離載入方式。
+4. **最小新架構**：建立 `wip/src/`、bootstrap、catalog、foundation、validator、測試骨架與隔離載入方式。
 5. **Rhino producer**：依 Models → Camera → Light 建立；Models 直接採 explicit IDs、temporary data、pending、validate、atomic replace。
 6. **Blender consumer**：registration、UI、operators、timer／state、sync handlers 與 importer boundary。
 7. **主鏈端到端測試**：以隔離 Rhino／Blender、測試 `.3dm`／`.blend` 驗證正常、取消、失敗、中斷與 last good。

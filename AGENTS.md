@@ -6,14 +6,14 @@
 
 AI 必須依序完整讀取：
 
-1. `docs/_R2B_使用說明.md`
-2. `docs/_R2B_系統設定.md`
-3. `docs/_R2B_命名與資料契約.md`
-4. `docs/_R2B_重構計畫.md`
-5. `docs/architecture/DEVELOPMENT_ROADMAP.md`
-6. `docs/architecture/PROGRESS.md`
+1. `wip/docs/_R2B_使用說明.md`
+2. `wip/docs/_R2B_系統設定.md`
+3. `wip/docs/_R2B_命名與資料契約.md`
+4. `wip/docs/_R2B_重構計畫.md`
+5. `wip/docs/architecture/DEVELOPMENT_ROADMAP.md`
+6. `wip/docs/architecture/PROGRESS.md`
 
-公開的 `README*.md` 與 `docs/USER_GUIDE*.md` 是使用者文件，不是重構指令的權威來源；改變使用行為時仍須同步更新。
+公開的 `README*.md` 與 `docs/USER_GUIDE*.md` 是使用者文件，不是重構指令的權威來源；改變使用行為時仍須同步更新。重構中的文件、原始碼、fixtures 與測試統一放在 `wip/`；Dropbox 工作檔路徑依上一層 `工作檔路徑.md` 解析，不得寫死單一電腦的絕對路徑。
 
 ## 分支與版本
 
@@ -27,7 +27,7 @@ AI 必須依序完整讀取：
 ## 重構模式
 
 - 3.0 採「新版乾淨重建、正式發布時一次切換」，不要求開發中的 v2／v3 指令互相相容。
-- `main`、v2 payload 與 fork 基準作為唯讀參考；3.0 在隔離 `src/`、Rhino 安裝與 Blender profile 建立。
+- `main`、v2 payload 與 fork 基準作為唯讀參考；3.0 在隔離 `wip/src/`、Rhino 安裝與 Blender profile 建立。
 - 先完成工作流、命名、跨軟體 schema、Blender ID 與 fork 邊界，再建立新架構。
 - 新核心不長期保留 v2 alias、雙寫或 compatibility wrapper；升級集中於獨立 migration 工具。
 - 建造過程仍分批提交並做自動／fixture 測試；Rhino→Blender 端到端實機測試在主鏈串接完成後集中進行。
@@ -43,7 +43,7 @@ AI 必須依序完整讀取：
 ## AI 作業流程
 
 1. 確認 repo、branch、origin、upstream 與乾淨工作樹；只用 fast-forward pull。
-2. 讀取上述五份文件，從 `PROGRESS.md` 確認目前階段與限制。
+2. 讀取上述文件，從 `PROGRESS.md` 確認目前階段與限制。
 3. 建立短期工作分支，一批只處理一個 P0 或一條 feature。
 4. 命名與 schema 尚未定案前，不建立正式 feature；先完成依賴盤點與 fixtures。
 5. 每段完成後做自動／contract 測試；主鏈串接後使用隔離 Rhino、Blender profile 與測試 `.3dm` 做端到端驗證。
