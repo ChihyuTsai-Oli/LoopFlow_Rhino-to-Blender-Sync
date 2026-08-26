@@ -17,11 +17,12 @@
 
 ## 重構工作檔根目錄
 
-- 本機環境變數：`LOOPFLOW_R2B_WORKFILES_ROOT`
-- 公司電腦：`D:\Dropbox\LoopFlow_Series\Workfiles\WIP_R2B`
-- Rhino／Blender 交換 JSON：`%LOOPFLOW_R2B_WORKFILES_ROOT%\exchange\`
+- **執行時設定與即時檔**：跟目前 Rhino 工作檔所在資料夾走，寫進 `_LoopFlow_Config/loopflow_R2B/`（與 LoopFlow 的 `_LoopFlow_Config/loopflow/` 同層）。未存檔即停止。確切檔名與 schema 仍待資料契約盤點。
+- 已發布 2.x 仍讀 `%APPDATA%\McNeel\Rhinoceros\8.0\scripts\LoopFlow_R2B\Data\`；3.0 發布時一次切換，不改現行安裝。
+- 測檔／素材環境變數：`LOOPFLOW_R2B_WORKFILES_ROOT`（雙機實際路徑見工作區 `工作檔路徑.md`）。**不再**把 Dropbox `exchange/` 當執行時 JSON 根目錄。
+- 即時檔不提交 Git。
 
-3.0 producer／consumer 只透過環境變數解析工作根目錄，不寫死公司路徑。交換 JSON 的確切檔名與 schema 後續由資料契約固定；即時檔不提交 Git。
+3.0 producer／consumer 不寫死公司或家中的絕對路徑。語系等電腦偏好若需要，另放 `%APPDATA%`，不進專案 `_LoopFlow_Config`。
 
 ## 3.0 開發模式
 

@@ -57,7 +57,7 @@ fixture 與預期結果應在對應功能建造前完成；實機結果則在主
 
 | 日期 | 分支 / commit | 檢查 | 結果 | 限制 |
 |---|---|---|---|---|
-| 2026-08-12 | `v3-development` 建立基準 | Git 同步、Release ZIP 完整性與 SHA-256、21 支 Python 靜態語法、RHC XML | 通過 | Blender CLI 不在 PATH；Rhino / Blender 實機流程由後續批次逐項驗證 |
+| 2026-08-26 | `codex/v3-config-path` | 執行時設定／即時檔改跟工作檔：`_LoopFlow_Config/loopflow_R2B/` | 只改文件。已發布 2.x AppData 路徑不動 | 檔名與 schema 仍待盤點。Dropbox `exchange/` 不再當執行時根目錄 |
 | 2026-08-12 | 文件 SSOT 建置 | 建立繁中使用說明、系統設定、重構計畫與 repo AI 規則；Markdown 本機連結檢查 | 通過 | 第一方註解依 feature 批次遷移；第三方 fork 原文與授權保留 |
 | 2026-08-12 | 重構模式裁決 | 新版乾淨重建、一次切換；命名與跨程式資料契約先於程式架構 | 通過 | 尚未開始命名盤點與產品程式碼修改 |
 | 2026-08-12 | 開發測試入口 | Rhino 測試按鈕暫定直接指向 repo 的 `wip/src/rhino/entrypoints/`；功能或路徑變動時同步更新系統設定與工具列 | 已記錄 | 入口檔尚未建立；正式安裝／RC 另用隔離 `%APPDATA%` 路徑 |
@@ -67,4 +67,4 @@ fixture 與預期結果應在對應功能建造前完成；實機結果則在主
 
 ## 下一步
 
-依 `DEVELOPMENT_ROADMAP.md` 從 R2B-A01「端到端工作流盤點」開始，再完成命名、schema、Blender ID、fork 邊界與 fixtures。使用者確認契約前，不開始正式功能程式碼。
+依 `DEVELOPMENT_ROADMAP.md` 從 R2B-A01「端到端工作流盤點」開始，再完成命名、schema、Blender ID、fork 邊界與 fixtures。設定／即時檔路徑已定為 `_LoopFlow_Config/loopflow_R2B/`。使用者確認其餘契約前，不開始正式功能程式碼。

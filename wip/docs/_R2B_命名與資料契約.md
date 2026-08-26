@@ -15,6 +15,7 @@
 - 3.0 不在核心散落 v2 alias、雙寫欄位或臨時 wrapper。
 - 既有正式 v2 安裝與資料保持不動；3.0 使用隔離 scripts、data、RHC、Blender profile 與 package ID。
 - 外部 operator ID、property、collection、檔名與 schema 若改變，必須列入 migration／release notes。
+- **設定與即時檔路徑已定**：工作檔所在資料夾的 `_LoopFlow_Config/loopflow_R2B/`。父資料夾 `_LoopFlow_Config` 與 LoopFlow／R2O／QTY 共用，產品各用自己的子資料夾。已發布 2.x 的 AppData `Data\` 保持不動，3.0 一次切換。
 - 第三方 fork 的 upstream 名稱與授權不為統一風格任意改寫。
 
 ## 必須盤點的命名層級
