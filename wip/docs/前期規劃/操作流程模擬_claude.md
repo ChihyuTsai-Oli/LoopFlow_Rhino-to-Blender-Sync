@@ -1,7 +1,7 @@
 # R2B 3.0 — 操作流程模擬（Claude 版）
 
 > 與 [`操作流程模擬_cursor_grok.md`](操作流程模擬_cursor_grok.md) 同源、不同視角，兩份並存互相對照，**都不改寫對方**。
-> 依據：[`資料生態決策表_合併.md`](資料生態決策表_合併.md) 的已決欄、[`現況與工作鏈藍圖.md`](現況與工作鏈藍圖.md)、`_R2B_重構計畫.md`，以及現行 2.x 程式（Rhino 端 5 支 Python、Blender 端 `import_3dm` fork 與 Toolkit）。
+> 依據：[`資料生態決策表_合併.md`](資料生態決策表_合併.md) 的已決欄、[`現況與工作鏈藍圖.md`](現況與工作鏈藍圖.md)、`實作總覽.md`，以及現行 2.x 程式（Rhino 端 5 支 Python、Blender 端 `import_3dm` fork 與 Toolkit）。
 > 這是 **3.0 目標行為**的驗收腳本草案，不是 2.x 現在會發生的事。指令名見 [`../rhino指令.md`](../rhino指令.md)。
 
 本版維持三個獨有視角，這也是它和 grok 版的分工：
