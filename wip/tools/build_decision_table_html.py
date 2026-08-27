@@ -2,8 +2,8 @@
 """把 `前期規劃/資料生態決策表.md` 轉成寬版好讀的 HTML。
 
 用途
-    決策表有 6 欄且 AI 建議欄很長，在一般 Markdown 預覽裡會被擠成細長條。
-    本檔產生的 HTML 給每一欄固定寬度、表頭與 ID 欄固定不捲動，方便逐列閱讀與填寫。
+    決策表有 7 欄且三個 AI 建議欄很長，在一般 Markdown 預覽裡會被擠成細長條。
+    本檔產生的 HTML 給每一欄有限寬度、表頭與 ID 欄固定不捲動，方便逐列閱讀與填寫。
     `資料生態決策表.html` 是衍生檔，不應手動編輯；改 `.md` 後重新執行本腳本。
 
 執行
@@ -117,7 +117,7 @@ def convert(md: str) -> tuple[str, list[tuple[int, str, str]]]:
                 body.append(cells(lines[i]))
                 i += 1
 
-            kind = "dual-ai" if any("Claude 建議" in c for c in head) else "strength"
+            kind = "multi-ai" if any("Claude 建議" in c for c in head) else "strength"
             parts = [
                 '<div class="tw"><table class="%s cols-%d">' % (kind, len(head)),
                 "<thead><tr>",
@@ -216,7 +216,7 @@ def convert(md: str) -> tuple[str, list[tuple[int, str, str]]]:
 # ==================================================================
 CSS = r"""
 :root{color-scheme:dark;--bg:#101417;--panel:#171d21;--line:#39444a;--text:#edf2f3;--muted:#a9b4b8;
-  --accent:#74c9b4;--amber:#e4b86a;--red:#ef8c84;--grok:#c8a4e8;--claude:#7fc7d9;
+  --accent:#74c9b4;--amber:#e4b86a;--red:#ef8c84;--grok:#c8a4e8;--claude:#7fc7d9;--codex:#93d59f;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif;
   --mono:"Cascadia Mono",Consolas,"SF Mono",monospace}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
@@ -246,7 +246,7 @@ pre.code code{background:none;padding:0;color:#b9c4d8;font-size:13px;white-space
 .tw{max-height:80vh;margin:18px 0 32px;overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel);box-shadow:0 10px 28px #0005}
 table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
 table.strength{min-width:640px}
-table.dual-ai{min-width:2200px}
+table.multi-ai{min-width:2600px}
 th,td{padding:11px 13px;vertical-align:top;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-size:13.6px;line-height:1.72;word-break:break-word}
 th{position:sticky;top:0;z-index:3;background:#243036;color:#f5faf9;text-align:left;font-size:13px}
 th:first-child,td:first-child{position:sticky;left:0;z-index:2;background:#1b2428;font-weight:650;color:var(--text)}
@@ -255,16 +255,18 @@ th:first-child{z-index:4;background:#243036}
 .tw th:last-child,.tw td:last-child{border-right:0}
 tbody tr:hover td{background:#202c30}tbody tr:hover td:first-child{background:#263338}
 
-/* 6 欄：ID／原則／現況選項／Grok／Claude／你的決定。Claude 欄最寬，因為它帶程式碼證據。 */
-.dual-ai.cols-6 col:nth-child(1){width:4.5%}
-.dual-ai.cols-6 col:nth-child(2){width:12%}
-.dual-ai.cols-6 col:nth-child(3){width:14%}
-.dual-ai.cols-6 col:nth-child(4){width:16%}
-.dual-ai.cols-6 col:nth-child(5){width:35%}
-.dual-ai.cols-6 col:nth-child(6){width:18.5%}
-.dual-ai th:nth-child(4){color:var(--grok)}
-.dual-ai th:nth-child(5){color:var(--claude)}
-.dual-ai td:nth-child(5){border-left:2px solid #2b4a52}
+/* 7 欄：ID／原則／現況選項／Grok／Claude／Codex／你的決定。長文 AI 欄最寬，總寬仍受控。 */
+.multi-ai.cols-7 col:nth-child(1){width:4.5%}
+.multi-ai.cols-7 col:nth-child(2){width:10%}
+.multi-ai.cols-7 col:nth-child(3){width:11%}
+.multi-ai.cols-7 col:nth-child(4){width:13.5%}
+.multi-ai.cols-7 col:nth-child(5){width:24%}
+.multi-ai.cols-7 col:nth-child(6){width:26%}
+.multi-ai.cols-7 col:nth-child(7){width:11%}
+.multi-ai th:nth-child(4){color:var(--grok)}
+.multi-ai th:nth-child(5){color:var(--claude)}
+.multi-ai th:nth-child(6){color:var(--codex)}
+.multi-ai td:nth-child(5),.multi-ai td:nth-child(6){border-left:2px solid #2b4a52}
 
 /* 依「你的決定」欄的內容標色，方便掃出還沒填的列 */
 tr.adopted td:last-child{background:#173329}
@@ -274,7 +276,7 @@ tr.delayed td:last-child{background:#29233a}
 
 @media(max-width:900px){.layout{display:block}nav{position:static;width:auto;height:auto;border-right:0;border-bottom:1px solid var(--line)}main{padding:24px 16px}}
 @media print{body{background:#fff;color:#111}.layout{display:block}nav,.notice{display:none}main{padding:0}
-  .tw{max-height:none;overflow:visible;box-shadow:none}table.dual-ai,table.strength{min-width:0;font-size:8pt}
+  .tw{max-height:none;overflow:visible;box-shadow:none}table.multi-ai,table.strength{min-width:0;font-size:8pt}
   th{position:static;background:#ddd;color:#111}th:first-child,td:first-child{position:static;background:#eee}}
 """
 
@@ -328,7 +330,7 @@ def render(markdown: str) -> str:
         for level, heading, anchor in toc
     )
     notice = (
-        '<div class="notice">這是由 Markdown 產生的寬版閱讀檔，方便橫向比較兩個 AI 的建議。'
+        '<div class="notice">這是由 Markdown 產生的寬版閱讀檔，方便橫向比較三個 AI 的建議。'
         "內容請改 <code>資料生態決策表.md</code>，再執行 "
         "<code>wip/tools/build_decision_table_html.py</code> 更新本頁。"
         "「你的決定」欄仍未填的列會標成紅底。</div>"
