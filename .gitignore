@@ -41,6 +41,11 @@
 !releases/**/
 !releases/**
 
+# 上游 import_3dm 參考來源（唯讀基準；實作時複製到 wip/）
+!import_3dm/
+!import_3dm/**/
+!import_3dm/**
+
 # 系統排除
 **/__pycache__/
 **/*.pyc

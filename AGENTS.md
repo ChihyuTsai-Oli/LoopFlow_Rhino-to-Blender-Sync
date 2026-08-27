@@ -6,16 +6,16 @@
 
 AI 必須依序完整讀取：
 
-1. `wip/docs/_R2B_使用說明.md`
-2. `wip/docs/_R2B_系統設定.md`
-3. `wip/docs/_R2B_命名與資料契約.md`
-4. `wip/docs/_R2B_重構計畫.md`
-5. `wip/docs/architecture/DEVELOPMENT_ROADMAP.md`
-6. `wip/docs/architecture/PROGRESS.md`
+1. `wip/docs/實作總覽.md`
+2. `wip/docs/資料契約.md`
+3. `wip/docs/工作流程.md`
+4. `wip/docs/開發任務與路徑.md`
+5. `wip/docs/系統設定.md`
+6. `wip/docs/重構進度.md`
 
-契約尚未定案時另讀：`wip/docs/前期規劃/資料生態決策表_三家建議.md`（尚待確認唯一來源）、`wip/docs/rhino指令.md`（測試按鈕與指令清單）。`前期規劃/` 其餘檔不是日常實作規格。
+契約細節未盤完或需追溯決策時另讀：`wip/docs/前期規劃/資料生態決策表_三家建議.md`、`wip/docs/rhino指令.md`。`前期規劃/` 其餘檔是原則／過程，不是日常實作規格；與六份正式文件衝突時以六份為準。
 
-公開的 `README*.md` 與 `docs/USER_GUIDE*.md` 是使用者文件，不是重構指令的權威來源；改變使用行為時仍須同步更新。重構中的文件、原始碼、fixtures 與測試統一放在 `wip/`；Dropbox 工作檔路徑依上一層 `工作檔路徑.md` 解析，不得寫死單一電腦的絕對路徑。
+公開的 `README*.md` 與 `docs/USER_GUIDE*.md` 是使用者文件，不是重構權威。重構中的文件、原始碼、fixtures 與測試統一放在 `wip/`。Importer 上游參考在 repo 根 `import_3dm/import_3dm-0.0.18-windows_x64`（唯讀；實作時複製到 `wip/`）。Dropbox 工作檔路徑依上一層 `工作檔路徑.md` 解析，不得寫死單一電腦的絕對路徑。
 
 ## 分支與版本
 
@@ -30,7 +30,7 @@ AI 必須依序完整讀取：
 
 - 3.0 採「新版乾淨重建、正式發布時一次切換」，不要求開發中的 v2／v3 指令互相相容。
 - `main`、v2 payload 與 fork 基準作為唯讀參考；3.0 在隔離 `wip/src/`、Rhino 安裝與 Blender profile 建立。
-- 先完成工作流、命名、跨軟體 schema、Blender ID 與 fork 邊界，再建立新架構。
+- **功能切片**：Rhino producer 與 Blender consumer 同一功能同批交付，才能測試。
 - 新核心不長期保留 v2 alias、雙寫或 compatibility wrapper；升級集中於獨立 migration 工具。
 - 建造過程仍分批提交並做自動／fixture 測試；Rhino→Blender 端到端實機測試在主鏈串接完成後集中進行。
 
@@ -38,18 +38,16 @@ AI 必須依序完整讀取：
 
 - 維護、架構、設定、重構與進度文件一律使用繁體中文。
 - 對外英文 README／使用指南是發布翻譯，可保留英文；功能事實改變時必須與繁中版本同步。
-- 模組完整責任、流程、schema、副作用與 upstream／fork 邊界寫入 `docs/`，程式只保留必要說明。
+- 模組完整責任、流程、schema、副作用與 upstream／fork 邊界寫入 `wip/docs/` 六份正式文件，程式只保留必要說明。
 - 新增或修改的 docstring、區塊註解與行內註解使用繁體中文；API、識別字、Blender／Rhino 名稱與第三方授權文字維持原文。
-- 不批次翻譯整個 fork。修改某個第一方功能時，先把整體說明移入 docs，再精簡該範圍標頭；第三方 fork 註解除必要 patch 外保持可追溯。
 
 ## AI 作業流程
 
 1. 確認 repo、branch、origin、upstream 與乾淨工作樹；只用 fast-forward pull。
-2. 讀取上述文件，從 `PROGRESS.md` 確認目前階段與限制。
-3. 建立短期工作分支，一批只處理一個 P0 或一條 feature。
-4. 命名與 schema 尚未定案前，不建立正式 feature；先完成依賴盤點與 fixtures。
-5. 每段完成後做自動／contract 測試；主鏈串接後使用隔離 Rhino、Blender profile 與測試 `.3dm` 做端到端驗證。
-6. 同步更新使用說明、系統設定、重構計畫（若決策改變）與 `PROGRESS.md`。
-7. 檢查 diff、授權、binary、秘密與產物後提交、推送短期分支。
+2. 讀取上述六份文件，從 `重構進度.md` 確認目前階段與限制。
+3. 建立短期工作分支，一批只處理一個範圍；功能碼須兩端同批。
+4. 每段完成後做自動／contract 測試；主鏈串接後使用隔離 Rhino、Blender profile 與測試 `.3dm` 做端到端驗證。
+5. 同步更新六份正式文件中受影響者。
+6. 檢查 diff、授權、binary、秘密與產物後提交、推送短期分支。
 
 使用者不負責操作 Git 或自行推導技術步驟；AI 應直接完成安全、可逆的操作，並以簡短繁體中文回報結果。
