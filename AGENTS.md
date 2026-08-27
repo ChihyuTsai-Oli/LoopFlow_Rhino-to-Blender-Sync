@@ -13,6 +13,8 @@ AI 必須依序完整讀取：
 5. `wip/docs/architecture/DEVELOPMENT_ROADMAP.md`
 6. `wip/docs/architecture/PROGRESS.md`
 
+契約尚未定案時另讀：`wip/docs/前期規劃/資料生態決策表.md`（尚待確認唯一來源）、`wip/docs/rhino指令.md`（測試按鈕與指令清單）。`前期規劃/` 其餘檔不是日常實作規格。
+
 公開的 `README*.md` 與 `docs/USER_GUIDE*.md` 是使用者文件，不是重構指令的權威來源；改變使用行為時仍須同步更新。重構中的文件、原始碼、fixtures 與測試統一放在 `wip/`；Dropbox 工作檔路徑依上一層 `工作檔路徑.md` 解析，不得寫死單一電腦的絕對路徑。
 
 ## 分支與版本
