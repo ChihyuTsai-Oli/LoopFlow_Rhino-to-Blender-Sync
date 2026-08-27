@@ -36,7 +36,7 @@ Rhino 端使用 Rhino 8／CPython 3.9。3.0 開發版必須使用獨立 Rhino sc
 
 | 指令 | 行為契約 |
 |---|---|
-| `R2B_Models` | 收集指定模型並發布 `R2B.3dm`；不得匯出非目標物件或破壞未存修改 |
+| `R2B_Models` | 收集指定模型並發布 3DM；不得匯出非目標物件或破壞未存修改。**3.0 已決（ED-01）**：主模式＝指定專案圖層；彈出選單勾選幾何類別（Point／Curve 預設不勾）；無視隱藏／鎖定當可見匯出；禁止 `_SelAll`；來源狀態還原 |
 | `R2B_Camera` | 將 Rhino camera 狀態寫入 `R2B_Camera_Sync.json` |
 | `R2B_Light` | 將指定 layer 的 Point 位置寫入 `R2B_Light_Sync.json` |
 | `R2B_Open` | 開啟設定／資料位置與相關工具 |

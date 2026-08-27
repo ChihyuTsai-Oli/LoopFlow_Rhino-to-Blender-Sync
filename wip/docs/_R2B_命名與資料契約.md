@@ -8,7 +8,7 @@
 - 套用版本：R2B `v3.0.0`
 - 舊版參考：`v2.0.0`
 - 原則：3.0 核心只使用新契約；舊版相容留在獨立 migration／import 邊界
-- **尚待確認事項的唯一來源**：`前期規劃/資料生態決策表.md`（確認前不要在本檔填 canonical 當成已定案）
+- **尚待確認事項的唯一來源**：`前期規劃/資料生態決策表_三家建議.md`（確認前不要在本檔填 canonical 當成已定案）
 - 開發期 Rhino 指令與按鈕巨集：`rhino指令.md`
 
 ## 核心裁決
@@ -18,6 +18,8 @@
 - 既有正式 v2 安裝與資料保持不動；3.0 使用隔離 scripts、data、RHC、Blender profile 與 package ID。
 - 外部 operator ID、property、collection、檔名與 schema 若改變，必須列入 migration／release notes。
 - **設定與即時檔路徑已定**：工作檔所在資料夾的 `_LoopFlow_Config/loopflow_R2B/`。父資料夾 `_LoopFlow_Config` 與 LoopFlow／R2O／QTY 共用，產品各用自己的子資料夾。已發布 2.x 的 AppData `Data\` 保持不動，3.0 一次切換。
+- **Models 選取（已決 ED-01）**：指定專案圖層；類別勾選彈窗（Point／Curve 預設不勾）；無視隱藏／鎖定當可見匯出；禁止 `_SelAll`；來源狀態還原。
+- **開發順序（跨產品）**：先完成本產品（R2B＋Blender），再 R2O＋Octane。
 - 第三方 fork 的 upstream 名稱與授權不為統一風格任意改寫。
 
 ## 必須盤點的命名層級
