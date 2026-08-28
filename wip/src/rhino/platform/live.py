@@ -85,6 +85,22 @@ class LiveSession:
                 return "brep"
         except Exception:
             pass
+        # SubD／Extrusion：rs 未必有對應 Is*，改看 ObjectType
+        try:
+            import Rhino  # type: ignore
+
+            guid = rs.coerceguid(object_id)
+            robj = _sc().doc.Objects.FindId(guid) if guid else None
+            if robj is not None:
+                ot = robj.ObjectType
+                if ot == Rhino.DocObjects.ObjectType.SubD:
+                    return "subd"
+                if ot == Rhino.DocObjects.ObjectType.Extrusion:
+                    return "extrusion"
+                if ot == Rhino.DocObjects.ObjectType.InstanceReference:
+                    return "instance"
+        except Exception:
+            pass
         return "other"
 
     def iter_object_ids(
