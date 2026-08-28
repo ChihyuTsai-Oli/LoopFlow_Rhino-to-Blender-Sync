@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""R2B_Open 開發入口（空殼）。"""
+"""R2B_Open：Health 摘要與開啟設定資料夾。"""
 from __future__ import annotations
 
 import os
@@ -16,15 +16,13 @@ def main() -> None:
     src = _repo_src_root()
     if src not in sys.path:
         sys.path.insert(0, src)
-    from foundation.stub import stub_message
 
-    msg = stub_message(_CMD)
-    try:
-        import rhinoscriptsyntax as rs
+    from rhino.commands.open import run_open
 
-        rs.MessageBox(msg)
-    except Exception:
-        print(msg)
+    result = run_open()
+    print("{} [{}]".format(_CMD, result.status))
+    if result.message:
+        print(result.message)
 
 
 if __name__ == "__main__":

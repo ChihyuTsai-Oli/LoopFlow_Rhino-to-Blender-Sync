@@ -44,6 +44,14 @@ class SourceSkeletonTests(unittest.TestCase):
     def test_foundation_compile(self):
         self.assertTrue(compileall.compile_dir(str(SRC / "foundation"), quiet=1))
 
+    def test_open_health_modules_compile(self):
+        py_compile.compile(str(SRC / "foundation" / "health.py"), doraise=True)
+        py_compile.compile(str(SRC / "rhino" / "commands" / "open.py"), doraise=True)
+        py_compile.compile(
+            str(SRC / "blender" / "loopflow_r2b_sync_dev" / "health_sync.py"),
+            doraise=True,
+        )
+
     def test_addon_bl_info_without_importing_bpy(self):
         tree = ast.parse(ADDON.read_text(encoding="utf-8"))
         bl_info = None
@@ -56,7 +64,7 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertEqual(bl_info["author"], "Chihyu Tsai")
         self.assertEqual(bl_info["blender"], (5, 2, 1))
         self.assertIn("Dev Stub", bl_info["name"])
-        self.assertEqual(bl_info["version"], (0, 0, 7))
+        self.assertEqual(bl_info["version"], (0, 0, 8))
 
     def test_addon_registers_expected_stub_idnames(self):
         text = ADDON.read_text(encoding="utf-8")
@@ -69,6 +77,7 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertIn('bl_idname = "loopflow_r2b_dev.camera_push"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.light_auto_on"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.sync_lights"', text)
+        self.assertIn('bl_idname = "loopflow_r2b_dev.open_health"', text)
         self.assertIn('bl_category = "LoopFlow"', text)
         self.assertIn('bl_label = "Rhino to Blender Sync"', text)
         self.assertNotIn("LoopFlow R2B Dev", text)

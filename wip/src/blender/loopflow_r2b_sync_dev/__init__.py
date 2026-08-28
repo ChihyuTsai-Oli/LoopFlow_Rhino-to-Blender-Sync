@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""LoopFlow R2B Sync — 開發用 add-on（Camera／Light／Models 已接；Open 仍空殼）。
+"""LoopFlow R2B Sync — 開發用 add-on（Models／Camera／Light／Open 已接）。
 
 隔離 package：勿與 2.x `Import Rhinoceros 3D (R2B Pro)`／Toolkit 同 profile 混用正式專案。
 Models Update／Import 使用內嵌 `import_3dm` fork（含 rhino3dm wheels）。
@@ -8,10 +8,10 @@ Models Update／Import 使用內嵌 `import_3dm` fork（含 rhino3dm wheels）�
 bl_info = {
     "name": "LoopFlow R2B Sync (Dev Stub)",
     "author": "Chihyu Tsai",
-    "version": (0, 0, 7),
+    "version": (0, 0, 8),
     "blender": (5, 2, 1),
     "location": "N-Panel > LoopFlow",
-    "description": "R2B 3.0 Sync: Models, Camera, Light; embedded import_3dm",
+    "description": "R2B 3.0 Sync: Models, Camera, Light, Open; embedded import_3dm",
     "category": "Import-Export",
 }
 
@@ -20,6 +20,7 @@ import os
 import bpy
 
 from . import camera_sync
+from . import health_sync
 from . import light_sync
 from . import model_sync
 
@@ -179,6 +180,39 @@ class LOOPFLOW_R2B_DEV_OT_sync_lights(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class LOOPFLOW_R2B_DEV_OT_open_health(bpy.types.Operator):
+    """Show last-good file times and open the config folder."""
+
+    bl_idname = "loopflow_r2b_dev.open_health"
+    bl_label = "Open / Health"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        folder = health_sync.work_folder_from_scene(context.scene)
+        if not folder:
+            self.report({"ERROR"}, "Set the Work Folder or save the Blender file first")
+            return {"CANCELLED"}
+        report = health_sync.health_report_for_work_folder(folder)
+        err = health_sync.open_config_root(folder)
+        lines = report.splitlines() or [report]
+
+        def draw_popup(menu, _context):
+            col = menu.layout.column()
+            for line in lines:
+                col.label(text=line)
+
+        context.window_manager.popup_menu(
+            draw_popup,
+            title="R2B Open / Health",
+            icon="INFO",
+        )
+        if err:
+            self.report({"ERROR"}, err)
+            return {"CANCELLED"}
+        self.report({"INFO"}, "Opened config folder")
+        return {"FINISHED"}
+
+
 class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
     bl_label = "Rhino to Blender Sync"
     bl_idname = "LOOPFLOW_R2B_DEV_PT_panel"
@@ -218,8 +252,7 @@ class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
 
         layout.separator()
         col = layout.column(align=True)
-        op = col.operator("loopflow_r2b_dev.stub", text="Open / Health")
-        op.action = "Open / Health"
+        col.operator("loopflow_r2b_dev.open_health", text="Open / Health")
 
 
 _CLASSES = (
@@ -234,6 +267,7 @@ _CLASSES = (
     LOOPFLOW_R2B_DEV_OT_light_auto_on,
     LOOPFLOW_R2B_DEV_OT_light_auto_off,
     LOOPFLOW_R2B_DEV_OT_sync_lights,
+    LOOPFLOW_R2B_DEV_OT_open_health,
     LOOPFLOW_R2B_DEV_PT_panel,
 )
 

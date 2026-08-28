@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""R2B 專案設定根與交換檔路徑（開發暫定檔名；A02 凍結前可調）。"""
+"""R2B 專案設定根與交換檔路徑（檔名已凍結）。"""
 from __future__ import annotations
 
 import os
@@ -16,7 +16,7 @@ PRODUCT_DIR_NAME = "loopflow_R2B"
 LIVE_DIR_NAME = "live"
 MODELS_DIR_NAME = "models"
 
-# 開發暫定檔名（見工作流程／資料契約；尚未對使用者凍結）
+# 已凍結檔名（見資料契約）
 CONFIG_FILE_NAME = "config.json"
 LOG_FILE_NAME = "r2b.log"
 CAMERA_FILE_NAME = "camera.json"
