@@ -25,7 +25,7 @@ E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 
 | 指令 ID（入口檔名） | 顯示用途（暫） | 狀態 |
 |---|---|---|
-| `R2B_Models` | 發布／更新模型 3DM | 空殼已落地 |
+| `R2B_Models` | 選圖層＋型別 → atomic 發布 model.3dm | **已接** |
 | `R2B_Camera` | 開／關自動同步（按一下切換） | **已接** |
 | `R2B_Camera_Push` | 手動推送相機 JSON 一次 | **已接** |
 | `R2B_Light` | 開／關自動同步（按一下切換） | **已接** |
@@ -65,6 +65,7 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 | 日期 | 說明 |
 |---|---|
+| 2026-08-28 | `R2B_Models` 接業務（精準 ID／atomic／無 Open 中間檔）；Blender Update／Import |
 | 2026-08-28 | `R2B_Light`＝toggle；新增 `R2B_Light_Push`；Light 兩端 D02 |
 | 2026-08-28 | `R2B_Camera`＝toggle；新增 `R2B_Camera_Push`；Blender 作業資料夾＝工作檔同層 |
 | 2026-08-28 | entrypoints 空殼落地；註明 Blender Dev Stub 路徑 |

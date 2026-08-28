@@ -1,0 +1,77 @@
+# -*- coding: utf-8 -*-
+"""Models 路徑／atomic／驗證單元測試。"""
+from __future__ import annotations
+
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+WIP = Path(__file__).resolve().parents[1]
+SRC = WIP / "src"
+sys.path.insert(0, str(SRC))
+
+from foundation.atomic import atomic_publish_from_pending
+from foundation.model_payload import validate_model_3dm
+from foundation.paths import (
+    ensure_config_layout,
+    model_path,
+    pending_path_for,
+    resolve_model_3dm_from_work_folder,
+)
+
+
+class ModelPublishTests(unittest.TestCase):
+    def test_validate_rejects_empty(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "model.3dm"
+            p.write_bytes(b"")
+            self.assertIsNotNone(validate_model_3dm(p))
+
+    def test_validate_accepts_nonempty(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "model.3dm"
+            p.write_bytes(b"3D Geometry File Format dummy")
+            self.assertIsNone(validate_model_3dm(p))
+
+    def test_atomic_from_pending_keeps_last_good_on_bad_pending(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = ensure_config_layout(Path(tmp) / "_LoopFlow_Config" / "loopflow_R2B")
+            final = model_path(root)
+            pending = pending_path_for(final)
+            final.write_bytes(b"LASTGOOD-CONTENT-XXXX")
+            pending.write_bytes(b"")  # invalid
+            bad = atomic_publish_from_pending(final, validate=validate_model_3dm)
+            self.assertFalse(bad.ok)
+            self.assertEqual(final.read_bytes(), b"LASTGOOD-CONTENT-XXXX")
+            self.assertFalse(pending.exists())
+
+    def test_atomic_from_pending_replaces(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = ensure_config_layout(Path(tmp) / "_LoopFlow_Config" / "loopflow_R2B")
+            final = model_path(root)
+            pending = pending_path_for(final)
+            final.write_bytes(b"OLD")
+            pending.write_bytes(b"NEW-3DM-PAYLOAD-BYTES")
+            ok = atomic_publish_from_pending(final, validate=validate_model_3dm)
+            self.assertTrue(ok.ok)
+            self.assertEqual(final.read_bytes(), b"NEW-3DM-PAYLOAD-BYTES")
+            self.assertFalse(pending.exists())
+
+    def test_resolve_from_work_folder(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            target = (
+                work
+                / "_LoopFlow_Config"
+                / "loopflow_R2B"
+                / "models"
+                / "model.3dm"
+            )
+            target.parent.mkdir(parents=True)
+            target.write_bytes(b"x")
+            self.assertEqual(resolve_model_3dm_from_work_folder(work), target.resolve())
+
+
+if __name__ == "__main__":
+    unittest.main()

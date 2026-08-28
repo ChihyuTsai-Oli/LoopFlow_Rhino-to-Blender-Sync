@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
-"""LoopFlow R2B Sync — 開發用 add-on（Camera／Light 已接；Models 仍空殼）。
+"""LoopFlow R2B Sync — 開發用 add-on（Camera／Light／Models 已接；Open 仍空殼）。
 
 隔離 package：勿與 2.x `Import Rhinoceros 3D (R2B Pro)`／Toolkit 同 profile 混用正式專案。
+Models Update／Import 會呼叫本機已啟用的 `import_3dm.some_data`。
 """
 
 bl_info = {
     "name": "LoopFlow R2B Sync (Dev Stub)",
     "author": "Chihyu Tsai",
-    "version": (0, 0, 4),
+    "version": (0, 0, 5),
     "blender": (5, 2, 1),
     "location": "N-Panel > LoopFlow R2B Dev",
-    "description": "3.0 開發 Sync：Camera／Light 開／關／手動；作業資料夾自動偵測",
+    "description": "3.0 開發 Sync：Models／Camera／Light；作業資料夾自動偵測",
     "category": "Import-Export",
 }
 
@@ -20,6 +21,7 @@ import bpy
 
 from . import camera_sync
 from . import light_sync
+from . import model_sync
 
 _STUB = "尚未實作（3.0 測試 Sync 空殼）"
 
@@ -52,6 +54,34 @@ class LOOPFLOW_R2B_DEV_OT_reset_paths(bpy.types.Operator):
         work_dir = os.path.dirname(bpy.path.abspath(blend_path))
         context.scene.r2b_sync_folder = work_dir
         self.report({"INFO"}, f"作業資料夾已設為：{work_dir}")
+        return {"FINISHED"}
+
+
+class LOOPFLOW_R2B_DEV_OT_update_models(bpy.types.Operator):
+    bl_idname = "loopflow_r2b_dev.update_models"
+    bl_label = "Update Models"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        err = model_sync.sync_models(context, update_materials=False)
+        if err:
+            self.report({"ERROR"}, err)
+            return {"CANCELLED"}
+        self.report({"INFO"}, "Update Models 完成（保留材質／顯隱）")
+        return {"FINISHED"}
+
+
+class LOOPFLOW_R2B_DEV_OT_import_models(bpy.types.Operator):
+    bl_idname = "loopflow_r2b_dev.import_models"
+    bl_label = "Import Models"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        err = model_sync.sync_models(context, update_materials=True)
+        if err:
+            self.report({"ERROR"}, err)
+            return {"CANCELLED"}
+        self.report({"INFO"}, "Import Models 完成（可更新材質）")
         return {"FINISHED"}
 
 
@@ -156,10 +186,8 @@ class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
 
         layout.separator()
         col = layout.column(align=True)
-        op = col.operator("loopflow_r2b_dev.stub", text="Update Models")
-        op.action = "Update Models"
-        op = col.operator("loopflow_r2b_dev.stub", text="Import Models")
-        op.action = "Import Models"
+        col.operator("loopflow_r2b_dev.update_models", text="Update Models")
+        col.operator("loopflow_r2b_dev.import_models", text="Import Models")
 
         layout.separator()
         col = layout.column(align=True)
@@ -182,6 +210,8 @@ class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
 _CLASSES = (
     LOOPFLOW_R2B_DEV_OT_stub,
     LOOPFLOW_R2B_DEV_OT_reset_paths,
+    LOOPFLOW_R2B_DEV_OT_update_models,
+    LOOPFLOW_R2B_DEV_OT_import_models,
     LOOPFLOW_R2B_DEV_OT_camera_auto_on,
     LOOPFLOW_R2B_DEV_OT_camera_auto_off,
     LOOPFLOW_R2B_DEV_OT_camera_push,
@@ -197,7 +227,7 @@ def register():
         bpy.utils.register_class(cls)
     bpy.types.Scene.r2b_sync_folder = bpy.props.StringProperty(
         name="作業資料夾",
-        description="與 .3dm／.blend／_LoopFlow_Config 同層；內含 live/camera.json、light.json",
+        description="與 .3dm／.blend／_LoopFlow_Config 同層；含 live／models",
         default="",
         subtype="DIR_PATH",
     )

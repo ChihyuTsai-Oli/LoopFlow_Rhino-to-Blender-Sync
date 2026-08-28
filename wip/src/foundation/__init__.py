@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
-"""3.0 foundation：result／path／atomic／log／camera／light payload。"""
+"""3.0 foundation：result／path／atomic／log／camera／light／model。"""
 
-from foundation.atomic import atomic_publish_bytes, atomic_publish_json, atomic_publish_text
+from foundation.atomic import (
+    atomic_publish_bytes,
+    atomic_publish_from_pending,
+    atomic_publish_json,
+    atomic_publish_text,
+)
 from foundation.camera_payload import (
     SCHEMA_VERSION,
     build_camera_payload,
@@ -16,6 +21,7 @@ from foundation.light_payload import (
     validate_light_payload,
 )
 from foundation.log import append_log
+from foundation.model_payload import validate_model_3dm
 from foundation.paths import (
     CAMERA_FILE_NAME,
     CONFIG_FILE_NAME,
@@ -35,6 +41,7 @@ from foundation.paths import (
     require_saved_document_path,
     resolve_camera_json_from_work_folder,
     resolve_light_json_from_work_folder,
+    resolve_model_3dm_from_work_folder,
 )
 from foundation.result import Result
 from foundation.stub import STUB_SUFFIX, stub_message
@@ -52,9 +59,11 @@ __all__ = [
     "layer_matches_prefix",
     "parse_light_payload",
     "validate_light_payload",
+    "validate_model_3dm",
     "require_saved_document_path",
     "resolve_camera_json_from_work_folder",
     "resolve_light_json_from_work_folder",
+    "resolve_model_3dm_from_work_folder",
     "config_root_for_document",
     "ensure_config_layout",
     "camera_path",
@@ -66,6 +75,7 @@ __all__ = [
     "atomic_publish_bytes",
     "atomic_publish_text",
     "atomic_publish_json",
+    "atomic_publish_from_pending",
     "append_log",
     "CONFIG_PARENT_NAME",
     "PRODUCT_DIR_NAME",

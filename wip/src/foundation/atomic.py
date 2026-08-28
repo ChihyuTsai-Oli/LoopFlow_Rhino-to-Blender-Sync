@@ -96,3 +96,46 @@ def atomic_publish_json(
     if not text.endswith("\n"):
         text += "\n"
     return atomic_publish_text(final_path, text, encoding=encoding, validate=validate)
+
+
+def atomic_publish_from_pending(
+    final_path: PathLike,
+    *,
+    pending_path: Optional[PathLike] = None,
+    validate: Optional[ValidateFn] = None,
+) -> Result:
+    """
+    已寫好的 pending 檔 → 可選驗證 → os.replace 成 final。
+
+    給大型二進位（如 3dm）：由呼叫端直接匯出到 pending，避免整檔讀入記憶體。
+    失敗不碰既有 final；驗證失敗會刪 pending。
+    """
+    final = Path(final_path)
+    pending = Path(pending_path) if pending_path is not None else pending_path_for(final)
+    stage = "atomic_publish"
+
+    try:
+        final.parent.mkdir(parents=True, exist_ok=True)
+        if not pending.is_file():
+            return Result.fail("找不到 pending：{}".format(pending), stage=stage)
+        if final.exists() and not _same_volume(final, pending):
+            return Result.fail("pending 與目標不在同一磁碟區，拒絕發布", stage=stage)
+
+        if validate is not None:
+            err = validate(pending)
+            if err:
+                try:
+                    pending.unlink()
+                except OSError:
+                    pass
+                return Result.fail(err, stage="validate")
+
+        os.replace(str(pending), str(final))
+        return Result.success("已發布：{}".format(final), stage=stage, data=str(final))
+    except Exception as exc:
+        try:
+            if pending.exists():
+                pending.unlink()
+        except OSError:
+            pass
+        return Result.fail("發布失敗：{}".format(exc), stage=stage)

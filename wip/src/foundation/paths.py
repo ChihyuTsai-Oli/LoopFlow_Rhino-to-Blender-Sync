@@ -96,6 +96,25 @@ def resolve_light_json_from_work_folder(work_folder: PathLike) -> Path:
     return candidates[0]
 
 
+def resolve_model_3dm_from_work_folder(work_folder: PathLike) -> Path:
+    """
+    從作業資料夾解析 model.3dm。
+
+    主路徑：{work}/_LoopFlow_Config/loopflow_R2B/models/model.3dm
+    """
+    folder = Path(work_folder)
+    candidates = (
+        folder / CONFIG_PARENT_NAME / PRODUCT_DIR_NAME / MODELS_DIR_NAME / MODEL_FILE_NAME,
+        folder / PRODUCT_DIR_NAME / MODELS_DIR_NAME / MODEL_FILE_NAME,
+        folder / MODELS_DIR_NAME / MODEL_FILE_NAME,
+        folder / MODEL_FILE_NAME,
+    )
+    for path in candidates:
+        if path.is_file():
+            return path.resolve()
+    return candidates[0]
+
+
 def model_path(root: PathLike) -> Path:
     return models_dir(root) / MODEL_FILE_NAME
 
