@@ -10,7 +10,7 @@ bl_info = {
     "author": "Chihyu Tsai",
     "version": (0, 0, 7),
     "blender": (5, 2, 1),
-    "location": "N-Panel > LoopFlow R2B Dev",
+    "location": "N-Panel > LoopFlow",
     "description": "R2B 3.0 Sync: Models, Camera, Light; embedded import_3dm",
     "category": "Import-Export",
 }
@@ -180,11 +180,11 @@ class LOOPFLOW_R2B_DEV_OT_sync_lights(bpy.types.Operator):
 
 
 class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
-    bl_label = "R2B Sync (Dev)"
+    bl_label = "Rhino to Blender Sync"
     bl_idname = "LOOPFLOW_R2B_DEV_PT_panel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "LoopFlow R2B Dev"
+    bl_category = "LoopFlow"
 
     def draw(self, context):
         layout = self.layout
