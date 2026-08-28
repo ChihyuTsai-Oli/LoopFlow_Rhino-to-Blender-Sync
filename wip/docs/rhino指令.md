@@ -28,7 +28,8 @@ E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 | `R2B_Models` | 發布／更新模型 3DM | 空殼已落地 |
 | `R2B_Camera` | 開／關自動同步（按一下切換） | **已接** |
 | `R2B_Camera_Push` | 手動推送相機 JSON 一次 | **已接** |
-| `R2B_Light` | 發布燈光點位 JSON | 空殼已落地 |
+| `R2B_Light` | 開／關自動同步（按一下切換） | **已接** |
+| `R2B_Light_Push` | 手動推送燈光點位 JSON 一次 | **已接** |
 | `R2B_Open` | 開啟設定／工作資料夾／說明 | 空殼已落地 |
 
 是否另增 `R2B_Config`、是否改名 → 見決策表 `R2B-ED-05`、`R2B-ND-01`。
@@ -48,6 +49,9 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 R2B_Light
 _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Light.py"
 
+R2B_Light_Push
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Light_Push.py"
+
 R2B_Open
 _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Open.py"
 ```
@@ -61,6 +65,7 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 | 日期 | 說明 |
 |---|---|
+| 2026-08-28 | `R2B_Light`＝toggle；新增 `R2B_Light_Push`；Light 兩端 D02 |
 | 2026-08-28 | `R2B_Camera`＝toggle；新增 `R2B_Camera_Push`；Blender 作業資料夾＝工作檔同層 |
 | 2026-08-28 | entrypoints 空殼落地；註明 Blender Dev Stub 路徑 |
 | 2026-08-28 | 註明 Blender 測試 add-on 空殼測法（對齊 Rhino entrypoints） |

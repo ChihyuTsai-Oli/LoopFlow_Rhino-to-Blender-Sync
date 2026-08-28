@@ -77,6 +77,25 @@ def light_path(root: PathLike) -> Path:
     return live_dir(root) / LIGHT_FILE_NAME
 
 
+def resolve_light_json_from_work_folder(work_folder: PathLike) -> Path:
+    """
+    從作業資料夾解析 light.json。
+
+    主路徑：{work}/_LoopFlow_Config/loopflow_R2B/live/light.json
+    """
+    folder = Path(work_folder)
+    candidates = (
+        folder / CONFIG_PARENT_NAME / PRODUCT_DIR_NAME / LIVE_DIR_NAME / LIGHT_FILE_NAME,
+        folder / PRODUCT_DIR_NAME / LIVE_DIR_NAME / LIGHT_FILE_NAME,
+        folder / LIVE_DIR_NAME / LIGHT_FILE_NAME,
+        folder / LIGHT_FILE_NAME,
+    )
+    for path in candidates:
+        if path.is_file():
+            return path.resolve()
+    return candidates[0]
+
+
 def model_path(root: PathLike) -> Path:
     return models_dir(root) / MODEL_FILE_NAME
 

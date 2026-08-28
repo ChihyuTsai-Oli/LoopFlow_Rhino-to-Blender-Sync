@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""LoopFlow R2B Sync — 開發用 add-on（Camera 通道已接；其餘仍為空殼）。
+"""LoopFlow R2B Sync — 開發用 add-on（Camera／Light 已接；Models 仍空殼）。
 
 隔離 package：勿與 2.x `Import Rhinoceros 3D (R2B Pro)`／Toolkit 同 profile 混用正式專案。
 """
@@ -7,10 +7,10 @@
 bl_info = {
     "name": "LoopFlow R2B Sync (Dev Stub)",
     "author": "Chihyu Tsai",
-    "version": (0, 0, 3),
+    "version": (0, 0, 4),
     "blender": (5, 2, 1),
     "location": "N-Panel > LoopFlow R2B Dev",
-    "description": "3.0 開發 Sync：Camera 開／關／手動；作業資料夾自動偵測",
+    "description": "3.0 開發 Sync：Camera／Light 開／關／手動；作業資料夾自動偵測",
     "category": "Import-Export",
 }
 
@@ -19,6 +19,7 @@ import os
 import bpy
 
 from . import camera_sync
+from . import light_sync
 
 _STUB = "尚未實作（3.0 測試 Sync 空殼）"
 
@@ -94,6 +95,46 @@ class LOOPFLOW_R2B_DEV_OT_camera_push(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class LOOPFLOW_R2B_DEV_OT_light_auto_on(bpy.types.Operator):
+    bl_idname = "loopflow_r2b_dev.light_auto_on"
+    bl_label = "Light Auto On"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        light_sync.set_light_auto(context, True)
+        err = light_sync.push_light_once(context)
+        if err:
+            self.report({"WARNING"}, f"自動同步已開；首次套用：{err}")
+        else:
+            self.report({"INFO"}, "Light 自動同步已開啟")
+        return {"FINISHED"}
+
+
+class LOOPFLOW_R2B_DEV_OT_light_auto_off(bpy.types.Operator):
+    bl_idname = "loopflow_r2b_dev.light_auto_off"
+    bl_label = "Light Auto Off"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        light_sync.set_light_auto(context, False)
+        self.report({"INFO"}, "Light 自動同步已關閉")
+        return {"FINISHED"}
+
+
+class LOOPFLOW_R2B_DEV_OT_sync_lights(bpy.types.Operator):
+    bl_idname = "loopflow_r2b_dev.sync_lights"
+    bl_label = "Sync Lights"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        err = light_sync.push_light_once(context)
+        if err:
+            self.report({"ERROR"}, err)
+            return {"CANCELLED"}
+        self.report({"INFO"}, "Light 已套用一次")
+        return {"FINISHED"}
+
+
 class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
     bl_label = "R2B Sync (Dev)"
     bl_idname = "LOOPFLOW_R2B_DEV_PT_panel"
@@ -128,8 +169,9 @@ class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
 
         layout.separator()
         col = layout.column(align=True)
-        op = col.operator("loopflow_r2b_dev.stub", text="Sync Lights")
-        op.action = "Sync Lights"
+        col.operator("loopflow_r2b_dev.light_auto_on", text="Light Auto On")
+        col.operator("loopflow_r2b_dev.light_auto_off", text="Light Auto Off")
+        col.operator("loopflow_r2b_dev.sync_lights", text="Sync Lights")
 
         layout.separator()
         col = layout.column(align=True)
@@ -143,6 +185,9 @@ _CLASSES = (
     LOOPFLOW_R2B_DEV_OT_camera_auto_on,
     LOOPFLOW_R2B_DEV_OT_camera_auto_off,
     LOOPFLOW_R2B_DEV_OT_camera_push,
+    LOOPFLOW_R2B_DEV_OT_light_auto_on,
+    LOOPFLOW_R2B_DEV_OT_light_auto_off,
+    LOOPFLOW_R2B_DEV_OT_sync_lights,
     LOOPFLOW_R2B_DEV_PT_panel,
 )
 
@@ -152,7 +197,7 @@ def register():
         bpy.utils.register_class(cls)
     bpy.types.Scene.r2b_sync_folder = bpy.props.StringProperty(
         name="作業資料夾",
-        description="與 .3dm／.blend／_LoopFlow_Config 同層；內含 _LoopFlow_Config/loopflow_R2B/live/camera.json",
+        description="與 .3dm／.blend／_LoopFlow_Config 同層；內含 live/camera.json、light.json",
         default="",
         subtype="DIR_PATH",
     )
@@ -170,6 +215,7 @@ def register():
 
 def unregister():
     camera_sync.set_camera_auto(bpy.context, False)
+    light_sync.set_light_auto(bpy.context, False)
     for cls in reversed(_CLASSES):
         bpy.utils.unregister_class(cls)
     del bpy.types.Scene.r2b_sync_folder

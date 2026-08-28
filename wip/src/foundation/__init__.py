@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""3.0 foundation：result／path／atomic／log／camera_payload。"""
+"""3.0 foundation：result／path／atomic／log／camera／light payload。"""
 
 from foundation.atomic import atomic_publish_bytes, atomic_publish_json, atomic_publish_text
 from foundation.camera_payload import (
@@ -7,6 +7,13 @@ from foundation.camera_payload import (
     build_camera_payload,
     parse_camera_payload,
     validate_camera_payload,
+)
+from foundation.light_payload import (
+    DEFAULT_LIGHT_LAYER,
+    build_light_payload,
+    layer_matches_prefix,
+    parse_light_payload,
+    validate_light_payload,
 )
 from foundation.log import append_log
 from foundation.paths import (
@@ -27,6 +34,7 @@ from foundation.paths import (
     pending_path_for,
     require_saved_document_path,
     resolve_camera_json_from_work_folder,
+    resolve_light_json_from_work_folder,
 )
 from foundation.result import Result
 from foundation.stub import STUB_SUFFIX, stub_message
@@ -39,8 +47,14 @@ __all__ = [
     "build_camera_payload",
     "parse_camera_payload",
     "validate_camera_payload",
+    "DEFAULT_LIGHT_LAYER",
+    "build_light_payload",
+    "layer_matches_prefix",
+    "parse_light_payload",
+    "validate_light_payload",
     "require_saved_document_path",
     "resolve_camera_json_from_work_folder",
+    "resolve_light_json_from_work_folder",
     "config_root_for_document",
     "ensure_config_layout",
     "camera_path",

@@ -19,6 +19,7 @@ REQUIRED_ENTRYPOINTS = (
     "R2B_Camera.py",
     "R2B_Camera_Push.py",
     "R2B_Light.py",
+    "R2B_Light_Push.py",
     "R2B_Open.py",
 )
 
@@ -54,7 +55,7 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertEqual(bl_info["author"], "Chihyu Tsai")
         self.assertEqual(bl_info["blender"], (5, 2, 1))
         self.assertIn("Dev Stub", bl_info["name"])
-        self.assertEqual(bl_info["version"], (0, 0, 3))
+        self.assertEqual(bl_info["version"], (0, 0, 4))
 
     def test_addon_registers_expected_stub_idnames(self):
         text = ADDON.read_text(encoding="utf-8")
@@ -62,11 +63,14 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertIn('bl_idname = "loopflow_r2b_dev.reset_paths"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.camera_auto_on"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.camera_push"', text)
+        self.assertIn('bl_idname = "loopflow_r2b_dev.light_auto_on"', text)
+        self.assertIn('bl_idname = "loopflow_r2b_dev.sync_lights"', text)
         self.assertIn('bl_category = "LoopFlow R2B Dev"', text)
         for label in (
             "Update Models",
             "Camera Auto On",
             "Camera Push Once",
+            "Light Auto On",
             "Sync Lights",
             "Open / Health",
         ):
