@@ -50,7 +50,7 @@ def _open_folder(path: str) -> None:
 
 
 def show_open_dialog(health: Result) -> None:
-    """英文對話框：摘要＋開設定根／live／models。失敗則 MessageBox。"""
+    """英文對話框：摘要＋開設定根／live／models／Docs。失敗則 MessageBox。"""
     if not health.ok:
         import rhinoscriptsyntax as rs  # type: ignore
 
@@ -95,26 +95,29 @@ def _show_eto(report: str, data: dict) -> None:
             open_models.Text = "Open models"
             open_docs = forms.Button()
             open_docs.Text = "Open Docs"
-            close = forms.Button()
-            close.Text = "Close"
+
+            btn_size = drawing.Size(120, 28)
+            for btn in (open_root, open_live, open_models, open_docs):
+                btn.Size = btn_size
+                btn.MinimumSize = btn_size
+                btn.Width = btn_size.Width
 
             open_root.Click += lambda s, e: _open_folder(str(data.get("root") or ""))
             open_live.Click += lambda s, e: _open_folder(str(data.get("live") or ""))
             open_models.Click += lambda s, e: _open_folder(str(data.get("models") or ""))
             open_docs.Click += lambda s, e: open_docs_in_browser()
-            close.Click += lambda s, e: self.Close()
-            self.DefaultButton = close
-            self.AbortButton = close
 
-            buttons = forms.DynamicLayout()
-            buttons.DefaultSpacing = drawing.Size(8, 4)
-            buttons.AddRow(open_root, open_live, open_models, None)
-            buttons.AddRow(open_docs, None, close)
+            buttons = forms.StackLayout()
+            buttons.Orientation = forms.Orientation.Horizontal
+            buttons.Spacing = 8
+            buttons.HorizontalContentAlignment = forms.HorizontalAlignment.Center
+            for btn in (open_root, open_live, open_models, open_docs):
+                buttons.Items.Add(btn)
 
             layout = forms.DynamicLayout()
             layout.DefaultSpacing = drawing.Size(4, 8)
             layout.Add(box, yscale=True, xscale=True)
-            layout.AddRow(buttons)
+            layout.Add(buttons, xscale=True)
             self.Content = layout
 
     dialog = OpenHealthDialog()

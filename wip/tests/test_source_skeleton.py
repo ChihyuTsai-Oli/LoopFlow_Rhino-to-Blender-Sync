@@ -51,6 +51,12 @@ class SourceSkeletonTests(unittest.TestCase):
             str(SRC / "blender" / "loopflow_r2b_sync_dev" / "health_sync.py"),
             doraise=True,
         )
+        open_py = (SRC / "rhino" / "commands" / "open.py").read_text(encoding="utf-8")
+        order = ('Open Config', 'Open live', 'Open models', 'Open Docs')
+        found = [open_py.find('"{}"'.format(name)) for name in order]
+        self.assertTrue(all(i > 0 for i in found), found)
+        self.assertEqual(found, sorted(found))
+        self.assertNotIn('Text = "Close"', open_py)
 
     def test_addon_bl_info_without_importing_bpy(self):
         tree = ast.parse(ADDON.read_text(encoding="utf-8"))
