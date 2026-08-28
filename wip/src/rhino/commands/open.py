@@ -63,10 +63,6 @@ def show_open_dialog(health: Result) -> None:
         import rhinoscriptsyntax as rs  # type: ignore
 
         rs.MessageBox(health.message, title="R2B_Open")
-        try:
-            _open_folder(str(data.get("root") or ""))
-        except Exception:
-            pass
 
 
 def _show_eto(report: str, data: dict) -> None:
@@ -96,28 +92,24 @@ def _show_eto(report: str, data: dict) -> None:
             open_docs = forms.Button()
             open_docs.Text = "Open Docs"
 
-            btn_size = drawing.Size(120, 28)
-            for btn in (open_root, open_live, open_models, open_docs):
-                btn.Size = btn_size
-                btn.MinimumSize = btn_size
-                btn.Width = btn_size.Width
-
             open_root.Click += lambda s, e: _open_folder(str(data.get("root") or ""))
             open_live.Click += lambda s, e: _open_folder(str(data.get("live") or ""))
             open_models.Click += lambda s, e: _open_folder(str(data.get("models") or ""))
             open_docs.Click += lambda s, e: open_docs_in_browser()
 
-            buttons = forms.StackLayout()
-            buttons.Orientation = forms.Orientation.Horizontal
-            buttons.Spacing = 8
-            buttons.HorizontalContentAlignment = forms.HorizontalAlignment.Center
+            # TableLayout 四欄等寬（Rhino 8 Eto 可用；勿用 StackLayout）
+            buttons = forms.TableLayout()
+            buttons.Spacing = drawing.Size(8, 0)
+            table_row = forms.TableRow()
+            table_row.ScaleHeight = False
             for btn in (open_root, open_live, open_models, open_docs):
-                buttons.Items.Add(btn)
+                table_row.Cells.Add(forms.TableCell(btn, True))
+            buttons.Rows.Add(table_row)
 
             layout = forms.DynamicLayout()
             layout.DefaultSpacing = drawing.Size(4, 8)
             layout.Add(box, yscale=True, xscale=True)
-            layout.Add(buttons, xscale=True)
+            layout.AddRow(buttons)
             self.Content = layout
 
     dialog = OpenHealthDialog()
