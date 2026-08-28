@@ -29,6 +29,9 @@ _WM_ACTIVE = "r2b3_light_auto_active"
 _WM_SEEN_MTIME = "r2b3_light_seen_mtime"
 _WM_APPLIED_MTIME = "r2b3_light_applied_mtime"
 
+# guid → (type, x, y, z)；僅在記憶體內，Auto On 時清空
+_last_applied = {}
+
 
 def _light_json_path(scene) -> str:
     folder = bpy.path.abspath(scene.r2b_sync_folder)
@@ -103,8 +106,82 @@ def _iter_rhino_empties(light_col):
             pass
 
 
+def _empties_by_guid(light_col):
+    mapping = {}
+    for obj in _iter_rhino_empties(light_col):
+        try:
+            mapping[obj.get("rhino_guid")] = obj
+        except ReferenceError:
+            pass
+    return mapping
+
+
+def _applied_key(pt_type, pt_loc):
+    return (pt_type, round(pt_loc.x, 6), round(pt_loc.y, 6), round(pt_loc.z, 6))
+
+
+def _reattach_recovered(guid, target_empty, pt_loc) -> None:
+    for potential_child in bpy.data.objects:
+        try:
+            if potential_child.get("recovered_rhino_guid") == guid:
+                world_mat = potential_child.matrix_world.copy()
+                potential_child.parent = target_empty
+                potential_child.matrix_parent_inverse = mathutils.Matrix.Identity(4)
+                parent_future_world = mathutils.Matrix.Translation(pt_loc)
+                potential_child.matrix_local = parent_future_world.inverted() @ world_mat
+                del potential_child["recovered_rhino_guid"]
+        except ReferenceError:
+            pass
+
+
+def _ensure_insts(target_empty, pt_type, light_col, templates) -> None:
+    processed_insts = []
+    guid = target_empty.get("rhino_guid") or ""
+    for template in templates:
+        safe_name = re.sub(r"\.\d{3}$", "", template.name)
+        prefix = "INST_{}_{}".format(safe_name, guid[:5])
+        existing_inst = None
+        for child in target_empty.children:
+            try:
+                if child.name.startswith(prefix) and child not in processed_insts:
+                    existing_inst = child
+                    break
+            except ReferenceError:
+                pass
+        if existing_inst:
+            existing_inst.location = template.location
+            existing_inst.rotation_euler = template.rotation_euler
+            existing_inst.scale = template.scale
+            processed_insts.append(existing_inst)
+        else:
+            new_inst = template.copy()
+            if template.data:
+                new_inst.data = template.data
+            new_inst.name = prefix
+            light_col.objects.link(new_inst)
+            new_inst.parent = target_empty
+            new_inst.matrix_parent_inverse = mathutils.Matrix.Identity(4)
+            new_inst.location = template.location
+            new_inst.rotation_euler = template.rotation_euler
+            new_inst.scale = template.scale
+            processed_insts.append(new_inst)
+
+    for child in list(target_empty.children):
+        try:
+            if child.name.startswith("INST_") and child not in processed_insts:
+                for grand in list(child.children):
+                    try:
+                        bpy.data.objects.remove(grand, do_unlink=True)
+                    except ReferenceError:
+                        pass
+                bpy.data.objects.remove(child, do_unlink=True)
+        except ReferenceError:
+            pass
+
+
 def apply_light_points(context, parsed, *, scale: float) -> str:
-    """套用 points；clear=true 或 active 外的 empty 整組刪除（含 INST／燈光）。"""
+    """套用 points；clear=true 清空；其餘只處理新增／移動／刪除的 guid。"""
+    global _last_applied
     points = parsed.get("points") or []
     do_clear = bool(parsed.get("clear"))
 
@@ -123,28 +200,33 @@ def apply_light_points(context, parsed, *, scale: float) -> str:
                 _purge_rhino_empty(empty)
         except Exception as exc:
             return "清空失敗：{}".format(exc)
+        _last_applied = {}
         return ""
 
+    empties = _empties_by_guid(light_col)
+    template_cache = {}
+    next_applied = {}
     active_guids = set()
     try:
         for pt_data in points:
             guid = pt_data["guid"]
-            active_guids.add(guid)
             pt_type = pt_data["type"]
             loc_raw = pt_data["loc"]
             pt_loc = mathutils.Vector(
                 (loc_raw[0] * scale, loc_raw[1] * scale, loc_raw[2] * scale)
             )
+            key = _applied_key(pt_type, pt_loc)
+            active_guids.add(guid)
+            next_applied[guid] = key
 
-            target_empty = None
-            for obj in _iter_rhino_empties(light_col):
-                try:
-                    if obj.get("rhino_guid") == guid:
-                        target_empty = obj
-                        break
-                except ReferenceError:
-                    pass
+            if _last_applied.get(guid) == key and guid in empties:
+                continue
 
+            target_empty = empties.get(guid)
+            type_changed = target_empty is None or (
+                _last_applied.get(guid) is None
+                or _last_applied[guid][0] != pt_type
+            )
             if target_empty:
                 target_empty.location = pt_loc
                 target_empty["rhino_type"] = pt_type
@@ -157,76 +239,28 @@ def apply_light_points(context, parsed, *, scale: float) -> str:
                 light_col.objects.link(new_empty)
                 new_empty.location = pt_loc
                 target_empty = new_empty
+                empties[guid] = new_empty
+                _reattach_recovered(guid, target_empty, pt_loc)
 
-                for potential_child in bpy.data.objects:
-                    try:
-                        if potential_child.get("recovered_rhino_guid") == guid:
-                            world_mat = potential_child.matrix_world.copy()
-                            potential_child.parent = target_empty
-                            potential_child.matrix_parent_inverse = mathutils.Matrix.Identity(4)
-                            parent_future_world = mathutils.Matrix.Translation(pt_loc)
-                            potential_child.matrix_local = parent_future_world.inverted() @ world_mat
-                            del potential_child["recovered_rhino_guid"]
-                    except ReferenceError:
-                        pass
-
-            templates = get_template_objects(pt_type)
+            if pt_type not in template_cache:
+                template_cache[pt_type] = get_template_objects(pt_type)
+            templates = template_cache[pt_type]
             if not templates:
-                # 無對應模板時不要留下裸 empty（換到無燈具名圖層時的殘留主因）
                 _purge_rhino_empty(target_empty)
+                empties.pop(guid, None)
                 active_guids.discard(guid)
+                next_applied.pop(guid, None)
                 continue
 
-            processed_insts = []
-            for template in templates:
-                safe_name = re.sub(r"\.\d{3}$", "", template.name)
-                prefix = "INST_{}_{}".format(safe_name, guid[:5])
-                existing_inst = None
-                for child in target_empty.children:
-                    try:
-                        if child.name.startswith(prefix) and child not in processed_insts:
-                            existing_inst = child
-                            break
-                    except ReferenceError:
-                        pass
-                if existing_inst:
-                    existing_inst.location = template.location
-                    existing_inst.rotation_euler = template.rotation_euler
-                    existing_inst.scale = template.scale
-                    processed_insts.append(existing_inst)
-                else:
-                    new_inst = template.copy()
-                    if template.data:
-                        new_inst.data = template.data
-                    new_inst.name = prefix
-                    light_col.objects.link(new_inst)
-                    new_inst.parent = target_empty
-                    new_inst.matrix_parent_inverse = mathutils.Matrix.Identity(4)
-                    new_inst.location = template.location
-                    new_inst.rotation_euler = template.rotation_euler
-                    new_inst.scale = template.scale
-                    processed_insts.append(new_inst)
+            if type_changed:
+                _ensure_insts(target_empty, pt_type, light_col, templates)
 
-            for child in list(target_empty.children):
-                try:
-                    if child.name.startswith("INST_") and child not in processed_insts:
-                        for grand in list(child.children):
-                            try:
-                                bpy.data.objects.remove(grand, do_unlink=True)
-                            except ReferenceError:
-                                pass
-                        bpy.data.objects.remove(child, do_unlink=True)
-                except ReferenceError:
-                    pass
-
-        for empty in list(_iter_rhino_empties(light_col)):
-            try:
-                if empty.get("rhino_guid") not in active_guids:
-                    _purge_rhino_empty(empty)
-            except ReferenceError:
-                pass
+        for guid, empty in list(empties.items()):
+            if guid not in active_guids:
+                _purge_rhino_empty(empty)
     except Exception as exc:
         return "套用失敗：{}".format(exc)
+    _last_applied = next_applied
     return ""
 
 
@@ -284,8 +318,10 @@ def light_timer_poll():
 
 
 def set_light_auto(context, enabled: bool) -> None:
+    global _last_applied
     wm = context.window_manager
     if enabled:
+        _last_applied = {}
         wm[_WM_ACTIVE] = 1
         wm[_WM_SEEN_MTIME] = -1.0
         if not bpy.app.timers.is_registered(light_timer_poll):

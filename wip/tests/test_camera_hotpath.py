@@ -12,7 +12,7 @@ SRC = Path(__file__).resolve().parents[1] / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from foundation.atomic import atomic_publish_json
+from foundation.atomic import direct_overwrite_json
 from foundation.camera_hotpath import CameraAutoPublishGate
 from foundation.camera_payload import (
     build_camera_payload,
@@ -64,56 +64,36 @@ class CameraPoseTests(unittest.TestCase):
 
 
 class CameraAutoPublishGateTests(unittest.TestCase):
-    def test_debounce_then_idle_flush(self):
-        gate = CameraAutoPublishGate(interval_sec=0.033)
+    def test_first_pose_publishes(self):
+        gate = CameraAutoPublishGate()
         _payload, pose = _pose_at(1.0)
-        gate.note_view_modified()
-        self.assertEqual(gate.decide(0.01, pose), "publish")
-        gate.mark_published(0.01, pose)
+        self.assertTrue(gate.should_publish(pose))
+        gate.mark_published(pose)
 
+    def test_changed_pose_publishes_immediately(self):
+        gate = CameraAutoPublishGate()
+        _payload, pose = _pose_at(1.0)
+        gate.mark_published(pose)
         _payload2, pose2 = _pose_at(2.0)
-        gate.note_view_modified()
-        self.assertEqual(gate.decide(0.02, pose2), "wait")
-        self.assertEqual(gate.decide(0.05, pose2), "publish")
-
-    def test_due_to_flush_skips_until_interval(self):
-        gate = CameraAutoPublishGate(interval_sec=0.033)
-        _payload, pose = _pose_at(1.0)
-        gate.note_view_modified()
-        self.assertTrue(gate.due_to_flush(0.0))
-        gate.mark_published(0.0, pose)
-        gate.note_view_modified()
-        self.assertFalse(gate.due_to_flush(0.01))
-        self.assertTrue(gate.due_to_flush(0.04))
+        self.assertTrue(gate.should_publish(pose2))
 
     def test_skip_unchanged_pose(self):
-        gate = CameraAutoPublishGate(interval_sec=0.033)
+        gate = CameraAutoPublishGate()
         _payload, pose = _pose_at(1.0)
-        gate.note_view_modified()
-        self.assertEqual(gate.decide(1.0, pose), "publish")
-        gate.mark_published(1.0, pose)
-        gate.note_view_modified()
-        self.assertEqual(gate.decide(2.0, pose), "skip")
-        self.assertFalse(gate.dirty)
+        self.assertTrue(gate.should_publish(pose))
+        gate.mark_published(pose)
+        self.assertFalse(gate.should_publish(pose))
 
 
 class CameraHotpathPublishTests(unittest.TestCase):
-    def test_compact_json_without_fsync(self):
+    def test_direct_overwrite_compact_json(self):
         payload = build_camera_payload(
             location=(1, 2, 3), direction=(0, 1, 0), up=(0, 0, 1), lens=50
         )
         self.assertIsNone(validate_camera_payload(payload))
         with tempfile.TemporaryDirectory() as tmp:
             final = Path(tmp) / "camera.json"
-            r = atomic_publish_json(
-                final,
-                payload,
-                indent=None,
-                validate=None,
-                fsync=False,
-                retries=2,
-                delay_sec=0.01,
-            )
+            r = direct_overwrite_json(final, payload, indent=None)
             self.assertTrue(r.ok, r.message)
             text = final.read_text(encoding="utf-8")
             self.assertNotIn("\n  ", text)

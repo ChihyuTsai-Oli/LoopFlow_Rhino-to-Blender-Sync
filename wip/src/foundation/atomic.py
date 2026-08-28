@@ -151,6 +151,33 @@ def atomic_publish_text(
     )
 
 
+def direct_overwrite_json(
+    final_path: PathLike,
+    payload: Any,
+    *,
+    encoding: str = "utf-8",
+    indent: Optional[int] = None,
+) -> Result:
+    """
+    熱路徑：直接覆蓋 final，不經 pending／replace／fsync。
+
+    鎖定或寫入失敗不另建檔；手動 Push／Models 仍用 atomic_publish_json。
+    """
+    final = Path(final_path)
+    stage = "direct_overwrite"
+    try:
+        final.parent.mkdir(parents=True, exist_ok=True)
+        if indent is None:
+            text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+        else:
+            text = json.dumps(payload, ensure_ascii=False, indent=indent)
+        with open(final, "w", encoding=encoding) as handle:
+            handle.write(text)
+        return Result.success("已覆蓋：{}".format(final), stage=stage, data=str(final))
+    except Exception as exc:
+        return Result.fail("覆蓋失敗：{}".format(exc), stage=stage)
+
+
 def atomic_publish_json(
     final_path: PathLike,
     payload: Any,

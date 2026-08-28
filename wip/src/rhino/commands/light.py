@@ -3,15 +3,22 @@
 from __future__ import annotations
 
 import os
+import time
 from pathlib import Path
 from typing import Any, List
 
-from foundation.atomic import atomic_publish_json
+from foundation.atomic import atomic_publish_json, direct_overwrite_json
+from foundation.light_hotpath import (
+    LIGHT_AUTO_DEBOUNCE_SEC,
+    light_payload_fingerprint,
+    object_is_light_point,
+)
 from foundation.light_payload import (
     DEFAULT_LIGHT_LAYER,
     build_light_payload,
     layer_matches_prefix,
     validate_light_file,
+    validate_light_payload,
 )
 from foundation.log import append_log
 from foundation.paths import (
@@ -26,6 +33,9 @@ _STICKY_HANDLERS = "R2B3_Light_Sync_Handlers"
 _STICKY_PATH = "R2B3_LIGHT_JSON_PATH"
 _STICKY_LAYER = "R2B3_LIGHT_LAYER"
 _STICKY_HAD_POINTS = "R2B3_LIGHT_HAD_POINTS"
+_STICKY_DIRTY = "R2B3_LIGHT_DIRTY"
+_STICKY_LAST_EVENT = "R2B3_LIGHT_LAST_EVENT"
+_STICKY_FINGERPRINT = "R2B3_LIGHT_FINGERPRINT"
 
 
 def _sticky():
@@ -108,7 +118,9 @@ def publish_light_once(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
     result = _write_payload(final, root, payload, "count={}".format(len(collected.data)))
     if result.ok:
         try:
-            _sticky()[_STICKY_HAD_POINTS] = True
+            sticky = _sticky()
+            sticky[_STICKY_HAD_POINTS] = True
+            sticky[_STICKY_FINGERPRINT] = light_payload_fingerprint(collected.data)
         except Exception:
             pass
         return Result.success(
@@ -139,14 +151,61 @@ def publish_light_clear(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
     result = _write_payload(final, root, payload, "clear=true")
     if result.ok:
         try:
-            _sticky()[_STICKY_HAD_POINTS] = False
+            sticky = _sticky()
+            sticky[_STICKY_HAD_POINTS] = False
+            sticky[_STICKY_FINGERPRINT] = light_payload_fingerprint([], clear=True)
         except Exception:
             pass
     return result
 
 
+def _layer_full_from_object(obj: Any, attrs: Any = None) -> str:
+    try:
+        import Rhino  # type: ignore
+
+        doc = getattr(obj, "Document", None) or Rhino.RhinoDoc.ActiveDoc
+        if doc is None:
+            return ""
+        index = None
+        if attrs is not None:
+            index = getattr(attrs, "LayerIndex", None)
+        if index is None:
+            index = obj.Attributes.LayerIndex
+        return str(doc.Layers[int(index)].FullPath)
+    except Exception:
+        return ""
+
+
+def _rhino_object_is_point(obj: Any) -> bool:
+    try:
+        import Rhino  # type: ignore
+
+        return obj.ObjectType == Rhino.DocObjects.ObjectType.Point
+    except Exception:
+        return False
+
+
+def _event_object(e: Any) -> Any:
+    return getattr(e, "TheObject", None) or getattr(e, "Object", None)
+
+
+def _is_watched_light_point(obj: Any, light_layer: str, attrs: Any = None) -> bool:
+    if obj is None or not _rhino_object_is_point(obj):
+        return False
+    return object_is_light_point("point", _layer_full_from_object(obj, attrs), light_layer)
+
+
+def _note_light_dirty() -> None:
+    try:
+        sticky = _sticky()
+        sticky[_STICKY_DIRTY] = True
+        sticky[_STICKY_LAST_EVENT] = time.monotonic()
+    except Exception:
+        pass
+
+
 def _try_auto_publish() -> None:
-    """自動同步：有點就發；先前有點而今為零則發 clear。"""
+    """自動同步：有點就發；先前有點而今為零則發 clear；指紋未變不寫檔。"""
     try:
         sticky = _sticky()
         json_path = sticky.get(_STICKY_PATH)
@@ -161,37 +220,78 @@ def _try_auto_publish() -> None:
         final = Path(json_path)
 
         if collected.ok:
+            fingerprint = light_payload_fingerprint(collected.data)
+            if fingerprint == sticky.get(_STICKY_FINGERPRINT):
+                return
             payload = build_light_payload(
                 collected.data,
                 document_name=doc_name,
                 light_layer=layer,
             )
-            result = atomic_publish_json(final, payload, validate=validate_light_file)
+            if validate_light_payload(payload):
+                return
+            result = direct_overwrite_json(final, payload, indent=None)
             if result.ok:
                 sticky[_STICKY_HAD_POINTS] = True
+                sticky[_STICKY_FINGERPRINT] = fingerprint
             return
 
-        # 無合法點：僅在本 session 曾成功發過點時發 clear，避免誤設 LightLayer 一次清空
         if sticky.get(_STICKY_HAD_POINTS):
+            fingerprint = light_payload_fingerprint([], clear=True)
+            if fingerprint == sticky.get(_STICKY_FINGERPRINT):
+                return
             payload = build_light_payload(
                 [],
                 document_name=doc_name,
                 light_layer=layer,
                 clear=True,
             )
-            result = atomic_publish_json(final, payload, validate=validate_light_file)
+            if validate_light_payload(payload):
+                return
+            result = direct_overwrite_json(final, payload, indent=None)
             if result.ok:
                 sticky[_STICKY_HAD_POINTS] = False
+                sticky[_STICKY_FINGERPRINT] = fingerprint
     except Exception:
         pass
 
 
-def _on_doc_changed(sender: Any, e: Any) -> None:
-    _try_auto_publish()
+def _on_idle(sender: Any, e: Any) -> None:
+    try:
+        sticky = _sticky()
+        if not sticky.get(_STICKY_DIRTY):
+            return
+        last_event = float(sticky.get(_STICKY_LAST_EVENT) or 0.0)
+        if (time.monotonic() - last_event) < LIGHT_AUTO_DEBOUNCE_SEC:
+            return
+        sticky[_STICKY_DIRTY] = False
+        _try_auto_publish()
+    except Exception:
+        pass
+
+
+def _on_add_or_delete(sender: Any, e: Any) -> None:
+    try:
+        layer = _sticky().get(_STICKY_LAYER) or DEFAULT_LIGHT_LAYER
+        if _is_watched_light_point(_event_object(e), layer):
+            _note_light_dirty()
+    except Exception:
+        pass
+
+
+def _on_replace(sender: Any, e: Any) -> None:
+    try:
+        layer = _sticky().get(_STICKY_LAYER) or DEFAULT_LIGHT_LAYER
+        old_obj = getattr(e, "OldRhinoObject", None)
+        new_obj = getattr(e, "NewRhinoObject", None)
+        if _is_watched_light_point(old_obj, layer) or _is_watched_light_point(new_obj, layer):
+            _note_light_dirty()
+    except Exception:
+        pass
 
 
 def _on_attributes_modified(sender: Any, e: Any) -> None:
-    """換圖層等屬性變更：僅 LayerIndex 變動才重發（避免選取雜訊）。"""
+    """換圖層：僅 Point 且舊或新圖層落在 LightLayer 子層才重發。"""
     try:
         old_attrs = getattr(e, "OldAttributes", None)
         new_attrs = getattr(e, "NewAttributes", None)
@@ -199,7 +299,16 @@ def _on_attributes_modified(sender: Any, e: Any) -> None:
             return
         if int(old_attrs.LayerIndex) == int(new_attrs.LayerIndex):
             return
-        _try_auto_publish()
+        obj = getattr(e, "RhinoObject", None) or _event_object(e)
+        if obj is None or not _rhino_object_is_point(obj):
+            return
+        layer = _sticky().get(_STICKY_LAYER) or DEFAULT_LIGHT_LAYER
+        old_full = _layer_full_from_object(obj, old_attrs)
+        new_full = _layer_full_from_object(obj, new_attrs)
+        if object_is_light_point("point", old_full, layer) or object_is_light_point(
+            "point", new_full, layer
+        ):
+            _note_light_dirty()
     except Exception:
         pass
 
@@ -217,19 +326,25 @@ def light_auto_on(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
     path = str(target.data["light"])
     sticky[_STICKY_PATH] = path
     sticky[_STICKY_LAYER] = light_layer
+    sticky[_STICKY_DIRTY] = False
 
     handlers = {
-        "add": _on_doc_changed,
-        "delete": _on_doc_changed,
-        "replace": _on_doc_changed,
-        "undelete": _on_doc_changed,
+        "add": _on_add_or_delete,
+        "delete": _on_add_or_delete,
+        "replace": _on_replace,
+        "undelete": _on_add_or_delete,
         "attrs": _on_attributes_modified,
+        "idle": _on_idle,
     }
     Rhino.RhinoDoc.AddRhinoObject += handlers["add"]
     Rhino.RhinoDoc.DeleteRhinoObject += handlers["delete"]
     Rhino.RhinoDoc.ReplaceRhinoObject += handlers["replace"]
     Rhino.RhinoDoc.UndeleteRhinoObject += handlers["undelete"]
     Rhino.RhinoDoc.ModifyObjectAttributes += handlers["attrs"]
+    try:
+        Rhino.RhinoApp.Idle += handlers["idle"]
+    except Exception:
+        handlers.pop("idle", None)
     sticky[_STICKY_HANDLERS] = handlers
 
     push = publish_light_once(light_layer=light_layer)
@@ -262,12 +377,15 @@ def light_auto_off() -> Result:
             Rhino.RhinoDoc.UndeleteRhinoObject -= handlers["undelete"]
         if "attrs" in handlers:
             Rhino.RhinoDoc.ModifyObjectAttributes -= handlers["attrs"]
+        if "idle" in handlers:
+            Rhino.RhinoApp.Idle -= handlers["idle"]
     except Exception:
         pass
     sticky.pop(_STICKY_HANDLERS, None)
     sticky.pop(_STICKY_PATH, None)
     sticky.pop(_STICKY_LAYER, None)
-    # 保留 HAD_POINTS，避免關再開後誤清；下次成功推送會再設
+    sticky.pop(_STICKY_DIRTY, None)
+    sticky.pop(_STICKY_LAST_EVENT, None)
     return Result.success("Light 自動同步已關閉", stage="light_auto_off")
 
 

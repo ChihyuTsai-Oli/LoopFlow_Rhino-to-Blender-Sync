@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import os
-import time
 from pathlib import Path
 from typing import Any, Optional
 
-from foundation.atomic import atomic_publish_json
+from foundation.atomic import atomic_publish_json, direct_overwrite_json
 from foundation.camera_hotpath import CameraAutoPublishGate
 from foundation.camera_payload import (
     build_camera_payload,
@@ -25,7 +24,6 @@ from foundation.paths import (
 from foundation.result import Result
 
 _STICKY_EVENT = "R2B3_Camera_Sync_Event"
-_STICKY_IDLE = "R2B3_Camera_Sync_Idle"
 _STICKY_PATH = "R2B3_CAMERA_JSON_PATH"
 _STICKY_DOC = "R2B3_CAMERA_DOC_NAME"
 _STICKY_GATE = "R2B3_CAMERA_GATE"
@@ -91,59 +89,31 @@ def publish_camera_once(payload: Optional[dict] = None) -> Result:
 
 
 def _publish_camera_hot(json_path: str, payload: dict) -> bool:
-    """自動同步熱路徑：記憶體驗證、緊湊 JSON、略過 fsync 與 pending 重讀。"""
+    """自動同步熱路徑：直接覆蓋 final（對齊 2.x json.dump）。"""
     err = validate_camera_payload(payload)
     if err:
         return False
-    result = atomic_publish_json(
-        json_path,
-        payload,
-        indent=None,
-        validate=None,
-        fsync=False,
-        retries=1,
-        delay_sec=0.0,
-    )
-    return bool(result.ok)
+    return bool(direct_overwrite_json(json_path, payload, indent=None).ok)
 
 
-def _flush_auto_camera() -> None:
+def _on_view_modified(sender: Any, e: Any) -> None:
+    """視角一變就擷取寫盤；姿態未變則略過。"""
     try:
         sticky = _sticky()
         json_path = sticky.get(_STICKY_PATH)
         gate = sticky.get(_STICKY_GATE)
         if not json_path or gate is None:
             return
-        if not gate.due_to_flush(time.monotonic()):
-            return
         cap = capture_active_camera()
         if not cap.ok:
             return
         pose = payload_pose(cap.data)
-        decision = gate.decide(time.monotonic(), pose)
-        if decision != "publish":
+        if not gate.should_publish(pose):
             return
         if _publish_camera_hot(str(json_path), cap.data):
-            gate.mark_published(time.monotonic(), pose)
+            gate.mark_published(pose)
     except Exception:
         pass
-
-
-def _on_view_modified(sender: Any, e: Any) -> None:
-    """標記 dirty；間隔到了才擷取寫盤，避免每幀 capture。"""
-    try:
-        gate = _sticky().get(_STICKY_GATE)
-        if gate is None:
-            return
-        gate.note_view_modified()
-        _flush_auto_camera()
-    except Exception:
-        pass
-
-
-def _on_idle(sender: Any, e: Any) -> None:
-    """補發旋轉結束後尚未寫出的最後姿態。"""
-    _flush_auto_camera()
 
 
 def camera_auto_on() -> Result:
@@ -160,17 +130,12 @@ def camera_auto_on() -> Result:
     sticky[_STICKY_PATH] = path
     sticky[_STICKY_GATE] = CameraAutoPublishGate()
     sticky[_STICKY_EVENT] = _on_view_modified
-    sticky[_STICKY_IDLE] = _on_idle
     Rhino.Display.RhinoView.Modified += _on_view_modified
-    try:
-        Rhino.RhinoApp.Idle += _on_idle
-    except Exception:
-        sticky.pop(_STICKY_IDLE, None)
     # 開自動同步時先推一次，方便 Blender 立刻對齊（完整 atomic）
     push = publish_camera_once()
     cap = capture_active_camera()
     if cap.ok:
-        sticky[_STICKY_GATE].mark_published(time.monotonic(), payload_pose(cap.data))
+        sticky[_STICKY_GATE].mark_published(payload_pose(cap.data))
     append_log(target.data["root"], "Camera Auto On → {}".format(path))
     if push.ok:
         return Result.success("Camera 自動同步已開啟：{}".format(path), stage="camera_auto_on")
@@ -187,22 +152,21 @@ def camera_auto_off() -> Result:
     if _STICKY_EVENT not in sticky:
         return Result.success("Camera 自動同步本來就關閉", stage="camera_auto_off")
     func = sticky.get(_STICKY_EVENT)
-    idle = sticky.get(_STICKY_IDLE)
     try:
         if func is not None:
             Rhino.Display.RhinoView.Modified -= func
     except Exception:
         pass
+    sticky.pop(_STICKY_EVENT, None)
+    sticky.pop(_STICKY_PATH, None)
+    sticky.pop(_STICKY_DOC, None)
+    sticky.pop(_STICKY_GATE, None)
+    idle = sticky.pop("R2B3_Camera_Sync_Idle", None)
     try:
         if idle is not None:
             Rhino.RhinoApp.Idle -= idle
     except Exception:
         pass
-    sticky.pop(_STICKY_EVENT, None)
-    sticky.pop(_STICKY_IDLE, None)
-    sticky.pop(_STICKY_PATH, None)
-    sticky.pop(_STICKY_DOC, None)
-    sticky.pop(_STICKY_GATE, None)
     return Result.success("Camera 自動同步已關閉", stage="camera_auto_off")
 
 
