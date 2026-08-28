@@ -47,22 +47,41 @@ def _prompt_layer(default_layer: Optional[str]) -> Optional[str]:
 
 
 def _prompt_type_flags() -> Result:
-    """Point／Curve 預設不勾（ED-01）；其餘採 DEFAULT_INCLUDED_KINDS。"""
+    """Point／Curve 預設不勾（ED-01）；其餘類別預設勾。用 CheckListBox 彈窗（非指令列）。"""
     import rhinoscriptsyntax as rs  # type: ignore
 
-    items = ("Include Points", "No", "Yes"), ("Include Curves", "No", "Yes")
-    defaults = (False, False)
-    result = rs.GetBoolean("幾何類別（其餘類型預設匯出）", items, defaults)
-    if result is None:
+    # (顯示名, 預設勾選, 對應 kind 集合)
+    rows = (
+        ("Point", False, {"point"}),
+        ("Curve", False, {"curve"}),
+        ("Brep / Polysurface / Surface", True, {"brep", "polysurface", "surface"}),
+        ("Mesh", True, {"mesh"}),
+        ("SubD", True, {"subd"}),
+        ("Extrusion", True, {"extrusion"}),
+        ("Block / Instance", True, {"block", "instance"}),
+        ("Other", True, {"other"}),
+    )
+    checklist = [(label, default) for label, default, _kinds in rows]
+    chosen = rs.CheckListBox(
+        checklist,
+        message="勾選要匯出的幾何類別（Point／Curve 預設不勾）",
+        title="R2B Models — 幾何類別",
+    )
+    if chosen is None:
         return Result.blocked("已取消幾何類別選擇", stage="models_types")
-    include = set(DEFAULT_INCLUDED_KINDS)
-    exclude = set(DEFAULT_EXCLUDED_KINDS)
-    if result[0]:
-        include.add("point")
-        exclude.discard("point")
-    if result[1]:
-        include.add("curve")
-        exclude.discard("curve")
+
+    include = set()
+    for (label, checked), (_label, _default, kinds) in zip(chosen, rows):
+        if checked:
+            include.update(kinds)
+    if not include:
+        return Result.blocked("未勾選任何幾何類別", stage="models_types")
+
+    # exclude = 全部可能 kind 減去 include（collect 以 include 為準）
+    all_kinds = set()
+    for _label, _default, kinds in rows:
+        all_kinds.update(kinds)
+    exclude = all_kinds - include
     return Result.success(
         stage="models_types",
         data={"include": include, "exclude": exclude},
