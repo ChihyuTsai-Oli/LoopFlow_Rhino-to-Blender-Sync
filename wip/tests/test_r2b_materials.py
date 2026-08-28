@@ -2,6 +2,7 @@
 """R2B 經典材質顏色轉換。"""
 from __future__ import annotations
 
+import ast
 import sys
 import unittest
 from pathlib import Path
@@ -20,6 +21,19 @@ from r2b_materials import classic_diffuse_linear_rgb
 
 
 class ClassicDiffuseTests(unittest.TestCase):
+    def test_converters_import_parent_package(self):
+        src = (
+            IMPORT_3DM / "converters" / "material.py"
+        ).read_text(encoding="utf-8")
+        tree = ast.parse(src)
+        found = False
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.module == "r2b_materials":
+                self.assertEqual(node.level, 2)
+                found = True
+        self.assertTrue(found, "converters/material.py 應 from ..r2b_materials 匯入")
+
+
     def test_red_255(self):
         r, g, b = classic_diffuse_linear_rgb((255, 0, 0))
         self.assertAlmostEqual(r, 1.0, places=5)

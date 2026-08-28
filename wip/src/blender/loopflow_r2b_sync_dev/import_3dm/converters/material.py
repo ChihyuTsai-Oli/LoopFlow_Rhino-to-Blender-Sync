@@ -28,7 +28,7 @@ from bpy_extras.node_shader_utils import ShaderWrapper, PrincipledBSDFWrapper
 from bpy_extras.node_shader_utils import rgba_to_rgb, rgb_to_rgba
 from . import utils
 from . import rdk_manager
-from .r2b_materials import classic_diffuse_linear_rgb
+from ..r2b_materials import classic_diffuse_linear_rgb
 from pathlib import Path, PureWindowsPath, PurePosixPath
 import base64
 import tempfile
