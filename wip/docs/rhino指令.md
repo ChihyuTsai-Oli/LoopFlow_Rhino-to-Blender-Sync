@@ -1,4 +1,4 @@
-# R2B 3.0 — Rhino 指令與測試入口
+﻿# R2B 3.0 — Rhino 指令與測試入口
 
 本文件是**開發期 Rhino 測試按鈕**巨集與**全部 Rhino 指令名稱**的清單。方便在 Rhino 建立／核對按鈕。正式 command 契約仍以 `資料契約.md` 與 `前期規劃/資料生態決策表_三家建議.md` 裁決後回寫為準。
 
@@ -50,7 +50,7 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 ## 不經 Rhino 按鈕
 
-- Blender：Portable `C:\blender-5.2.1_wip`；跑 `wip/tools/link_dev_addon.ps1` 後啟用 Dev Stub（N-Panel `LoopFlow R2B Dev`）。詳見 `系統設定.md`。
+- Blender：Portable `E:\blender-5.2.1_wip`；跑 `wip/tools/link_dev_addon.ps1` 後啟用 Dev Stub（N-Panel `LoopFlow R2B Dev`）。詳見 `系統設定.md`。
 - `import_3dm`／Toolkit：同樣用隔離 profile；importer 工作複本自 `import_3dm/…0.0.18…` 複製。
 
 ## 變更紀錄

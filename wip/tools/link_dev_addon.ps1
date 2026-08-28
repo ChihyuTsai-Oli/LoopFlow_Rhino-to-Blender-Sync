@@ -3,7 +3,7 @@
 # Source of truth stays in the repo; do not develop inside portable\ as the primary copy.
 $ErrorActionPreference = "Stop"
 
-$BlenderRoot = "C:\blender-5.2.1_wip"
+$BlenderRoot = "E:\blender-5.2.1_wip"
 $AddonName = "loopflow_r2b_sync_dev"
 $RepoAddon = (Resolve-Path (Join-Path $PSScriptRoot "..\src\blender\$AddonName")).Path
 $AddonsDir = Join-Path $BlenderRoot "portable\scripts\addons"
