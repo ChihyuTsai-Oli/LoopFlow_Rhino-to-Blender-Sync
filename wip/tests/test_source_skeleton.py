@@ -96,6 +96,33 @@ class SourceSkeletonTests(unittest.TestCase):
             self.assertIn(label, text)
         self.assertNotIn('text="Import Models"', text)
 
+    def test_addon_operator_hover_docstrings(self):
+        tree = ast.parse(ADDON.read_text(encoding="utf-8"))
+        required = (
+            "LOOPFLOW_R2B_DEV_OT_reset_paths",
+            "LOOPFLOW_R2B_DEV_OT_update_models",
+            "LOOPFLOW_R2B_DEV_OT_import_models",
+            "LOOPFLOW_R2B_DEV_OT_import_objects",
+            "LOOPFLOW_R2B_DEV_OT_camera_auto_on",
+            "LOOPFLOW_R2B_DEV_OT_camera_auto_off",
+            "LOOPFLOW_R2B_DEV_OT_camera_push",
+            "LOOPFLOW_R2B_DEV_OT_light_auto_on",
+            "LOOPFLOW_R2B_DEV_OT_light_auto_off",
+            "LOOPFLOW_R2B_DEV_OT_sync_lights",
+            "LOOPFLOW_R2B_DEV_OT_open_health",
+        )
+        found = {}
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef) and node.name in required:
+                found[node.name] = ast.get_docstring(node)
+        self.assertEqual(set(found), set(required))
+        for name, doc in found.items():
+            self.assertTrue(doc and doc.strip(), name)
+        text = ADDON.read_text(encoding="utf-8")
+        self.assertIn("def description(", text)
+        self.assertIn("Hover for last-good file times", text)
+        self.assertNotIn("popup_menu", text)
+
 
 if __name__ == "__main__":
     unittest.main()

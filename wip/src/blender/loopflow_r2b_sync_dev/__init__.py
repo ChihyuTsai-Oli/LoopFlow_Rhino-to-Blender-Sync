@@ -59,6 +59,8 @@ class LOOPFLOW_R2B_DEV_OT_reset_paths(bpy.types.Operator):
 
 
 class LOOPFLOW_R2B_DEV_OT_update_models(bpy.types.Operator):
+    """Rebuild R2B geometry from models/R2B.3dm. Keeps existing materials."""
+
     bl_idname = "loopflow_r2b_dev.update_models"
     bl_label = "Update Models"
     bl_options = {"REGISTER"}
@@ -73,6 +75,8 @@ class LOOPFLOW_R2B_DEV_OT_update_models(bpy.types.Operator):
 
 
 class LOOPFLOW_R2B_DEV_OT_import_models(bpy.types.Operator):
+    """Rebuild R2B geometry from models/R2B.3dm and assign default materials."""
+
     bl_idname = "loopflow_r2b_dev.import_models"
     bl_label = "Sync Models"
     bl_options = {"REGISTER"}
@@ -87,6 +91,8 @@ class LOOPFLOW_R2B_DEV_OT_import_models(bpy.types.Operator):
 
 
 class LOOPFLOW_R2B_DEV_OT_import_objects(bpy.types.Operator):
+    """Add objects from models/R2B_Objects.3dm (no materials)."""
+
     bl_idname = "loopflow_r2b_dev.import_objects"
     bl_label = "Import Objects"
     bl_options = {"REGISTER"}
@@ -101,6 +107,8 @@ class LOOPFLOW_R2B_DEV_OT_import_objects(bpy.types.Operator):
 
 
 class LOOPFLOW_R2B_DEV_OT_camera_auto_on(bpy.types.Operator):
+    """Start following the Rhino camera from live/camera.json."""
+
     bl_idname = "loopflow_r2b_dev.camera_auto_on"
     bl_label = "Camera Auto On"
     bl_options = {"REGISTER"}
@@ -116,6 +124,8 @@ class LOOPFLOW_R2B_DEV_OT_camera_auto_on(bpy.types.Operator):
 
 
 class LOOPFLOW_R2B_DEV_OT_camera_auto_off(bpy.types.Operator):
+    """Stop following the Rhino camera."""
+
     bl_idname = "loopflow_r2b_dev.camera_auto_off"
     bl_label = "Camera Auto Off"
     bl_options = {"REGISTER"}
@@ -127,6 +137,8 @@ class LOOPFLOW_R2B_DEV_OT_camera_auto_off(bpy.types.Operator):
 
 
 class LOOPFLOW_R2B_DEV_OT_camera_push(bpy.types.Operator):
+    """Apply live/camera.json once."""
+
     bl_idname = "loopflow_r2b_dev.camera_push"
     bl_label = "Camera Push Once"
     bl_options = {"REGISTER"}
@@ -141,6 +153,8 @@ class LOOPFLOW_R2B_DEV_OT_camera_push(bpy.types.Operator):
 
 
 class LOOPFLOW_R2B_DEV_OT_light_auto_on(bpy.types.Operator):
+    """Start aligning lights from live/light.json."""
+
     bl_idname = "loopflow_r2b_dev.light_auto_on"
     bl_label = "Light Auto On"
     bl_options = {"REGISTER"}
@@ -156,6 +170,8 @@ class LOOPFLOW_R2B_DEV_OT_light_auto_on(bpy.types.Operator):
 
 
 class LOOPFLOW_R2B_DEV_OT_light_auto_off(bpy.types.Operator):
+    """Stop aligning lights."""
+
     bl_idname = "loopflow_r2b_dev.light_auto_off"
     bl_label = "Light Auto Off"
     bl_options = {"REGISTER"}
@@ -167,6 +183,8 @@ class LOOPFLOW_R2B_DEV_OT_light_auto_off(bpy.types.Operator):
 
 
 class LOOPFLOW_R2B_DEV_OT_sync_lights(bpy.types.Operator):
+    """Apply live/light.json once."""
+
     bl_idname = "loopflow_r2b_dev.sync_lights"
     bl_label = "Sync Lights"
     bl_options = {"REGISTER"}
@@ -181,31 +199,25 @@ class LOOPFLOW_R2B_DEV_OT_sync_lights(bpy.types.Operator):
 
 
 class LOOPFLOW_R2B_DEV_OT_open_health(bpy.types.Operator):
-    """Show last-good file times and open the config folder."""
+    """Open the config folder. Hover for last-good file times."""
 
     bl_idname = "loopflow_r2b_dev.open_health"
     bl_label = "Open / Health"
     bl_options = {"REGISTER"}
+
+    @classmethod
+    def description(cls, context, _properties):
+        folder = health_sync.work_folder_from_scene(context.scene)
+        if not folder:
+            return "Set the Work Folder or save the Blender file first"
+        return health_sync.health_report_for_work_folder(folder)
 
     def execute(self, context):
         folder = health_sync.work_folder_from_scene(context.scene)
         if not folder:
             self.report({"ERROR"}, "Set the Work Folder or save the Blender file first")
             return {"CANCELLED"}
-        report = health_sync.health_report_for_work_folder(folder)
         err = health_sync.open_config_root(folder)
-        lines = report.splitlines() or [report]
-
-        def draw_popup(menu, _context):
-            col = menu.layout.column()
-            for line in lines:
-                col.label(text=line)
-
-        context.window_manager.popup_menu(
-            draw_popup,
-            title="R2B Open / Health",
-            icon="INFO",
-        )
         if err:
             self.report({"ERROR"}, err)
             return {"CANCELLED"}
