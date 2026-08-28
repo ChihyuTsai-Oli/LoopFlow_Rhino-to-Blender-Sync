@@ -19,6 +19,7 @@ from foundation.paths import (
     pending_path_for,
     resolve_model_3dm_from_work_folder,
 )
+from rhino.commands.model_export import material_name_from_full_path
 
 
 class ModelPublishTests(unittest.TestCase):
@@ -85,6 +86,12 @@ class ModelPublishTests(unittest.TestCase):
             legacy.parent.mkdir(parents=True)
             legacy.write_bytes(b"legacy")
             self.assertEqual(resolve_model_3dm_from_work_folder(work), legacy.resolve())
+
+    def test_material_name_parent_and_leaf(self):
+        self.assertEqual(material_name_from_full_path("A::B::C"), "B::C")
+        self.assertEqual(material_name_from_full_path("Parent::Leaf"), "Parent::Leaf")
+        self.assertEqual(material_name_from_full_path("Solo"), "Solo")
+        self.assertEqual(material_name_from_full_path(""), "Layer")
 
 
 if __name__ == "__main__":
