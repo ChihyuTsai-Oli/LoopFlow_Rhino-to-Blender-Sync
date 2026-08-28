@@ -140,7 +140,23 @@ def _layer_full_of(src, layer_index: int) -> str:
         return ""
 
 
-def _iter_definition_objects(idef):
+def _iter_definition_objects(idef, src=None):
+    try:
+        ids = idef.GetObjectIds()
+        if ids and src is not None:
+            found = False
+            for oid in ids:
+                try:
+                    obj = src.Objects.FindId(oid)
+                except Exception:
+                    obj = None
+                if obj is not None:
+                    found = True
+                    yield obj
+            if found:
+                return
+    except Exception:
+        pass
     try:
         objs = idef.GetObjects()
         if objs:
@@ -172,7 +188,7 @@ def _combine_xform(prefix, local, Transform):
         return prefix * local
 
 
-def _explode_instance_geoms(robj, xform_prefix, ObjectType, Transform):
+def _explode_instance_geoms(robj, xform_prefix, ObjectType, Transform, src=None):
     """遞迴展開 Instance；產出已在世界座標的幾何複製。不改作業檔。"""
     if not _is_instance_ref(robj, ObjectType):
         geom = getattr(robj, "Geometry", None)
@@ -197,10 +213,15 @@ def _explode_instance_geoms(robj, xform_prefix, ObjectType, Transform):
         idef = robj.InstanceDefinition
     except Exception:
         idef = None
+    if idef is None and src is not None:
+        try:
+            idef = src.InstanceDefinitions.FindId(robj.Geometry.ParentIdefId)
+        except Exception:
+            idef = None
     if idef is None:
         return
-    for child in _iter_definition_objects(idef):
-        yield from _explode_instance_geoms(child, xform, ObjectType, Transform)
+    for child in _iter_definition_objects(idef, src):
+        yield from _explode_instance_geoms(child, xform, ObjectType, Transform, src)
 
 
 def _add_geoms(out, geoms, attr_template) -> int:
@@ -501,12 +522,13 @@ def export_ids_to_3dm(
             if old_li not in old_index_to_new:
                 skip_layer += 1
                 return 0
+            layer_index = old_index_to_new[old_li]
             count = 0
             try:
                 for geom in _explode_instance_geoms(
-                    robj, None, ObjectType, Transform
+                    robj, None, ObjectType, Transform, src
                 ):
-                    piece_attr = _fresh_attributes(Rhino, robj.Attributes, new_li)
+                    piece_attr = _fresh_attributes(Rhino, robj.Attributes, layer_index)
                     if user_strings:
                         for key, value in user_strings:
                             try:
@@ -520,7 +542,7 @@ def export_ids_to_3dm(
                 last_add_err = str(exc)
                 return count
             if count:
-                used_new_layers.add(new_li)
+                used_new_layers.add(layer_index)
                 added += count
             return count
 
@@ -622,10 +644,10 @@ def export_ids_to_3dm(
                     pass
             return None
 
-        for new_li in sorted(used_new_layers):
-            old_li = new_to_old.get(new_li)
+        for mapped_li in sorted(used_new_layers):
+            old_li = new_to_old.get(mapped_li)
             src_layer = src_layers_by_index.get(old_li) if old_li is not None else None
-            layer_out = _layer_at(new_li)
+            layer_out = _layer_at(mapped_li)
             if src_layer is not None:
                 name = material_name_from_full_path(_layer_full_path(src_layer))
                 color = _layer_color(src_layer, Color)

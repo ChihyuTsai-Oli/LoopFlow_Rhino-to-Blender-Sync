@@ -244,16 +244,20 @@ def import_objects(context) -> str:
     if not os.path.isfile(path):
         return "找不到物件檔：{}".format(path)
 
+    before_collections = set(bpy.data.collections.keys())
     tmp_name = "_r2b_tmp_objects_{}".format(uuid.uuid4().hex[:8])
+    layers_name = "_r2b_tmp_layers_{}".format(uuid.uuid4().hex[:8])
     options = default_import_options(update_materials=True)
     options["container_name"] = tmp_name
     options["wipe_container"] = False
     options["link_container"] = False
+    options["layers_container_name"] = layers_name
     err = _call_import_3dm(
         context, path, update_materials=True, options=options
     )
     if err:
-        _remove_collection_tree(bpy.data.collections.get(tmp_name))
+        for name in set(bpy.data.collections.keys()) - before_collections:
+            _remove_collection_tree(bpy.data.collections.get(name))
         return err
 
     tmp = bpy.data.collections.get(tmp_name)
@@ -279,7 +283,17 @@ def import_objects(context) -> str:
         obj.parent = parent
         obj.matrix_world = world
 
-    _remove_collection_tree(tmp)
+    for name in set(bpy.data.collections.keys()) - before_collections:
+        col = bpy.data.collections.get(name)
+        if col is None:
+            continue
+        for obj in list(col.all_objects):
+            if obj == parent or obj.parent == parent:
+                try:
+                    col.objects.unlink(obj)
+                except Exception:
+                    pass
+        _remove_collection_tree(col)
     merge_duplicate_materials()
     return ""
 

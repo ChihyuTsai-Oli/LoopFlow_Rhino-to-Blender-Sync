@@ -147,7 +147,18 @@ def read_3dm(
     converters.handle_materials(context, model, materials, update_materials)
 
     # Handle layers
-    converters.handle_layers(context, model, toplayer, layerids, materials, update_materials, import_hidden_layers, import_layers_as_empties)
+    layers_container_name = options.get("layers_container_name")
+    converters.handle_layers(
+        context,
+        model,
+        toplayer,
+        layerids,
+        materials,
+        update_materials,
+        import_hidden_layers,
+        import_layers_as_empties,
+        layers_container_name,
+    )
 
     # wipe 後物件皆新：一律掛槽；節點覆寫仍由上面的 update_materials 決定（對齊 2.x）
     link_options = options.copy()

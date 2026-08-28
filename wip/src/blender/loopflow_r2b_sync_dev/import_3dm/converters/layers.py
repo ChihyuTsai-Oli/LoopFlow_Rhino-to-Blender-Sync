@@ -23,24 +23,42 @@
 from . import utils
 
 
-def handle_layers(context, model, toplayer, layerids, materials, update, import_hidden=False, layers_as_empties=False):
+def handle_layers(
+    context,
+    model,
+    toplayer,
+    layerids,
+    materials,
+    update,
+    import_hidden=False,
+    layers_as_empties=False,
+    layers_container_name=None,
+):
     """
     In context read the Rhino layers from model
     then update the layerids dictionary passed in.
     Update materials dictionary with materials created
     for layer color.
     """
-    #setup main container to hold all layer collections
-    layer_col_id="Layers"
-    if not layer_col_id in context.blend_data.collections:
+    # setup main container to hold all layer collections
+    if layers_container_name:
+        layer_col_id = layers_container_name
+        layer_col = context.blend_data.collections.new(name=layer_col_id)
+        try:
+            toplayer.children.link(layer_col)
+        except Exception:
+            pass
+    else:
+        layer_col_id = "Layers"
+        if not layer_col_id in context.blend_data.collections:
             layer_col = context.blend_data.collections.new(name=layer_col_id)
             try:
                 toplayer.children.link(layer_col)
             except Exception:
                 pass
-    else:
-        #If "Layers" collection is in place, we assume the plugin had imported 3dm before
-        layer_col = context.blend_data.collections[layer_col_id]
+        else:
+            # If "Layers" collection is in place, we assume the plugin had imported 3dm before
+            layer_col = context.blend_data.collections[layer_col_id]
 
     # build lookup table for LayerTable index
     # from GUID, create collection for each
