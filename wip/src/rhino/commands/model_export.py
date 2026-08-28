@@ -314,6 +314,52 @@ def export_ids_to_3dm(
         return Result.fail("沒有可寫入的幾何（{}）".format(detail), stage="export")
 
     new_to_old = {v: k for k, v in old_index_to_new.items()}
+
+    def _add_material_index(mat_obj) -> Optional[int]:
+        """把 Material 加進 File3dm，回傳 index；失敗回傳 None（不中斷匯出）。"""
+        tables = (
+            getattr(out, "AllMaterials", None),
+            getattr(out, "Materials", None),
+        )
+        for table in tables:
+            if table is None:
+                continue
+            before = None
+            try:
+                before = int(table.Count)
+            except Exception:
+                before = None
+            result = None
+            try:
+                result = table.Add(mat_obj)
+            except Exception:
+                continue
+            if result is not None:
+                try:
+                    return int(result)
+                except (TypeError, ValueError):
+                    try:
+                        return int(getattr(result, "Index"))
+                    except Exception:
+                        pass
+            if before is not None:
+                try:
+                    after = int(table.Count)
+                    if after > before:
+                        return after - 1
+                except Exception:
+                    pass
+            # 有些實作 Add 回傳 None 但已寫入最後一筆
+            try:
+                count = int(table.Count)
+                if count > 0:
+                    last = table[count - 1]
+                    if last is not None and getattr(last, "Name", None) == mat_obj.Name:
+                        return count - 1
+            except Exception:
+                pass
+        return None
+
     for new_li in sorted(used_new_layers):
         old_li = new_to_old.get(new_li)
         src_layer = src_layers_by_index.get(old_li) if old_li is not None else None
@@ -328,20 +374,18 @@ def export_ids_to_3dm(
             color = _layer_color(layer_out, Color)
 
         mat = Rhino.DocObjects.Material()
-        mat.Name = name
+        try:
+            mat.Name = name
+        except Exception:
+            pass
         if color is not None:
             try:
                 mat.DiffuseColor = color
             except Exception:
                 pass
-        try:
-            mat_index = int(out.AllMaterials.Add(mat))
-        except Exception:
-            try:
-                mat_index = int(out.Materials.Add(mat))
-            except Exception as exc:
-                return Result.fail("建立圖層材質失敗：{}".format(exc), stage="export_materials")
-        if mat_index < 0 or layer_out is None:
+
+        mat_index = _add_material_index(mat)
+        if mat_index is None or layer_out is None:
             continue
         try:
             layer_out.RenderMaterialIndex = mat_index
