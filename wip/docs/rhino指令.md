@@ -50,10 +50,12 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 ## 不經 Rhino 按鈕
 
-- Blender add-on／`import_3dm`／Toolkit：用隔離 Blender profile 安裝，不經上列巨集啟動。
+- Blender：**隔離 profile** 安裝 3.0 **測試用 Sync add-on**（N-Panel 空殼按鈕可先齊，再接功能）；不經上列巨集啟動。詳見 `系統設定.md`「開發測試入口」。
+- `import_3dm`／Toolkit：同樣用隔離 profile；importer 工作複本自 `import_3dm/…0.0.18…` 複製。
 
 ## 變更紀錄
 
 | 日期 | 說明 |
 |---|---|
+| 2026-08-28 | 註明 Blender 測試 add-on 空殼測法（對齊 Rhino entrypoints） |
 | 2026-08-27 | 初版：自系統設定抽出完整指令清單與巨集 |
