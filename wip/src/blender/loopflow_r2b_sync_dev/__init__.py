@@ -8,7 +8,7 @@ Models Update／Import 使用內嵌 `import_3dm` fork（含 rhino3dm wheels）�
 bl_info = {
     "name": "LoopFlow R2B Sync (Dev Stub)",
     "author": "Chihyu Tsai",
-    "version": (0, 0, 8),
+    "version": (0, 0, 9),
     "blender": (5, 2, 1),
     "location": "N-Panel > LoopFlow",
     "description": "R2B 3.0 Sync: Models, Camera, Light, Open; embedded import_3dm",
@@ -225,6 +225,22 @@ class LOOPFLOW_R2B_DEV_OT_open_health(bpy.types.Operator):
         return {"FINISHED"}
 
 
+class LOOPFLOW_R2B_DEV_OT_open_docs(bpy.types.Operator):
+    """Open the GitHub documentation entry (English and Chinese guides)."""
+
+    bl_idname = "loopflow_r2b_dev.open_docs"
+    bl_label = "Open Docs"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        err = health_sync.open_docs_in_browser()
+        if err:
+            self.report({"ERROR"}, err)
+            return {"CANCELLED"}
+        self.report({"INFO"}, "Opened documentation")
+        return {"FINISHED"}
+
+
 class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
     bl_label = "Rhino to Blender Sync"
     bl_idname = "LOOPFLOW_R2B_DEV_PT_panel"
@@ -265,6 +281,7 @@ class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
         layout.separator()
         col = layout.column(align=True)
         col.operator("loopflow_r2b_dev.open_health", text="Open / Health")
+        col.operator("loopflow_r2b_dev.open_docs", text="Open Docs")
 
 
 _CLASSES = (
@@ -280,6 +297,7 @@ _CLASSES = (
     LOOPFLOW_R2B_DEV_OT_light_auto_off,
     LOOPFLOW_R2B_DEV_OT_sync_lights,
     LOOPFLOW_R2B_DEV_OT_open_health,
+    LOOPFLOW_R2B_DEV_OT_open_docs,
     LOOPFLOW_R2B_DEV_PT_panel,
 )
 

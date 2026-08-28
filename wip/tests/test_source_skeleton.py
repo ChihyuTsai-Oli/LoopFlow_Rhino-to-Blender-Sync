@@ -64,7 +64,7 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertEqual(bl_info["author"], "Chihyu Tsai")
         self.assertEqual(bl_info["blender"], (5, 2, 1))
         self.assertIn("Dev Stub", bl_info["name"])
-        self.assertEqual(bl_info["version"], (0, 0, 8))
+        self.assertEqual(bl_info["version"], (0, 0, 9))
 
     def test_addon_registers_expected_stub_idnames(self):
         text = ADDON.read_text(encoding="utf-8")
@@ -78,6 +78,7 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertIn('bl_idname = "loopflow_r2b_dev.light_auto_on"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.sync_lights"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.open_health"', text)
+        self.assertIn('bl_idname = "loopflow_r2b_dev.open_docs"', text)
         self.assertIn('bl_category = "LoopFlow"', text)
         self.assertIn('bl_label = "Rhino to Blender Sync"', text)
         self.assertNotIn("LoopFlow R2B Dev", text)
@@ -92,6 +93,7 @@ class SourceSkeletonTests(unittest.TestCase):
             "Light Auto On",
             "Sync Lights",
             "Open / Health",
+            "Open Docs",
         ):
             self.assertIn(label, text)
         self.assertNotIn('text="Import Models"', text)
@@ -110,6 +112,7 @@ class SourceSkeletonTests(unittest.TestCase):
             "LOOPFLOW_R2B_DEV_OT_light_auto_off",
             "LOOPFLOW_R2B_DEV_OT_sync_lights",
             "LOOPFLOW_R2B_DEV_OT_open_health",
+            "LOOPFLOW_R2B_DEV_OT_open_docs",
         )
         found = {}
         for node in tree.body:

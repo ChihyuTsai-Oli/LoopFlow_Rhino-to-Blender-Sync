@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from foundation.docs import open_docs_in_browser
 from foundation.health import build_health_report
 from foundation.paths import (
     config_root_for_document,
@@ -79,8 +80,8 @@ def _show_eto(report: str, data: dict) -> None:
             self.Title = "R2B Open / Health"
             self.Padding = drawing.Padding(10)
             self.Resizable = True
-            self.ClientSize = drawing.Size(480, 280)
-            self.MinimumSize = drawing.Size(360, 220)
+            self.ClientSize = drawing.Size(520, 300)
+            self.MinimumSize = drawing.Size(400, 240)
 
             box = forms.TextArea()
             box.Text = report
@@ -92,19 +93,23 @@ def _show_eto(report: str, data: dict) -> None:
             open_live.Text = "Open live"
             open_models = forms.Button()
             open_models.Text = "Open models"
+            open_docs = forms.Button()
+            open_docs.Text = "Open Docs"
             close = forms.Button()
             close.Text = "Close"
 
             open_root.Click += lambda s, e: _open_folder(str(data.get("root") or ""))
             open_live.Click += lambda s, e: _open_folder(str(data.get("live") or ""))
             open_models.Click += lambda s, e: _open_folder(str(data.get("models") or ""))
+            open_docs.Click += lambda s, e: open_docs_in_browser()
             close.Click += lambda s, e: self.Close()
             self.DefaultButton = close
             self.AbortButton = close
 
             buttons = forms.DynamicLayout()
-            buttons.DefaultSpacing = drawing.Size(8, 0)
-            buttons.AddRow(open_root, open_live, open_models, None, close)
+            buttons.DefaultSpacing = drawing.Size(8, 4)
+            buttons.AddRow(open_root, open_live, open_models, None)
+            buttons.AddRow(open_docs, None, close)
 
             layout = forms.DynamicLayout()
             layout.DefaultSpacing = drawing.Size(4, 8)
