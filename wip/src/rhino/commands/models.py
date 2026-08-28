@@ -42,22 +42,15 @@ def _sticky():
 
 
 def _prompt_layer(session: LiveSession, default_layer: Optional[str]) -> Optional[str]:
-    """用 ComboListBox 選圖層，避開 GetLayer 雙擊閃退／Select 無作用。"""
-    import rhinoscriptsyntax as rs  # type: ignore
+    """階層圖層樹＋捲軸選取（Eto TreeGridView）。"""
+    from rhino.ui.layer_picker import pick_layer_path
 
-    layers = list(session.layer_paths())
-    if not layers:
-        return None
-    layers.sort()
-    message = "選擇要匯出的模型圖層，含子層"
-    # 預設項盡量排到可見位置
-    if default_layer and default_layer in layers:
-        layers.remove(default_layer)
-        layers.insert(0, default_layer)
-    chosen = rs.ComboListBox(layers, message=message, title="R2B Models")
-    if not chosen:
-        return None
-    return str(chosen)
+    return pick_layer_path(
+        session.layer_paths(),
+        default_path=default_layer,
+        title="R2B Models",
+        message="選擇要匯出的模型圖層，含子層",
+    )
 
 
 def _count_kinds_under_layer(session: LiveSession, root: str) -> Dict[str, int]:
