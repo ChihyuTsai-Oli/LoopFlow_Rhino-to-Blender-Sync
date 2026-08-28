@@ -64,16 +64,66 @@ def read_and_parse_light(path: str):
     return result.data, None
 
 
+def _purge_rhino_empty(empty) -> None:
+    """刪除 empty 及其 INST_* 子物件；非 INST 子物件脫離並標記 recovered。"""
+    try:
+        removed_guid = empty.get("rhino_guid")
+    except ReferenceError:
+        return
+    try:
+        for child in list(empty.children):
+            try:
+                if child.name.startswith("INST_"):
+                    # 連同 INST 底下的燈光一併刪
+                    for grand in list(child.children):
+                        try:
+                            bpy.data.objects.remove(grand, do_unlink=True)
+                        except ReferenceError:
+                            pass
+                    bpy.data.objects.remove(child, do_unlink=True)
+                else:
+                    if removed_guid is not None:
+                        child["recovered_rhino_guid"] = removed_guid
+                    world_mat = child.matrix_world.copy()
+                    child.parent = None
+                    child.matrix_world = world_mat
+            except ReferenceError:
+                pass
+        bpy.data.objects.remove(empty, do_unlink=True)
+    except ReferenceError:
+        pass
+
+
+def _iter_rhino_empties(light_col):
+    for obj in list(light_col.objects):
+        try:
+            if obj.get("rhino_guid") is not None:
+                yield obj
+        except ReferenceError:
+            pass
+
+
 def apply_light_points(context, parsed, *, scale: float) -> str:
-    """套用非空 points；成功回傳 ""。"""
+    """套用 points；clear=true 或 active 外的 empty 整組刪除（含 INST／燈光）。"""
     points = parsed.get("points") or []
-    if not points:
-        return "points 為空：不清燈（ED-07）"
+    do_clear = bool(parsed.get("clear"))
 
     light_col = bpy.data.collections.get(COL_LIGHT_POINTS)
     if not light_col:
+        if do_clear or not points:
+            return ""
         light_col = bpy.data.collections.new(COL_LIGHT_POINTS)
         context.scene.collection.children.link(light_col)
+
+    if do_clear or not points:
+        if not do_clear:
+            return "points 為空：不清燈（ED-07）"
+        try:
+            for empty in list(_iter_rhino_empties(light_col)):
+                _purge_rhino_empty(empty)
+        except Exception as exc:
+            return "清空失敗：{}".format(exc)
+        return ""
 
     active_guids = set()
     try:
@@ -87,7 +137,7 @@ def apply_light_points(context, parsed, *, scale: float) -> str:
             )
 
             target_empty = None
-            for obj in light_col.objects:
+            for obj in _iter_rhino_empties(light_col):
                 try:
                     if obj.get("rhino_guid") == guid:
                         target_empty = obj
@@ -121,6 +171,12 @@ def apply_light_points(context, parsed, *, scale: float) -> str:
                         pass
 
             templates = get_template_objects(pt_type)
+            if not templates:
+                # 無對應模板時不要留下裸 empty（換到無燈具名圖層時的殘留主因）
+                _purge_rhino_empty(target_empty)
+                active_guids.discard(guid)
+                continue
+
             processed_insts = []
             for template in templates:
                 safe_name = re.sub(r"\.\d{3}$", "", template.name)
@@ -154,33 +210,19 @@ def apply_light_points(context, parsed, *, scale: float) -> str:
             for child in list(target_empty.children):
                 try:
                     if child.name.startswith("INST_") and child not in processed_insts:
+                        for grand in list(child.children):
+                            try:
+                                bpy.data.objects.remove(grand, do_unlink=True)
+                            except ReferenceError:
+                                pass
                         bpy.data.objects.remove(child, do_unlink=True)
                 except ReferenceError:
                     pass
 
-        empties_to_remove = []
-        for obj in light_col.objects:
+        for empty in list(_iter_rhino_empties(light_col)):
             try:
-                if "rhino_guid" in obj and obj["rhino_guid"] not in active_guids:
-                    empties_to_remove.append(obj)
-            except ReferenceError:
-                pass
-
-        for empty in empties_to_remove:
-            try:
-                removed_guid = empty["rhino_guid"]
-                for child in list(empty.children):
-                    try:
-                        if child.name.startswith("INST_"):
-                            bpy.data.objects.remove(child, do_unlink=True)
-                        else:
-                            child["recovered_rhino_guid"] = removed_guid
-                            world_mat = child.matrix_world.copy()
-                            child.parent = None
-                            child.matrix_world = world_mat
-                    except ReferenceError:
-                        pass
-                bpy.data.objects.remove(empty, do_unlink=True)
+                if empty.get("rhino_guid") not in active_guids:
+                    _purge_rhino_empty(empty)
             except ReferenceError:
                 pass
     except Exception as exc:

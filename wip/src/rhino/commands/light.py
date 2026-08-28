@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Rhino Light 通道：手動推一次／自動同步開／關（只位置；空點不發布）。"""
+"""Rhino Light 通道：手動推一次／自動同步開／關（只位置；空點手動不發、自動可 clear）。"""
 from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, List
 
 from foundation.atomic import atomic_publish_json
 from foundation.light_payload import (
@@ -25,6 +25,7 @@ from foundation.result import Result
 _STICKY_HANDLERS = "R2B3_Light_Sync_Handlers"
 _STICKY_PATH = "R2B3_LIGHT_JSON_PATH"
 _STICKY_LAYER = "R2B3_LIGHT_LAYER"
+_STICKY_HAD_POINTS = "R2B3_LIGHT_HAD_POINTS"
 
 
 def _sticky():
@@ -46,7 +47,7 @@ def _resolve_publish_target() -> Result:
 
 
 def collect_light_points(light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
-    """掃描全場景 Point，過濾 LightLayer 前綴（含子層）。"""
+    """掃描全場景 Point；只收 LightLayer **子層**上的點。"""
     import rhinoscriptsyntax as rs  # type: ignore
 
     points = rs.ObjectsByType(1) or []
@@ -66,14 +67,25 @@ def collect_light_points(light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
         )
     if not collected:
         return Result.blocked(
-            "無符合 LightLayer「{}」的 Point：不發布、不清 Blender 燈".format(light_layer),
+            "無符合 LightLayer「{}::…」子層的 Point：手動不發布；若先前有點，自動同步會發 clear".format(
+                light_layer
+            ),
             stage="collect_lights",
         )
     return Result.success(stage="collect_lights", data=collected)
 
 
+def _write_payload(final: Path, root: Path, payload: dict, count_label: str) -> Result:
+    result = atomic_publish_json(final, payload, validate=validate_light_file)
+    append_log(
+        root,
+        "Light publish: {} ({}); {}".format(result.status, result.message, count_label),
+    )
+    return result
+
+
 def publish_light_once(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
-    """收集並 atomic 發布 light.json；空點＝blocked，不動 last-good。"""
+    """手動推：空點＝blocked，不動 last-good（ED-07）。"""
     import scriptcontext as sc  # type: ignore
 
     collected = collect_light_points(light_layer)
@@ -93,14 +105,12 @@ def publish_light_once(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
     )
     final = Path(target.data["light"])
     root = Path(target.data["root"])
-    result = atomic_publish_json(final, payload, validate=validate_light_file)
-    append_log(
-        root,
-        "Light publish: {} ({}); count={}".format(
-            result.status, result.message, len(collected.data)
-        ),
-    )
+    result = _write_payload(final, root, payload, "count={}".format(len(collected.data)))
     if result.ok:
+        try:
+            _sticky()[_STICKY_HAD_POINTS] = True
+        except Exception:
+            pass
         return Result.success(
             "已發布 {} 個燈點：{}".format(len(collected.data), final),
             stage="publish_light",
@@ -109,8 +119,34 @@ def publish_light_once(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
     return result
 
 
+def publish_light_clear(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
+    """發布 clear=true 空清單，供 Blender 移除全部 rhino_guid empty。"""
+    import scriptcontext as sc  # type: ignore
+
+    target = _resolve_publish_target()
+    if not target.ok:
+        return target
+    doc = sc.doc
+    doc_name = os.path.basename(doc.Path or "") if doc and doc.Path else ""
+    payload = build_light_payload(
+        [],
+        document_name=doc_name,
+        light_layer=light_layer,
+        clear=True,
+    )
+    final = Path(target.data["light"])
+    root = Path(target.data["root"])
+    result = _write_payload(final, root, payload, "clear=true")
+    if result.ok:
+        try:
+            _sticky()[_STICKY_HAD_POINTS] = False
+        except Exception:
+            pass
+    return result
+
+
 def _try_auto_publish() -> None:
-    """自動同步：失敗略過；空點不寫檔。"""
+    """自動同步：有點就發；先前有點而今為零則發 clear。"""
     try:
         sticky = _sticky()
         json_path = sticky.get(_STICKY_PATH)
@@ -118,18 +154,34 @@ def _try_auto_publish() -> None:
             return
         layer = sticky.get(_STICKY_LAYER) or DEFAULT_LIGHT_LAYER
         collected = collect_light_points(layer)
-        if not collected.ok:
-            return
         import scriptcontext as sc  # type: ignore
 
         doc = sc.doc
         doc_name = os.path.basename(doc.Path or "") if doc and doc.Path else ""
-        payload = build_light_payload(
-            collected.data,
-            document_name=doc_name,
-            light_layer=layer,
-        )
-        atomic_publish_json(json_path, payload, validate=validate_light_file)
+        final = Path(json_path)
+
+        if collected.ok:
+            payload = build_light_payload(
+                collected.data,
+                document_name=doc_name,
+                light_layer=layer,
+            )
+            result = atomic_publish_json(final, payload, validate=validate_light_file)
+            if result.ok:
+                sticky[_STICKY_HAD_POINTS] = True
+            return
+
+        # 無合法點：僅在本 session 曾成功發過點時發 clear，避免誤設 LightLayer 一次清空
+        if sticky.get(_STICKY_HAD_POINTS):
+            payload = build_light_payload(
+                [],
+                document_name=doc_name,
+                light_layer=layer,
+                clear=True,
+            )
+            result = atomic_publish_json(final, payload, validate=validate_light_file)
+            if result.ok:
+                sticky[_STICKY_HAD_POINTS] = False
     except Exception:
         pass
 
@@ -183,7 +235,9 @@ def light_auto_on(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
     push = publish_light_once(light_layer=light_layer)
     append_log(target.data["root"], "Light Auto On → {}".format(path))
     if push.ok:
+        sticky[_STICKY_HAD_POINTS] = True
         return Result.success("Light 自動同步已開啟：{}".format(path), stage="light_auto_on")
+    sticky[_STICKY_HAD_POINTS] = False
     return Result.success(
         "Light 自動同步已開啟（首次推送：{}）".format(push.message),
         stage="light_auto_on",
@@ -213,6 +267,7 @@ def light_auto_off() -> Result:
     sticky.pop(_STICKY_HANDLERS, None)
     sticky.pop(_STICKY_PATH, None)
     sticky.pop(_STICKY_LAYER, None)
+    # 保留 HAD_POINTS，避免關再開後誤清；下次成功推送會再設
     return Result.success("Light 自動同步已關閉", stage="light_auto_off")
 
 

@@ -2,7 +2,8 @@
 """Light JSON 契約（開發暫定 schema_version=1；兩端共用）。
 
 本輪只同步 Point 位置＋guid／type（ED-06）。
-空 points 視為無效發布（ED-07：不覆寫 last-good、consumer 不清燈）。
+空 points：手動 Push 不發布；自動同步在「先前有點→現在為零」可發 clear=true 清 consumer（ED-07 修正）。
+合法燈點必須在 LightLayer **子層**（例 R2B_LT_Points::Downlight），不可只在父層。
 """
 from __future__ import annotations
 
@@ -20,11 +21,9 @@ Loc3 = Tuple[float, float, float]
 
 
 def layer_matches_prefix(layer_full: str, prefix: str) -> bool:
-    """圖層前綴比對：精確或子層（prefix::…），避免 R2B_LT_Points_舊 誤中。"""
+    """只認 LightLayer 子層（prefix::…）；父層本身與前綴撞名層皆非法。"""
     if not layer_full or not prefix:
         return False
-    if layer_full == prefix:
-        return True
     return layer_full.startswith(prefix + "::")
 
 
@@ -34,8 +33,9 @@ def build_light_payload(
     producer: str = PRODUCER_RHINO,
     document_name: str = "",
     light_layer: str = DEFAULT_LIGHT_LAYER,
+    clear: bool = False,
 ) -> Dict[str, Any]:
-    """組出可發布的 Light payload（呼叫端應先確保 points 非空）。"""
+    """組出可發布的 Light payload。clear=True 時允許 points 為空。"""
     normalized: List[Dict[str, Any]] = []
     for item in points:
         loc = item["loc"]
@@ -46,17 +46,20 @@ def build_light_payload(
                 "loc": [float(loc[0]), float(loc[1]), float(loc[2])],
             }
         )
-    return {
+    payload = {
         "schema_version": SCHEMA_VERSION,
         "producer": producer,
         "document": document_name or "",
         "light_layer": light_layer,
         "points": normalized,
     }
+    if clear:
+        payload["clear"] = True
+    return payload
 
 
 def validate_light_payload(data: Any) -> Optional[str]:
-    """回傳錯誤字串；通過則 None。空 points 一律失敗（ED-07）。"""
+    """回傳錯誤字串；通過則 None。空 points 僅在 clear=true 時合法。"""
     if not isinstance(data, Mapping):
         return "Light JSON 根節點必須是物件"
     try:
@@ -68,8 +71,11 @@ def validate_light_payload(data: Any) -> Optional[str]:
     points = data.get("points")
     if not isinstance(points, list):
         return "欄位 points 必須是陣列"
-    if len(points) == 0:
-        return "points 為空：不發布、不清燈（ED-07）"
+    clear = bool(data.get("clear"))
+    if len(points) == 0 and not clear:
+        return "points 為空：不發布、不清燈（ED-07）；需 clear=true 才可清空"
+    if clear and len(points) != 0:
+        return "clear=true 時 points 必須為空陣列"
     for idx, item in enumerate(points):
         if not isinstance(item, Mapping):
             return "points[{}] 必須是物件".format(idx)
@@ -112,6 +118,7 @@ def parse_light_payload(data: Any) -> Result:
             "producer": str(data.get("producer") or ""),
             "document": str(data.get("document") or ""),
             "light_layer": str(data.get("light_layer") or DEFAULT_LIGHT_LAYER),
+            "clear": bool(data.get("clear")),
             "points": points_out,
         },
     )
