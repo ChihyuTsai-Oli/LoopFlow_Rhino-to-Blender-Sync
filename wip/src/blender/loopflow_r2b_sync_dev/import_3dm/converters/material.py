@@ -487,13 +487,15 @@ def handle_materials(context, model : r3d.File3dm, materials, update):
     if DEFAULT_RHINO_MATERIAL not in materials:
         tags = utils.create_tag_dict(DEFAULT_RHINO_MATERIAL_ID, DEFAULT_RHINO_MATERIAL)
         blmat = utils.get_or_create_iddata(context.blend_data.materials, tags, None)
-        default_material(blmat)
+        if not blmat.use_nodes:
+            default_material(blmat)
         materials[DEFAULT_RHINO_MATERIAL] = blmat
 
     if DEFAULT_TEXT_MATERIAL not in materials:
         tags = utils.create_tag_dict(DEFAULT_RHINO_TEXT_MATERIAL_ID, DEFAULT_TEXT_MATERIAL)
         blmat = utils.get_or_create_iddata(context.blend_data.materials, tags, None)
-        default_text_material(blmat)
+        if not blmat.use_nodes:
+            default_text_material(blmat)
         materials[DEFAULT_TEXT_MATERIAL] = blmat
 
     for mat in model.Materials:
@@ -505,9 +507,9 @@ def handle_materials(context, model : r3d.File3dm, materials, update):
             continue
 
         matname = rendermaterial_name(m)
-        if matname not in materials:
-            tags = utils.create_tag_dict(m.Id, m.Name)
-            blmat = utils.get_or_create_iddata(context.blend_data.materials, tags, None)
-            if update:
-                harvest_from_rendercontent(model, m, blmat)
-            materials[matname] = blmat
+        tags = utils.create_tag_dict(m.Id, m.Name)
+        blmat = utils.get_or_create_iddata(context.blend_data.materials, tags, None)
+        # Update：已有節點的材質不覆寫；新建材質仍建立基本節點（對齊 2.x）
+        if update or not blmat.use_nodes:
+            harvest_from_rendercontent(model, m, blmat)
+        materials[matname] = blmat

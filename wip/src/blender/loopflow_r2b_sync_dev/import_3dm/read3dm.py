@@ -33,12 +33,43 @@ ensure_rhino3dm()
 
 import rhino3dm as r3d
 from . import converters
+from .r2b_wipe import should_preserve_collection
+
+# Lighting 集合不在 R2B 子樹內；若被掛成子集合也不清（ED-08）。
+
+
+def wipe_collection_hierarchy(col, keep_name: str) -> None:
+    """清空 collection 子樹（對齊 2.x delete_collection_hierarchy）。"""
+    for child in list(col.children):
+        if should_preserve_collection(child.name, keep_name):
+            continue
+        wipe_collection_hierarchy(child, keep_name)
+    for obj in list(col.objects):
+        data = obj.data
+        try:
+            bpy.data.objects.remove(obj, do_unlink=True)
+        except Exception:
+            continue
+        if data is not None and getattr(data, "users", 1) == 0:
+            try:
+                if isinstance(data, bpy.types.Mesh):
+                    bpy.data.meshes.remove(data)
+                elif isinstance(data, bpy.types.Curve):
+                    bpy.data.curves.remove(data)
+            except Exception:
+                pass
+    if not should_preserve_collection(col.name, keep_name):
+        try:
+            bpy.data.collections.remove(col)
+        except Exception:
+            pass
 
 
 def create_or_get_top_layer(context, filepath):
     top_collection_name = Path(filepath).stem
     if top_collection_name in context.blend_data.collections.keys():
         toplayer = context.blend_data.collections[top_collection_name]
+        wipe_collection_hierarchy(toplayer, top_collection_name)
     else:
         toplayer = context.blend_data.collections.new(name=top_collection_name)
     return toplayer
@@ -85,6 +116,8 @@ def read_3dm(
     options["rh_model"] = model
 
     toplayer = create_or_get_top_layer(context, filepath)
+    # wipe 後重建 GUID 對照，避免指向已刪物件（對齊 2.x reset_all_dict）
+    converters.utils.reset_all_dict(context)
 
     # Get proper scale for conversion
     scale = r3d.UnitSystem.UnitScale(model.Settings.ModelUnitSystem, r3d.UnitSystem.Meters) / context.scene.unit_settings.scale_length

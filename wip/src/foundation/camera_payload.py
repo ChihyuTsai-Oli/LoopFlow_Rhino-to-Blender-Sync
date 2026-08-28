@@ -90,6 +90,36 @@ def parse_camera_payload(data: Any) -> Result:
     )
 
 
+def payload_pose(payload: Mapping[str, Any]) -> Optional[Tuple[float, ...]]:
+    """抽出比對用姿態（location＋direction＋up＋lens）；無效則 None。"""
+    loc = _as_xyz(payload.get("location"), "location")
+    direction = _as_xyz(payload.get("direction"), "direction")
+    up = _as_xyz(payload.get("up"), "up")
+    if loc is None or direction is None or up is None:
+        return None
+    try:
+        lens = float(payload.get("lens"))
+    except (TypeError, ValueError):
+        return None
+    return loc + direction + up + (lens,)
+
+
+def poses_equivalent(
+    a: Optional[Tuple[float, ...]],
+    b: Optional[Tuple[float, ...]],
+    *,
+    pos_eps: float = 1e-6,
+    lens_eps: float = 1e-3,
+) -> bool:
+    """epsilon 內視為同一姿態；缺欄或長度不對則否。"""
+    if a is None or b is None or len(a) != 10 or len(b) != 10:
+        return False
+    for i in range(9):
+        if abs(a[i] - b[i]) > pos_eps:
+            return False
+    return abs(a[9] - b[9]) <= lens_eps
+
+
 def validate_camera_file(path) -> Optional[str]:
     """atomic publish 用：讀 pending 檔並驗證 JSON。"""
     import json

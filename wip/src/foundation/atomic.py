@@ -78,12 +78,16 @@ def atomic_publish_bytes(
     data: bytes,
     *,
     validate: Optional[ValidateFn] = None,
+    fsync: bool = True,
+    retries: int = 10,
+    delay_sec: float = 0.2,
 ) -> Result:
     """
     寫入 pending，可選驗證，再以 os.replace 換成 final。
 
     - 不先刪除既有 final（失敗時 last-good 仍在）。
     - pending 與 final 須同磁碟區，否則 replace 可能非原子。
+    - 自動相機熱路徑可關 fsync、縮短鎖定重試；手動 Push／Models 維持預設。
     """
     final = Path(final_path)
     pending = pending_path_for(final)
@@ -97,7 +101,8 @@ def atomic_publish_bytes(
         with open(pending, "wb") as handle:
             handle.write(data)
             handle.flush()
-            os.fsync(handle.fileno())
+            if fsync:
+                os.fsync(handle.fileno())
 
         if validate is not None:
             err = validate(pending)
@@ -108,7 +113,9 @@ def atomic_publish_bytes(
                     pass
                 return Result.fail(err, stage="validate")
 
-        replace_err = replace_pending_with_retry(pending, final)
+        replace_err = replace_pending_with_retry(
+            pending, final, retries=retries, delay_sec=delay_sec
+        )
         if replace_err is not None:
             return Result.fail(
                 "發布失敗：{}（pending 仍保留：{}）".format(replace_err, pending),
@@ -130,11 +137,17 @@ def atomic_publish_text(
     *,
     encoding: str = "utf-8",
     validate: Optional[ValidateFn] = None,
+    fsync: bool = True,
+    retries: int = 10,
+    delay_sec: float = 0.2,
 ) -> Result:
     return atomic_publish_bytes(
         final_path,
         text.encode(encoding),
         validate=validate,
+        fsync=fsync,
+        retries=retries,
+        delay_sec=delay_sec,
     )
 
 
@@ -143,13 +156,27 @@ def atomic_publish_json(
     payload: Any,
     *,
     encoding: str = "utf-8",
-    indent: int = 2,
+    indent: Optional[int] = 2,
     validate: Optional[ValidateFn] = None,
+    fsync: bool = True,
+    retries: int = 10,
+    delay_sec: float = 0.2,
 ) -> Result:
-    text = json.dumps(payload, ensure_ascii=False, indent=indent)
+    if indent is None:
+        text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    else:
+        text = json.dumps(payload, ensure_ascii=False, indent=indent)
     if not text.endswith("\n"):
         text += "\n"
-    return atomic_publish_text(final_path, text, encoding=encoding, validate=validate)
+    return atomic_publish_text(
+        final_path,
+        text,
+        encoding=encoding,
+        validate=validate,
+        fsync=fsync,
+        retries=retries,
+        delay_sec=delay_sec,
+    )
 
 
 def atomic_publish_from_pending(

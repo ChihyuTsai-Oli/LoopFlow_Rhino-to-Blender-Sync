@@ -3,6 +3,7 @@
 
 使用 Sync 內嵌的 import_3dm fork（含 rhino3dm wheel bootstrap）。
 Update＝update_materials=False（ED-08）；Import＝True。
+Update／Import 幾何語意相同：wipe `R2B` 子樹再建，依名稱 restore 顯隱／鎖定。
 """
 from __future__ import annotations
 
@@ -54,6 +55,7 @@ def _capture_visibility(context):
             "hide_viewport_eye": lc.hide_viewport,
             "hide_viewport_screen": lc.collection.hide_viewport,
             "hide_render": lc.collection.hide_render,
+            "hide_select": getattr(lc.collection, "hide_select", False),
         }
         for child in lc.children:
             capture_col(child)
@@ -66,6 +68,7 @@ def _capture_visibility(context):
             "hide_get": obj.hide_get(),
             "hide_viewport": obj.hide_viewport,
             "hide_render": obj.hide_render,
+            "hide_select": getattr(obj, "hide_select", False),
             "display_type": obj.display_type,
             "display_bounds_type": getattr(obj, "display_bounds_type", "BOX"),
         }
@@ -80,6 +83,8 @@ def _restore_visibility(context, col_states, obj_states):
             lc.hide_viewport = state["hide_viewport_eye"]
             lc.collection.hide_viewport = state["hide_viewport_screen"]
             lc.collection.hide_render = state["hide_render"]
+            if hasattr(lc.collection, "hide_select"):
+                lc.collection.hide_select = state.get("hide_select", False)
         for child in lc.children:
             restore_col(child)
 
@@ -93,6 +98,8 @@ def _restore_visibility(context, col_states, obj_states):
             obj.hide_set(state["hide_get"])
             obj.hide_viewport = state["hide_viewport"]
             obj.hide_render = state["hide_render"]
+            if hasattr(obj, "hide_select"):
+                obj.hide_select = state.get("hide_select", False)
             obj.display_type = state.get("display_type", "TEXTURED")
             if hasattr(obj, "display_bounds_type"):
                 obj.display_bounds_type = state.get("display_bounds_type", "BOX")
