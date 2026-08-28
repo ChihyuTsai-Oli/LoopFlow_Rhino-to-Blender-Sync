@@ -50,7 +50,7 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 ## 不經 Rhino 按鈕
 
-- Blender：隔離 profile 安裝 `wip/src/blender/loopflow_r2b_sync_dev/`（N-Panel `LoopFlow R2B Dev`）；詳見 `系統設定.md`。
+- Blender：Portable `C:\blender-5.2.1_wip`；跑 `wip/tools/link_dev_addon.ps1` 後啟用 Dev Stub（N-Panel `LoopFlow R2B Dev`）。詳見 `系統設定.md`。
 - `import_3dm`／Toolkit：同樣用隔離 profile；importer 工作複本自 `import_3dm/…0.0.18…` 複製。
 
 ## 變更紀錄
