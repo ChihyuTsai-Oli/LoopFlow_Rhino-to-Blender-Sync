@@ -26,7 +26,7 @@ E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 | 指令 ID（入口檔名） | 顯示用途（暫） | 狀態 |
 |---|---|---|
 | `R2B_Models` | 發布／更新模型 3DM | 空殼已落地 |
-| `R2B_Camera` | 發布相機 JSON | 空殼已落地 |
+| `R2B_Camera` | Push／AutoOn／AutoOff | **已接 Camera 通道** |
 | `R2B_Light` | 發布燈光點位 JSON | 空殼已落地 |
 | `R2B_Open` | 開啟設定／工作資料夾／說明 | 空殼已落地 |
 

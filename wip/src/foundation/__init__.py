@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
-"""3.0 foundation：result／path／atomic／log（無 Rhino／Blender 依賴）。"""
+"""3.0 foundation：result／path／atomic／log／camera_payload。"""
 
 from foundation.atomic import atomic_publish_bytes, atomic_publish_json, atomic_publish_text
+from foundation.camera_payload import (
+    SCHEMA_VERSION,
+    build_camera_payload,
+    parse_camera_payload,
+    validate_camera_payload,
+)
 from foundation.log import append_log
 from foundation.paths import (
     CAMERA_FILE_NAME,
@@ -28,6 +34,10 @@ __all__ = [
     "Result",
     "STUB_SUFFIX",
     "stub_message",
+    "SCHEMA_VERSION",
+    "build_camera_payload",
+    "parse_camera_payload",
+    "validate_camera_payload",
     "require_saved_document_path",
     "config_root_for_document",
     "ensure_config_layout",
