@@ -5,10 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Set, Tuple
 
-from foundation.atomic import atomic_publish_from_pending
+from foundation.atomic import atomic_publish_from_pending, atomic_publish_json
+from foundation.block_payload import empty_blocks_payload, validate_blocks_file
 from foundation.log import append_log
 from foundation.model_payload import validate_model_3dm
 from foundation.paths import (
+    blocks_path,
     config_root_for_document,
     ensure_config_layout,
     model_path,
@@ -259,10 +261,21 @@ def publish_models_once(
         published = atomic_publish_from_pending(
             final, pending_path=pending, validate=validate_model_3dm
         )
+        blocks_payload = empty_blocks_payload()
+        if isinstance(exported.data, dict) and exported.data.get("blocks"):
+            blocks_payload = exported.data["blocks"]
+        sidecar = atomic_publish_json(
+            blocks_path(root), blocks_payload, validate=validate_blocks_file
+        )
         append_log(
             root,
-            "Models publish: {} ({}); layer={}; exclude={!r}; count={}".format(
-                published.status, published.message, target_layer, token, len(ids)
+            "Models publish: {} ({}); layer={}; exclude={!r}; count={}; blocks={}".format(
+                published.status,
+                published.message,
+                target_layer,
+                token,
+                len(ids),
+                sidecar.status,
             ),
         )
         if published.ok:

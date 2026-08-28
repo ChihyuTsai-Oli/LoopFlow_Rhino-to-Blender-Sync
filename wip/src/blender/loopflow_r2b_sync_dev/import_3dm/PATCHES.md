@@ -9,3 +9,4 @@
 | 2026-08-28 | `handle_materials`：Update 不覆寫已有同名材質；新建／Import Principled 底色固定 `#F2F2F2FF` |
 | 2026-08-28 | `converters/material.py`：`from ..r2b_materials`（錯成 `.r2b_materials` 會讓整個 Sync 載入失敗、N 面板消失） |
 | 2026-08-28 | `read_3dm`：不再把預設材質設成 None；`convert_object` 一律掛槽（Update 仍不覆寫節點） |
+| 2026-08-28 | `read_3dm`：`container_name`／`wipe_container`／`link_container`（Import Objects 用暫存集合、不掛 Scene 子集合） |

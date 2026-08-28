@@ -16,6 +16,7 @@ ADDON = SRC / "blender" / "loopflow_r2b_sync_dev" / "__init__.py"
 
 REQUIRED_ENTRYPOINTS = (
     "R2B_Models.py",
+    "R2B_Models_Objects.py",
     "R2B_Camera.py",
     "R2B_Camera_Push.py",
     "R2B_Light.py",
@@ -63,6 +64,7 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertIn('bl_idname = "loopflow_r2b_dev.reset_paths"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.update_models"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.import_models"', text)
+        self.assertIn('bl_idname = "loopflow_r2b_dev.import_objects"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.camera_auto_on"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.camera_push"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.light_auto_on"', text)
@@ -72,7 +74,8 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertNotIn("作業資料夾", text)
         for label in (
             "Update Models",
-            "Import Models",
+            "Sync Models",
+            "Import Objects",
             "Camera Auto On",
             "Camera Push Once",
             "Light Auto On",
@@ -80,6 +83,7 @@ class SourceSkeletonTests(unittest.TestCase):
             "Open / Health",
         ):
             self.assertIn(label, text)
+        self.assertNotIn('text="Import Models"', text)
 
 
 if __name__ == "__main__":

@@ -73,7 +73,7 @@ class LOOPFLOW_R2B_DEV_OT_update_models(bpy.types.Operator):
 
 class LOOPFLOW_R2B_DEV_OT_import_models(bpy.types.Operator):
     bl_idname = "loopflow_r2b_dev.import_models"
-    bl_label = "Import Models"
+    bl_label = "Sync Models"
     bl_options = {"REGISTER"}
 
     def execute(self, context):
@@ -81,7 +81,21 @@ class LOOPFLOW_R2B_DEV_OT_import_models(bpy.types.Operator):
         if err:
             self.report({"ERROR"}, err)
             return {"CANCELLED"}
-        self.report({"INFO"}, "Import Models done")
+        self.report({"INFO"}, "Sync Models done")
+        return {"FINISHED"}
+
+
+class LOOPFLOW_R2B_DEV_OT_import_objects(bpy.types.Operator):
+    bl_idname = "loopflow_r2b_dev.import_objects"
+    bl_label = "Import Objects"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        err = model_sync.import_objects(context)
+        if err:
+            self.report({"ERROR"}, err)
+            return {"CANCELLED"}
+        self.report({"INFO"}, "Import Objects done")
         return {"FINISHED"}
 
 
@@ -186,8 +200,9 @@ class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
 
         layout.separator()
         col = layout.column(align=True)
-        col.operator("loopflow_r2b_dev.import_models", text="Import Models")
+        col.operator("loopflow_r2b_dev.import_models", text="Sync Models")
         col.operator("loopflow_r2b_dev.update_models", text="Update Models")
+        col.operator("loopflow_r2b_dev.import_objects", text="Import Objects")
 
         layout.separator()
         col = layout.column(align=True)
@@ -212,6 +227,7 @@ _CLASSES = (
     LOOPFLOW_R2B_DEV_OT_reset_paths,
     LOOPFLOW_R2B_DEV_OT_update_models,
     LOOPFLOW_R2B_DEV_OT_import_models,
+    LOOPFLOW_R2B_DEV_OT_import_objects,
     LOOPFLOW_R2B_DEV_OT_camera_auto_on,
     LOOPFLOW_R2B_DEV_OT_camera_auto_off,
     LOOPFLOW_R2B_DEV_OT_camera_push,

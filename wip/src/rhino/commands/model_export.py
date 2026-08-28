@@ -6,7 +6,11 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Set
 
 from foundation.result import Result
+from foundation.block_payload import USERSTRING_DEF_ID, build_blocks_payload
 from rhino.platform.collect import layer_path_is_excluded
+
+BLOCK_MODE_EXPLODE_ALL = "explode_all"
+BLOCK_MODE_PROTOTYPE = "prototype"
 
 
 def material_name_from_full_path(full_path: str) -> str:
@@ -81,16 +85,147 @@ def _fresh_attributes(Rhino, src_attr, layer_index: int):
     return attr
 
 
+def _is_instance_ref(robj, ObjectType) -> bool:
+    try:
+        return robj.ObjectType == ObjectType.InstanceReference
+    except Exception:
+        return False
+
+
+def _instance_def_id(robj) -> str:
+    try:
+        idef = robj.InstanceDefinition
+        if idef is not None:
+            return str(idef.Id)
+    except Exception:
+        pass
+    try:
+        return str(robj.Geometry.ParentIdefId)
+    except Exception:
+        return ""
+
+
+def _instance_xform(robj):
+    try:
+        return robj.InstanceXform
+    except Exception:
+        return robj.Geometry.Xform
+
+
+def _xform_to_list(xf) -> List[float]:
+    return [
+        float(xf.M00),
+        float(xf.M01),
+        float(xf.M02),
+        float(xf.M03),
+        float(xf.M10),
+        float(xf.M11),
+        float(xf.M12),
+        float(xf.M13),
+        float(xf.M20),
+        float(xf.M21),
+        float(xf.M22),
+        float(xf.M23),
+        float(xf.M30),
+        float(xf.M31),
+        float(xf.M32),
+        float(xf.M33),
+    ]
+
+
+def _layer_full_of(src, layer_index: int) -> str:
+    try:
+        return str(src.Layers[int(layer_index)].FullPath)
+    except Exception:
+        return ""
+
+
+def _iter_definition_objects(idef):
+    try:
+        objs = idef.GetObjects()
+        if objs:
+            for obj in objs:
+                if obj is not None:
+                    yield obj
+            return
+    except Exception:
+        pass
+    try:
+        count = int(idef.ObjectCount)
+    except Exception:
+        return
+    for idx in range(count):
+        try:
+            obj = idef.Object(idx)
+        except Exception:
+            obj = None
+        if obj is not None:
+            yield obj
+
+
+def _combine_xform(prefix, local, Transform):
+    if prefix is None:
+        return local
+    try:
+        return Transform.Multiply(prefix, local)
+    except Exception:
+        return prefix * local
+
+
+def _explode_instance_geoms(robj, xform_prefix, ObjectType, Transform):
+    """遞迴展開 Instance；產出已在世界座標的幾何複製。不改作業檔。"""
+    if not _is_instance_ref(robj, ObjectType):
+        geom = getattr(robj, "Geometry", None)
+        if geom is None:
+            return
+        try:
+            dup = geom.Duplicate()
+        except Exception:
+            return
+        if xform_prefix is not None:
+            try:
+                dup.Transform(xform_prefix)
+            except Exception:
+                pass
+        yield dup
+        return
+
+    local = _instance_xform(robj)
+    xform = _combine_xform(xform_prefix, local, Transform)
+    idef = None
+    try:
+        idef = robj.InstanceDefinition
+    except Exception:
+        idef = None
+    if idef is None:
+        return
+    for child in _iter_definition_objects(idef):
+        yield from _explode_instance_geoms(child, xform, ObjectType, Transform)
+
+
+def _add_geoms(out, geoms, attr_template) -> int:
+    added = 0
+    for geom in geoms:
+        try:
+            out.Objects.Add(geom, attr_template)
+            added += 1
+        except Exception:
+            continue
+    return added
+
+
 def export_ids_to_3dm(
     ids: Sequence[str],
     path: Path,
     *,
     exclude_token: str = "//",
+    block_mode: str = BLOCK_MODE_PROTOTYPE,
 ) -> Result:
     """
     將指定物件寫入 3dm：
     - 只帶「有物件的圖層＋其祖先」；略過排除標記圖層
     - 材質名＝父::末端；顏色＝圖層色；物件 MaterialFromLayer
+    - Block：prototype＝炸第一顆＋sidecar；explode_all＝每顆獨立展開
     - 複製具名視圖與目前作用視角；寫入後釋放 File3dm 把手
     """
     import gc
@@ -329,14 +464,26 @@ def export_ids_to_3dm(
         skip_layer = 0
         skip_add = 0
         last_add_err = ""
+        ObjectType = Rhino.DocObjects.ObjectType
+        Transform = Rhino.Geometry.Transform
+        block_defs: List[dict] = []
+        instance_groups: Dict[str, List] = {}
+        instance_order: List[str] = []
 
-        for robj, old_li in resolved:
+        def _append_plain(robj, old_li, user_strings=None) -> None:
+            nonlocal added, skip_layer, skip_add, last_add_err
             if old_li not in old_index_to_new:
                 skip_layer += 1
-                continue
+                return
             try:
                 new_li = old_index_to_new[old_li]
                 attr = _fresh_attributes(Rhino, robj.Attributes, new_li)
+                if user_strings:
+                    for key, value in user_strings:
+                        try:
+                            attr.SetUserString(str(key), str(value))
+                        except Exception:
+                            pass
                 geom = robj.Geometry
                 try:
                     dup = geom.Duplicate()
@@ -348,6 +495,79 @@ def export_ids_to_3dm(
             except Exception as exc:
                 skip_add += 1
                 last_add_err = str(exc)
+
+        def _append_exploded(robj, old_li, user_strings=None) -> int:
+            nonlocal added, skip_layer, skip_add, last_add_err
+            if old_li not in old_index_to_new:
+                skip_layer += 1
+                return 0
+            count = 0
+            try:
+                for geom in _explode_instance_geoms(
+                    robj, None, ObjectType, Transform
+                ):
+                    piece_attr = _fresh_attributes(Rhino, robj.Attributes, new_li)
+                    if user_strings:
+                        for key, value in user_strings:
+                            try:
+                                piece_attr.SetUserString(str(key), str(value))
+                            except Exception:
+                                pass
+                    out.Objects.Add(geom, piece_attr)
+                    count += 1
+            except Exception as exc:
+                skip_add += 1
+                last_add_err = str(exc)
+                return count
+            if count:
+                used_new_layers.add(new_li)
+                added += count
+            return count
+
+        for robj, old_li in resolved:
+            if not _is_instance_ref(robj, ObjectType):
+                _append_plain(robj, old_li)
+                continue
+            if block_mode == BLOCK_MODE_EXPLODE_ALL:
+                if not _append_exploded(robj, old_li):
+                    skip_add += 1
+                continue
+            def_id = _instance_def_id(robj) or str(id(robj))
+            if def_id not in instance_groups:
+                instance_groups[def_id] = []
+                instance_order.append(def_id)
+            instance_groups[def_id].append((robj, old_li))
+
+        for def_id in instance_order:
+            items = instance_groups[def_id]
+            proto_robj, proto_li = items[0]
+            tagged = [(USERSTRING_DEF_ID, def_id)]
+            if not _append_exploded(proto_robj, proto_li, tagged):
+                skip_add += 1
+                continue
+            copies = []
+            for robj, old_li in items[1:]:
+                try:
+                    copies.append(
+                        {
+                            "xform": _xform_to_list(_instance_xform(robj)),
+                            "layer": _layer_full_of(src, old_li),
+                        }
+                    )
+                except Exception:
+                    continue
+            try:
+                def_name = str(proto_robj.InstanceDefinition.Name)
+            except Exception:
+                def_name = ""
+            block_defs.append(
+                {
+                    "id": def_id,
+                    "name": def_name,
+                    "prototype_xform": _xform_to_list(_instance_xform(proto_robj)),
+                    "copies": copies,
+                }
+            )
 
         if added == 0:
             detail = "圖層未對應={} 寫入失敗={}；對應={}".format(
@@ -552,7 +772,10 @@ def export_ids_to_3dm(
         return Result.success(
             "已寫入 {} 個物件、{} 個圖層".format(added, len(old_index_to_new)),
             stage="export",
-            data=str(path),
+            data={
+                "path": str(path),
+                "blocks": build_blocks_payload(block_defs),
+            },
         )
     finally:
         # 釋放檔案鎖定，避免後續 pending→R2B.3dm 碰上 WinError 32

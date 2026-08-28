@@ -22,6 +22,8 @@ LOG_FILE_NAME = "r2b.log"
 CAMERA_FILE_NAME = "camera.json"
 LIGHT_FILE_NAME = "light.json"
 MODEL_FILE_NAME = "R2B.3dm"
+OBJECTS_FILE_NAME = "R2B_Objects.3dm"
+BLOCKS_FILE_NAME = "R2B_blocks.json"
 
 
 def require_saved_document_path(doc_path: Optional[str]) -> Result:
@@ -120,6 +122,44 @@ def resolve_model_3dm_from_work_folder(work_folder: PathLike) -> Path:
 
 def model_path(root: PathLike) -> Path:
     return models_dir(root) / MODEL_FILE_NAME
+
+
+def objects_path(root: PathLike) -> Path:
+    return models_dir(root) / OBJECTS_FILE_NAME
+
+
+def blocks_path(root: PathLike) -> Path:
+    return models_dir(root) / BLOCKS_FILE_NAME
+
+
+def resolve_objects_3dm_from_work_folder(work_folder: PathLike) -> Path:
+    """從作業資料夾解析 R2B_Objects.3dm。"""
+    folder = Path(work_folder)
+    candidates = (
+        folder / CONFIG_PARENT_NAME / PRODUCT_DIR_NAME / MODELS_DIR_NAME / OBJECTS_FILE_NAME,
+        folder / PRODUCT_DIR_NAME / MODELS_DIR_NAME / OBJECTS_FILE_NAME,
+        folder / MODELS_DIR_NAME / OBJECTS_FILE_NAME,
+        folder / OBJECTS_FILE_NAME,
+    )
+    for path in candidates:
+        if path.is_file():
+            return path.resolve()
+    return candidates[0]
+
+
+def resolve_blocks_json_from_work_folder(work_folder: PathLike) -> Path:
+    """從作業資料夾解析 R2B_blocks.json。"""
+    folder = Path(work_folder)
+    candidates = (
+        folder / CONFIG_PARENT_NAME / PRODUCT_DIR_NAME / MODELS_DIR_NAME / BLOCKS_FILE_NAME,
+        folder / PRODUCT_DIR_NAME / MODELS_DIR_NAME / BLOCKS_FILE_NAME,
+        folder / MODELS_DIR_NAME / BLOCKS_FILE_NAME,
+        folder / BLOCKS_FILE_NAME,
+    )
+    for path in candidates:
+        if path.is_file():
+            return path.resolve()
+    return candidates[0]
 
 
 def config_path(root: PathLike) -> Path:

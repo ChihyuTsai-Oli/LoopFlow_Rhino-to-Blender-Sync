@@ -115,7 +115,19 @@ def read_3dm(
     # styles while working on annotation import.
     options["rh_model"] = model
 
-    toplayer = create_or_get_top_layer(context, filepath)
+    # container：預設用檔名當 top collection 並 wipe；Import Objects 改用暫存集合、不進 Scene 子集合
+    container_name = options.get("container_name")
+    wipe_container = bool(options.get("wipe_container", True))
+    link_container = bool(options.get("link_container", True))
+    if container_name:
+        if container_name in context.blend_data.collections.keys():
+            toplayer = context.blend_data.collections[container_name]
+            if wipe_container:
+                wipe_collection_hierarchy(toplayer, container_name)
+        else:
+            toplayer = context.blend_data.collections.new(name=container_name)
+    else:
+        toplayer = create_or_get_top_layer(context, filepath)
     # wipe 後重建 GUID 對照，避免指向已刪物件（對齊 2.x reset_all_dict）
     converters.utils.reset_all_dict(context)
 
@@ -234,7 +246,7 @@ def read_3dm(
 
     # finally link in the container collection (top layer) into the main
     # scene collection.
-    if toplayer.name not in context.scene.collection.children:
+    if link_container and toplayer.name not in context.scene.collection.children:
         context.scene.collection.children.link(toplayer)
     if bpy.app.version[0] < 4:
         bpy.ops.object.shade_smooth({'selected_editable_objects': toplayer.all_objects})

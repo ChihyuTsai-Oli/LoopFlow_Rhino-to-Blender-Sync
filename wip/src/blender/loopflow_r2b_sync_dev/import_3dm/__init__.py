@@ -30,7 +30,7 @@ def default_import_options(*, update_materials: bool) -> dict:
         "import_layers_as_empties": False,
         "import_groups": False,
         "import_nested_groups": False,
-        "import_instances": True,
+        "import_instances": False,
         "import_instances_grid_layout": False,
         "import_instances_grid": 10,
         "link_materials_to": "PREFERENCES",

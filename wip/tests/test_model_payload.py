@@ -16,8 +16,10 @@ from foundation.model_payload import validate_model_3dm
 from foundation.paths import (
     ensure_config_layout,
     model_path,
+    objects_path,
     pending_path_for,
     resolve_model_3dm_from_work_folder,
+    resolve_objects_3dm_from_work_folder,
 )
 from rhino.commands.model_export import material_name_from_full_path
 
@@ -86,6 +88,24 @@ class ModelPublishTests(unittest.TestCase):
             legacy.parent.mkdir(parents=True)
             legacy.write_bytes(b"legacy")
             self.assertEqual(resolve_model_3dm_from_work_folder(work), legacy.resolve())
+
+    def test_resolve_objects_3dm(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            target = (
+                work
+                / "_LoopFlow_Config"
+                / "loopflow_R2B"
+                / "models"
+                / "R2B_Objects.3dm"
+            )
+            target.parent.mkdir(parents=True)
+            target.write_bytes(b"x")
+            self.assertEqual(resolve_objects_3dm_from_work_folder(work), target.resolve())
+            root = ensure_config_layout(
+                work / "_LoopFlow_Config" / "loopflow_R2B"
+            )
+            self.assertEqual(objects_path(root).name, "R2B_Objects.3dm")
 
     def test_material_name_parent_and_leaf(self):
         self.assertEqual(material_name_from_full_path("A::B::C"), "B::C")
