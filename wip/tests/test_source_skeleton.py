@@ -68,6 +68,8 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertIn('bl_idname = "loopflow_r2b_dev.light_auto_on"', text)
         self.assertIn('bl_idname = "loopflow_r2b_dev.sync_lights"', text)
         self.assertIn('bl_category = "LoopFlow R2B Dev"', text)
+        self.assertIn("Work Folder", text)
+        self.assertNotIn("作業資料夾", text)
         for label in (
             "Update Models",
             "Import Models",

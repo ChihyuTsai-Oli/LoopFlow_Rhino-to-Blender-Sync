@@ -19,7 +19,7 @@ if str(_SRC) not in sys.path:
 from foundation.camera_payload import parse_camera_payload
 from foundation.paths import resolve_camera_json_from_work_folder
 
-CAMERA_POLL_INTERVAL = 0.03
+CAMERA_POLL_INTERVAL = 0.016
 DEFAULT_LENS = 50.0
 
 _WM_ACTIVE = "r2b3_cam_auto_active"

@@ -17,7 +17,12 @@ IMPORT_3DM = (
 if str(IMPORT_3DM) not in sys.path:
     sys.path.insert(0, str(IMPORT_3DM))
 
-from r2b_materials import classic_diffuse_linear_rgb
+from r2b_materials import (
+    DEFAULT_BASE_COLOR_HEX,
+    DEFAULT_BASE_COLOR_LINEAR,
+    classic_diffuse_linear_rgb,
+    hex_srgb_to_linear_rgb,
+)
 
 
 class ClassicDiffuseTests(unittest.TestCase):
@@ -48,6 +53,14 @@ class ClassicDiffuseTests(unittest.TestCase):
 
         r, g, b = classic_diffuse_linear_rgb(_C())
         self.assertEqual((r, g, b), (0.0, 0.0, 0.0))
+
+    def test_default_hex_f2f2f2(self):
+        self.assertEqual(DEFAULT_BASE_COLOR_HEX, "F2F2F2FF")
+        linear = hex_srgb_to_linear_rgb("#F2F2F2FF")
+        self.assertEqual(linear, DEFAULT_BASE_COLOR_LINEAR)
+        self.assertAlmostEqual(linear[0], linear[1])
+        self.assertAlmostEqual(linear[1], linear[2])
+        self.assertGreater(linear[0], 0.85)
 
     def test_none_is_gray(self):
         r, g, b = classic_diffuse_linear_rgb(None)

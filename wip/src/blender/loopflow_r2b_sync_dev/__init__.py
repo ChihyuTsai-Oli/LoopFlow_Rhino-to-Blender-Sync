@@ -11,7 +11,7 @@ bl_info = {
     "version": (0, 0, 7),
     "blender": (5, 2, 1),
     "location": "N-Panel > LoopFlow R2B Dev",
-    "description": "3.0 開發 Sync：Models／Camera／Light；內嵌 import_3dm",
+    "description": "R2B 3.0 Sync: Models, Camera, Light; embedded import_3dm",
     "category": "Import-Export",
 }
 
@@ -23,7 +23,7 @@ from . import camera_sync
 from . import light_sync
 from . import model_sync
 
-_STUB = "尚未實作（3.0 測試 Sync 空殼）"
+_STUB = "Not implemented (3.0 Sync stub)"
 
 
 class LOOPFLOW_R2B_DEV_OT_stub(bpy.types.Operator):
@@ -35,12 +35,12 @@ class LOOPFLOW_R2B_DEV_OT_stub(bpy.types.Operator):
 
     def execute(self, context):
         label = self.action or self.bl_label
-        self.report({"INFO"}, f"{label}：{_STUB}")
+        self.report({"INFO"}, f"{label}: {_STUB}")
         return {"FINISHED"}
 
 
 class LOOPFLOW_R2B_DEV_OT_reset_paths(bpy.types.Operator):
-    """把作業資料夾設成目前 .blend 所在目錄（與 .3dm／_LoopFlow_Config 同層）。"""
+    """Set the work folder to the current .blend directory."""
 
     bl_idname = "loopflow_r2b_dev.reset_paths"
     bl_label = "Auto-Detect Work Folder"
@@ -49,11 +49,11 @@ class LOOPFLOW_R2B_DEV_OT_reset_paths(bpy.types.Operator):
     def execute(self, context):
         blend_path = bpy.data.filepath
         if not blend_path:
-            self.report({"ERROR"}, "請先儲存 Blender 檔，才能自動偵測作業資料夾")
+            self.report({"ERROR"}, "Save the Blender file first to auto-detect the work folder")
             return {"CANCELLED"}
         work_dir = os.path.dirname(bpy.path.abspath(blend_path))
         context.scene.r2b_sync_folder = work_dir
-        self.report({"INFO"}, f"作業資料夾已設為：{work_dir}")
+        self.report({"INFO"}, f"Work folder: {work_dir}")
         return {"FINISHED"}
 
 
@@ -67,7 +67,7 @@ class LOOPFLOW_R2B_DEV_OT_update_models(bpy.types.Operator):
         if err:
             self.report({"ERROR"}, err)
             return {"CANCELLED"}
-        self.report({"INFO"}, "Update Models 完成（保留材質／顯隱）")
+        self.report({"INFO"}, "Update Models done (kept materials / visibility)")
         return {"FINISHED"}
 
 
@@ -81,7 +81,7 @@ class LOOPFLOW_R2B_DEV_OT_import_models(bpy.types.Operator):
         if err:
             self.report({"ERROR"}, err)
             return {"CANCELLED"}
-        self.report({"INFO"}, "Import Models 完成（可更新材質）")
+        self.report({"INFO"}, "Import Models done")
         return {"FINISHED"}
 
 
@@ -94,9 +94,9 @@ class LOOPFLOW_R2B_DEV_OT_camera_auto_on(bpy.types.Operator):
         camera_sync.set_camera_auto(context, True)
         err = camera_sync.push_camera_once(context)
         if err:
-            self.report({"WARNING"}, f"自動同步已開；首次套用：{err}")
+            self.report({"WARNING"}, f"Auto sync on; first apply: {err}")
         else:
-            self.report({"INFO"}, "Camera 自動同步已開啟")
+            self.report({"INFO"}, "Camera auto sync on")
         return {"FINISHED"}
 
 
@@ -107,7 +107,7 @@ class LOOPFLOW_R2B_DEV_OT_camera_auto_off(bpy.types.Operator):
 
     def execute(self, context):
         camera_sync.set_camera_auto(context, False)
-        self.report({"INFO"}, "Camera 自動同步已關閉")
+        self.report({"INFO"}, "Camera auto sync off")
         return {"FINISHED"}
 
 
@@ -121,7 +121,7 @@ class LOOPFLOW_R2B_DEV_OT_camera_push(bpy.types.Operator):
         if err:
             self.report({"ERROR"}, err)
             return {"CANCELLED"}
-        self.report({"INFO"}, "Camera 已套用一次")
+        self.report({"INFO"}, "Camera applied once")
         return {"FINISHED"}
 
 
@@ -134,9 +134,9 @@ class LOOPFLOW_R2B_DEV_OT_light_auto_on(bpy.types.Operator):
         light_sync.set_light_auto(context, True)
         err = light_sync.push_light_once(context)
         if err:
-            self.report({"WARNING"}, f"自動同步已開；首次套用：{err}")
+            self.report({"WARNING"}, f"Auto sync on; first apply: {err}")
         else:
-            self.report({"INFO"}, "Light 自動同步已開啟")
+            self.report({"INFO"}, "Light auto sync on")
         return {"FINISHED"}
 
 
@@ -147,7 +147,7 @@ class LOOPFLOW_R2B_DEV_OT_light_auto_off(bpy.types.Operator):
 
     def execute(self, context):
         light_sync.set_light_auto(context, False)
-        self.report({"INFO"}, "Light 自動同步已關閉")
+        self.report({"INFO"}, "Light auto sync off")
         return {"FINISHED"}
 
 
@@ -161,7 +161,7 @@ class LOOPFLOW_R2B_DEV_OT_sync_lights(bpy.types.Operator):
         if err:
             self.report({"ERROR"}, err)
             return {"CANCELLED"}
-        self.report({"INFO"}, "Light 已套用一次")
+        self.report({"INFO"}, "Lights applied once")
         return {"FINISHED"}
 
 
@@ -177,7 +177,7 @@ class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
         scene = context.scene
 
         row = layout.row(align=True)
-        row.prop(scene, "r2b_sync_folder", text="作業資料夾")
+        row.prop(scene, "r2b_sync_folder", text="Work Folder")
         row.operator("loopflow_r2b_dev.reset_paths", text="", icon="FILE_REFRESH")
 
         row = layout.row(align=True)
@@ -226,8 +226,8 @@ def register():
     for cls in _CLASSES:
         bpy.utils.register_class(cls)
     bpy.types.Scene.r2b_sync_folder = bpy.props.StringProperty(
-        name="作業資料夾",
-        description="與 .3dm／.blend／_LoopFlow_Config 同層；含 live／models",
+        name="Work Folder",
+        description="Same folder as the .3dm / .blend / _LoopFlow_Config",
         default="",
         subtype="DIR_PATH",
     )

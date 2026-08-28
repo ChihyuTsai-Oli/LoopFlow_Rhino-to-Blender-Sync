@@ -114,6 +114,8 @@ def _flush_auto_camera() -> None:
         gate = sticky.get(_STICKY_GATE)
         if not json_path or gate is None:
             return
+        if not gate.due_to_flush(time.monotonic()):
+            return
         cap = capture_active_camera()
         if not cap.ok:
             return
@@ -128,18 +130,19 @@ def _flush_auto_camera() -> None:
 
 
 def _on_view_modified(sender: Any, e: Any) -> None:
-    """自動同步：只標記 dirty，不在視角事件裡寫盤。"""
+    """標記 dirty；間隔到了才擷取寫盤，避免每幀 capture。"""
     try:
         gate = _sticky().get(_STICKY_GATE)
         if gate is None:
             return
         gate.note_view_modified()
+        _flush_auto_camera()
     except Exception:
         pass
 
 
 def _on_idle(sender: Any, e: Any) -> None:
-    """Idle 守間隔後才擷取並寫盤。"""
+    """補發旋轉結束後尚未寫出的最後姿態。"""
     _flush_auto_camera()
 
 

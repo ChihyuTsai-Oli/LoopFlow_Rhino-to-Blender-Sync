@@ -28,7 +28,7 @@ from bpy_extras.node_shader_utils import ShaderWrapper, PrincipledBSDFWrapper
 from bpy_extras.node_shader_utils import rgba_to_rgb, rgb_to_rgba
 from . import utils
 from . import rdk_manager
-from ..r2b_materials import classic_diffuse_linear_rgb
+from ..r2b_materials import DEFAULT_BASE_COLOR_LINEAR
 from pathlib import Path, PureWindowsPath, PurePosixPath
 import base64
 import tempfile
@@ -254,12 +254,10 @@ def plaster_material(rhino_material : r3d.RenderMaterial, blender_material : bpy
     plaster.base_color = col
 
 def default_material(blender_material : bpy.types.Material):
-    plaster = PlasterWrapper(blender_material)
-    plaster.base_color = (0.9, 0.9, 0.9, 1.0)
+    apply_basic_principled_default(blender_material)
 
 def default_text_material(blender_material : bpy.types.Material):
-    plaster = PlasterWrapper(blender_material)
-    plaster.base_color = (0.05, 0.05, 0.05, 1.0)
+    apply_basic_principled_default(blender_material)
 
 def metal_material(rhino_material : r3d.RenderMaterial, blender_material : bpy.types.Material):
     metal = PrincipledBSDFWrapper(blender_material, is_readonly=False)
@@ -480,11 +478,11 @@ def handle_embedded_files(model : r3d.File3dm):
 
 
 
-def apply_basic_principled_from_diffuse(blender_material: bpy.types.Material, color) -> None:
-    """基本 Principled BSDF；Base Color＝Rhino Diffuse。"""
+def apply_basic_principled_default(blender_material: bpy.types.Material) -> None:
+    """基本 Principled BSDF；Base Color 固定 #F2F2F2。"""
     blender_material.use_nodes = True
     pbr = PrincipledBSDFWrapper(blender_material, is_readonly=False)
-    pbr.base_color = classic_diffuse_linear_rgb(color)
+    pbr.base_color = DEFAULT_BASE_COLOR_LINEAR
     pbr.roughness = 1.0
 
 
@@ -499,7 +497,7 @@ def _blender_material_by_name(context, name: str):
 def handle_materials(context, model : r3d.File3dm, materials, update):
     """
     R2B：依 R2B.3dm 材質名對到 Blender。
-    無 RDK 時用經典 Name＋Diffuse 建 Principled。
+    新建／Import 用 Principled，底色固定 #F2F2F2FF。
     Update 不覆寫已有同名材質的節點。
     """
     handle_embedded_files(model)
@@ -507,18 +505,17 @@ def handle_materials(context, model : r3d.File3dm, materials, update):
     if DEFAULT_RHINO_MATERIAL not in materials:
         blmat, created = _blender_material_by_name(context, DEFAULT_RHINO_MATERIAL)
         if created:
-            default_material(blmat)
+            apply_basic_principled_default(blmat)
         materials[DEFAULT_RHINO_MATERIAL] = blmat
 
     if DEFAULT_TEXT_MATERIAL not in materials:
         blmat, created = _blender_material_by_name(context, DEFAULT_TEXT_MATERIAL)
         if created:
-            default_text_material(blmat)
+            apply_basic_principled_default(blmat)
         materials[DEFAULT_TEXT_MATERIAL] = blmat
 
     for mat in model.Materials:
         classic_name = (getattr(mat, "Name", None) or "").strip()
-        classic_diffuse = getattr(mat, "DiffuseColor", None)
         render_content = None
         try:
             if not mat.PhysicallyBased:
@@ -536,8 +533,5 @@ def handle_materials(context, model : r3d.File3dm, materials, update):
 
         blmat, created = _blender_material_by_name(context, matname)
         if update or created:
-            if render_content:
-                harvest_from_rendercontent(model, render_content, blmat)
-            else:
-                apply_basic_principled_from_diffuse(blmat, classic_diffuse)
+            apply_basic_principled_default(blmat)
         materials[matname] = blmat
