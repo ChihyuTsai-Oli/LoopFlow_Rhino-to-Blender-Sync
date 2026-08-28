@@ -8,7 +8,7 @@
 
 - 入口檔名＝開發期指令 ID。入口只轉交 command，不放業務邏輯。
 - 巨集路徑指向**這台開發機**的 repo；換機只改路徑前綴，不改指令名稱。程式與契約不得寫死 Dropbox 或他機絕對路徑。
-- 目前 `wip/src/rhino/entrypoints/` **尚未建立**；按鈕先照下列名稱建好，等入口檔落地即可跑。
+- 目前 `wip/src/rhino/entrypoints/` **已落地空殼**（跑了只提示尚未實作）；換機後路徑前綴若不同，只改本檔巨集。
 - 改程式或入口後須**完全關掉 Rhino 再開**。
 - 不要用已發布 2.x 工具列與 3.0 開發按鈕混著測同一案。
 - 下列名稱是開發暫定，**不是**已凍結的 3.0 contract；若決策表改名，同步改本檔與入口檔名。
@@ -25,10 +25,10 @@ E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 
 | 指令 ID（入口檔名） | 顯示用途（暫） | 狀態 |
 |---|---|---|
-| `R2B_Models` | 發布／更新模型 3DM | 暫定；入口未建 |
-| `R2B_Camera` | 發布相機 JSON | 暫定；入口未建 |
-| `R2B_Light` | 發布燈光點位 JSON | 暫定；入口未建 |
-| `R2B_Open` | 開啟設定／工作資料夾／說明 | 暫定；入口未建 |
+| `R2B_Models` | 發布／更新模型 3DM | 空殼已落地 |
+| `R2B_Camera` | 發布相機 JSON | 空殼已落地 |
+| `R2B_Light` | 發布燈光點位 JSON | 空殼已落地 |
+| `R2B_Open` | 開啟設定／工作資料夾／說明 | 空殼已落地 |
 
 是否另增 `R2B_Config`、是否改名 → 見決策表 `R2B-ED-05`、`R2B-ND-01`。
 
@@ -50,12 +50,13 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 ## 不經 Rhino 按鈕
 
-- Blender：**隔離 profile** 安裝 3.0 **測試用 Sync add-on**（N-Panel 空殼按鈕可先齊，再接功能）；不經上列巨集啟動。詳見 `系統設定.md`「開發測試入口」。
+- Blender：隔離 profile 安裝 `wip/src/blender/loopflow_r2b_sync_dev/`（N-Panel `LoopFlow R2B Dev`）；詳見 `系統設定.md`。
 - `import_3dm`／Toolkit：同樣用隔離 profile；importer 工作複本自 `import_3dm/…0.0.18…` 複製。
 
 ## 變更紀錄
 
 | 日期 | 說明 |
 |---|---|
+| 2026-08-28 | entrypoints 空殼落地；註明 Blender Dev Stub 路徑 |
 | 2026-08-28 | 註明 Blender 測試 add-on 空殼測法（對齊 Rhino entrypoints） |
 | 2026-08-27 | 初版：自系統設定抽出完整指令清單與巨集 |
