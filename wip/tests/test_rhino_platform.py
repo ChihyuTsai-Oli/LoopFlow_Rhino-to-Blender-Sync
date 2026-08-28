@@ -23,6 +23,11 @@ class LayerCollectTests(unittest.TestCase):
         self.assertEqual(layer_subtree_paths(all_paths, "A2"), ("A2",))
         self.assertEqual(layer_subtree_paths(all_paths, ""), ())
 
+    def test_subtree_skips_double_slash_layers(self):
+        all_paths = ("A", "A::keep", "A:://skip", "A:://skip::child", "//Work")
+        self.assertEqual(layer_subtree_paths(all_paths, "A"), ("A", "A::keep"))
+        self.assertEqual(layer_subtree_paths(all_paths, "//Work"), ())
+
     def test_collect_excludes_point_curve_by_default(self):
         s = MemorySession()
         s.add_object("m1", "Model", kind="brep")

@@ -25,7 +25,7 @@ E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 
 | 指令 ID（入口檔名） | 顯示用途（暫） | 狀態 |
 |---|---|---|
-| `R2B_Models` | 選圖層＋型別 → atomic 發布 model.3dm | **已接** |
+| `R2B_Models` | 選圖層＋型別 → atomic 發布 R2B.3dm（略過 // 圖層） | **已接** |
 | `R2B_Camera` | 開／關自動同步（按一下切換） | **已接** |
 | `R2B_Camera_Push` | 手動推送相機 JSON 一次 | **已接** |
 | `R2B_Light` | 開／關自動同步（按一下切換） | **已接** |

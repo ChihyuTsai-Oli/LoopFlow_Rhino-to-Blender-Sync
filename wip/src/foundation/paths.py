@@ -21,7 +21,7 @@ CONFIG_FILE_NAME = "config.json"
 LOG_FILE_NAME = "r2b.log"
 CAMERA_FILE_NAME = "camera.json"
 LIGHT_FILE_NAME = "light.json"
-MODEL_FILE_NAME = "model.3dm"
+MODEL_FILE_NAME = "R2B.3dm"
 
 
 def require_saved_document_path(doc_path: Optional[str]) -> Result:
@@ -98,9 +98,10 @@ def resolve_light_json_from_work_folder(work_folder: PathLike) -> Path:
 
 def resolve_model_3dm_from_work_folder(work_folder: PathLike) -> Path:
     """
-    從作業資料夾解析 model.3dm。
+    從作業資料夾解析 R2B.3dm。
 
-    主路徑：{work}/_LoopFlow_Config/loopflow_R2B/models/model.3dm
+    主路徑：{work}/_LoopFlow_Config/loopflow_R2B/models/R2B.3dm
+    備援：舊測用 model.3dm。
     """
     folder = Path(work_folder)
     candidates = (
@@ -108,6 +109,8 @@ def resolve_model_3dm_from_work_folder(work_folder: PathLike) -> Path:
         folder / PRODUCT_DIR_NAME / MODELS_DIR_NAME / MODEL_FILE_NAME,
         folder / MODELS_DIR_NAME / MODEL_FILE_NAME,
         folder / MODEL_FILE_NAME,
+        # 過渡期備援
+        folder / CONFIG_PARENT_NAME / PRODUCT_DIR_NAME / MODELS_DIR_NAME / "model.3dm",
     )
     for path in candidates:
         if path.is_file():

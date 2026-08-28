@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Blender Models consumer：Update／Import 自作業資料夾讀 models/model.3dm。
+"""Blender Models consumer：Update／Import 自作業資料夾讀 models/R2B.3dm。
 
 依賴本機已啟用的 `import_3dm`（2.x R2B Pro 或 0.0.18）；A05 fork 落地前先呼叫既有 operator。
 Update＝update_materials=False（ED-08）；Import＝True。

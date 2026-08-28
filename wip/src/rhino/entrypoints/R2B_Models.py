@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""R2B_Models：發布 models/model.3dm（精準 ID、atomic；來源還原）。"""
+"""R2B_Models：發布 models/R2B.3dm（精準 ID、atomic；來源還原）。"""
 from __future__ import annotations
 
 import os

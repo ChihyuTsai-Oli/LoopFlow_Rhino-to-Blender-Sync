@@ -24,13 +24,13 @@ from foundation.paths import (
 class ModelPublishTests(unittest.TestCase):
     def test_validate_rejects_empty(self):
         with tempfile.TemporaryDirectory() as tmp:
-            p = Path(tmp) / "model.3dm"
+            p = Path(tmp) / "R2B.3dm"
             p.write_bytes(b"")
             self.assertIsNotNone(validate_model_3dm(p))
 
     def test_validate_accepts_nonempty(self):
         with tempfile.TemporaryDirectory() as tmp:
-            p = Path(tmp) / "model.3dm"
+            p = Path(tmp) / "R2B.3dm"
             p.write_bytes(b"3D Geometry File Format dummy")
             self.assertIsNone(validate_model_3dm(p))
 
@@ -66,11 +66,25 @@ class ModelPublishTests(unittest.TestCase):
                 / "_LoopFlow_Config"
                 / "loopflow_R2B"
                 / "models"
-                / "model.3dm"
+                / "R2B.3dm"
             )
             target.parent.mkdir(parents=True)
             target.write_bytes(b"x")
             self.assertEqual(resolve_model_3dm_from_work_folder(work), target.resolve())
+
+    def test_resolve_falls_back_to_legacy_model_3dm(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            legacy = (
+                work
+                / "_LoopFlow_Config"
+                / "loopflow_R2B"
+                / "models"
+                / "model.3dm"
+            )
+            legacy.parent.mkdir(parents=True)
+            legacy.write_bytes(b"legacy")
+            self.assertEqual(resolve_model_3dm_from_work_folder(work), legacy.resolve())
 
 
 if __name__ == "__main__":

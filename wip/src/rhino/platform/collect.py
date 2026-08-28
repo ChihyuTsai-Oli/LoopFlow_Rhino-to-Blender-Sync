@@ -20,10 +20,17 @@ DEFAULT_INCLUDED_KINDS: Set[str] = {
 DEFAULT_EXCLUDED_KINDS: Set[str] = {"point", "curve"}
 
 
+def layer_path_is_excluded(full_path: str) -> bool:
+    """FullPath 含 `//` 者不匯出（與 2.x 清理語意一致）。"""
+    return "//" in (full_path or "")
+
+
 def layer_subtree_paths(all_paths: Sequence[str], root: str) -> tuple:
-    """回傳 root 與其子圖層 FullPath（`::` 分隔）。"""
+    """回傳 root 與其子圖層 FullPath（`::` 分隔）；略過含 // 者。"""
     root = (root or "").strip()
     if not root:
+        return ()
+    if layer_path_is_excluded(root):
         return ()
     prefix = root + "::"
     out = []
@@ -31,6 +38,8 @@ def layer_subtree_paths(all_paths: Sequence[str], root: str) -> tuple:
         if path is None:
             continue
         p = str(path)
+        if layer_path_is_excluded(p):
+            continue
         if p == root or p.startswith(prefix):
             out.append(p)
     return tuple(out)
