@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Blender Models consumer：Update／Import 自作業資料夾讀 models/R2B.3dm。
 
-依賴本機已啟用的 `import_3dm`（2.x R2B Pro 或 0.0.18）；A05 fork 落地前先呼叫既有 operator。
+優先呼叫已啟用的 `import_3dm.some_data`；若未啟用會嘗試自動啟用。
 Update＝update_materials=False（ED-08）；Import＝True。
 """
 from __future__ import annotations
@@ -97,14 +97,53 @@ def _restore_visibility(context, col_states, obj_states):
             pass
 
 
+def _import_3dm_repo_dir() -> Path:
+    """repo/import_3dm/import_3dm-0.0.18-windows_x64（唯讀參考）。"""
+    # model_sync.py → …/wip/src/blender/loopflow_r2b_sync_dev → parents[4]=repo
+    return Path(__file__).resolve().parents[4] / "import_3dm" / "import_3dm-0.0.18-windows_x64"
+
+
+def _operator_ready() -> bool:
+    op = getattr(bpy.ops, "import_3dm", None)
+    return op is not None and hasattr(op, "some_data")
+
+
+def _ensure_import_3dm_operator() -> str:
+    """確保 bpy.ops.import_3dm.some_data 可用；失敗回傳錯誤字串。"""
+    if _operator_ready():
+        return ""
+
+    # 嘗試啟用已安裝的模組（junction 名稱固定 import_3dm）
+    try:
+        import addon_utils  # type: ignore
+
+        addon_utils.enable("import_3dm", default_set=True, persistent=True)
+    except Exception:
+        try:
+            bpy.ops.preferences.addon_enable(module="import_3dm")
+        except Exception:
+            pass
+
+    if _operator_ready():
+        return ""
+
+    repo_dir = _import_3dm_repo_dir()
+    hint = (
+        "找不到 import_3dm.some_data。\n"
+        "請在 Portable Blender 執行 wip/tools/link_dev_addon.ps1（會掛上 Sync＋import_3dm），\n"
+        "再於偏好設定啟用「Import Rhinoceros 3D」。\n"
+        "參考目錄：{}".format(repo_dir)
+    )
+    if not repo_dir.is_dir():
+        return hint + "\n（參考目錄不存在，請確認 repo 完整。）"
+    return hint
+
+
 def _call_import_3dm(filepath: str, *, update_materials: bool) -> str:
     """呼叫既有 import_3dm operator；失敗回傳錯誤字串。"""
-    op = getattr(bpy.ops, "import_3dm", None)
-    if op is None or not hasattr(op, "some_data"):
-        return (
-            "找不到 import_3dm.some_data。"
-            "請在此 Portable Blender 啟用 Import Rhinoceros 3D（R2B Pro 或 0.0.18）"
-        )
+    err = _ensure_import_3dm_operator()
+    if err:
+        return err
     try:
         result = bpy.ops.import_3dm.some_data(
             filepath=filepath,
@@ -130,12 +169,10 @@ def sync_models(context, *, update_materials: bool) -> str:
     err = _call_import_3dm(path, update_materials=update_materials)
     if err:
         return err
-    merged = merge_duplicate_materials()
+    merge_duplicate_materials()
     _restore_visibility(context, col_states, obj_states)
     try:
         context.window_manager[_WM_APPLIED_MTIME] = os.path.getmtime(path)
     except OSError:
         pass
-    if merged:
-        return ""  # 成功；合併數由 operator report
     return ""

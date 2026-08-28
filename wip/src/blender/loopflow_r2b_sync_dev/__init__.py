@@ -8,7 +8,7 @@ Models Update／Import 會呼叫本機已啟用的 `import_3dm.some_data`。
 bl_info = {
     "name": "LoopFlow R2B Sync (Dev Stub)",
     "author": "Chihyu Tsai",
-    "version": (0, 0, 5),
+    "version": (0, 0, 6),
     "blender": (5, 2, 1),
     "location": "N-Panel > LoopFlow R2B Dev",
     "description": "3.0 開發 Sync：Models／Camera／Light；作業資料夾自動偵測",
@@ -186,8 +186,8 @@ class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
 
         layout.separator()
         col = layout.column(align=True)
-        col.operator("loopflow_r2b_dev.update_models", text="Update Models")
         col.operator("loopflow_r2b_dev.import_models", text="Import Models")
+        col.operator("loopflow_r2b_dev.update_models", text="Update Models")
 
         layout.separator()
         col = layout.column(align=True)

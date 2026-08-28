@@ -451,15 +451,84 @@ def export_ids_to_3dm(
         except Exception:
             pass
 
+        # 開檔用的 Views（不是 NamedViews）才會帶進相機／顯示模式
         try:
             active = src.Views.ActiveView
-            if active is not None and getattr(active, "MainViewport", None) is not None:
-                view_info = Rhino.DocObjects.ViewInfo(active.MainViewport)
-                view_info.Name = "R2B_Active"
-                try:
-                    out.NamedViews.Add(view_info)
-                except Exception:
-                    out.AllNamedViews.Add(view_info)
+            if active is not None:
+                vp = getattr(active, "ActiveViewport", None) or getattr(
+                    active, "MainViewport", None
+                )
+                if vp is not None:
+                    view_info = Rhino.DocObjects.ViewInfo(vp)
+                    try:
+                        view_info.Name = str(getattr(vp, "Name", None) or "Perspective")
+                    except Exception:
+                        view_info.Name = "Perspective"
+
+                    # 盡力寫入顯示模式 Id（依 Rhino 版本 API 不同）
+                    try:
+                        dm = getattr(vp, "DisplayMode", None)
+                        dm_id = getattr(dm, "Id", None) if dm is not None else None
+                        if dm_id is not None:
+                            for target in (view_info, getattr(view_info, "Viewport", None)):
+                                if target is None:
+                                    continue
+                                for attr in ("DisplayModeId", "DisplayMode"):
+                                    if hasattr(target, attr):
+                                        try:
+                                            setattr(
+                                                target,
+                                                attr,
+                                                dm_id if attr.endswith("Id") else dm,
+                                            )
+                                        except Exception:
+                                            pass
+                    except Exception:
+                        pass
+
+                    def _clear_views(table):
+                        if table is None:
+                            return
+                        try:
+                            while int(table.Count) > 0:
+                                try:
+                                    table.Delete(0)
+                                except Exception:
+                                    try:
+                                        table.RemoveAt(0)
+                                    except Exception:
+                                        break
+                        except Exception:
+                            pass
+
+                    _clear_views(getattr(out, "Views", None))
+                    _clear_views(getattr(out, "AllViews", None))
+
+                    added_view = False
+                    for table in (
+                        getattr(out, "Views", None),
+                        getattr(out, "AllViews", None),
+                    ):
+                        if table is None:
+                            continue
+                        try:
+                            table.Add(view_info)
+                            added_view = True
+                            break
+                        except Exception:
+                            continue
+
+                    # 同步放一份具名視圖，方便 RestoreNamedView
+                    if added_view:
+                        try:
+                            named = Rhino.DocObjects.ViewInfo(vp)
+                            named.Name = "R2B_Active"
+                            try:
+                                out.NamedViews.Add(named)
+                            except Exception:
+                                out.AllNamedViews.Add(named)
+                        except Exception:
+                            pass
         except Exception:
             pass
 
