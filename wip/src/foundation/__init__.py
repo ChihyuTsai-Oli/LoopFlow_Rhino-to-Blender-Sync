@@ -26,6 +26,7 @@ from foundation.paths import (
     model_path,
     pending_path_for,
     require_saved_document_path,
+    resolve_camera_json_from_work_folder,
 )
 from foundation.result import Result
 from foundation.stub import STUB_SUFFIX, stub_message
@@ -39,6 +40,7 @@ __all__ = [
     "parse_camera_payload",
     "validate_camera_payload",
     "require_saved_document_path",
+    "resolve_camera_json_from_work_folder",
     "config_root_for_document",
     "ensure_config_layout",
     "camera_path",

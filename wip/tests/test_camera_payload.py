@@ -20,7 +20,7 @@ from foundation.camera_payload import (
     validate_camera_file,
     validate_camera_payload,
 )
-from foundation.paths import camera_path, ensure_config_layout
+from foundation.paths import camera_path, ensure_config_layout, resolve_camera_json_from_work_folder
 
 
 class CameraPayloadTests(unittest.TestCase):
@@ -72,6 +72,21 @@ class CameraPayloadTests(unittest.TestCase):
             loaded = json.loads(final.read_text(encoding="utf-8"))
             self.assertEqual(loaded["schema_version"], SCHEMA_VERSION)
             self.assertTrue(parse_camera_payload(loaded).ok)
+
+    def test_resolve_from_work_folder(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            target = (
+                work
+                / "_LoopFlow_Config"
+                / "loopflow_R2B"
+                / "live"
+                / "camera.json"
+            )
+            target.parent.mkdir(parents=True)
+            target.write_text('{"schema_version":1}\n', encoding="utf-8")
+            resolved = resolve_camera_json_from_work_folder(work)
+            self.assertEqual(resolved, target.resolve())
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
 from foundation.camera_payload import parse_camera_payload
-from foundation.paths import CAMERA_FILE_NAME
+from foundation.paths import resolve_camera_json_from_work_folder
 
 CAMERA_POLL_INTERVAL = 0.03
 DEFAULT_LENS = 50.0
@@ -28,18 +28,9 @@ _WM_APPLIED_MTIME = "r2b3_cam_applied_mtime"
 
 
 def _camera_json_path(scene) -> str:
-    """接受設定根（含 live/）或直接指到 live/。"""
+    """Sync Folder＝作業資料夾（與 .3dm／.blend／_LoopFlow_Config 同層）。"""
     folder = bpy.path.abspath(scene.r2b_sync_folder)
-    nested = os.path.join(folder, "live", CAMERA_FILE_NAME)
-    direct = os.path.join(folder, CAMERA_FILE_NAME)
-    if os.path.isfile(nested):
-        return nested
-    if os.path.isfile(direct):
-        return direct
-    # 預設寫 nested 路徑（給錯誤訊息用）
-    if os.path.isdir(os.path.join(folder, "live")) or os.path.isdir(folder):
-        return nested if os.path.isdir(folder) else direct
-    return nested
+    return str(resolve_camera_json_from_work_folder(folder))
 
 
 def read_and_parse_camera(path: str):

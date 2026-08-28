@@ -7,12 +7,14 @@
 bl_info = {
     "name": "LoopFlow R2B Sync (Dev Stub)",
     "author": "Chihyu Tsai",
-    "version": (0, 0, 2),
+    "version": (0, 0, 3),
     "blender": (5, 2, 1),
     "location": "N-Panel > LoopFlow R2B Dev",
-    "description": "3.0 開發 Sync：Camera 開／關／手動；其餘按鈕仍為空殼",
+    "description": "3.0 開發 Sync：Camera 開／關／手動；作業資料夾自動偵測",
     "category": "Import-Export",
 }
+
+import os
 
 import bpy
 
@@ -31,6 +33,24 @@ class LOOPFLOW_R2B_DEV_OT_stub(bpy.types.Operator):
     def execute(self, context):
         label = self.action or self.bl_label
         self.report({"INFO"}, f"{label}：{_STUB}")
+        return {"FINISHED"}
+
+
+class LOOPFLOW_R2B_DEV_OT_reset_paths(bpy.types.Operator):
+    """把作業資料夾設成目前 .blend 所在目錄（與 .3dm／_LoopFlow_Config 同層）。"""
+
+    bl_idname = "loopflow_r2b_dev.reset_paths"
+    bl_label = "Auto-Detect Work Folder"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        blend_path = bpy.data.filepath
+        if not blend_path:
+            self.report({"ERROR"}, "請先儲存 Blender 檔，才能自動偵測作業資料夾")
+            return {"CANCELLED"}
+        work_dir = os.path.dirname(bpy.path.abspath(blend_path))
+        context.scene.r2b_sync_folder = work_dir
+        self.report({"INFO"}, f"作業資料夾已設為：{work_dir}")
         return {"FINISHED"}
 
 
@@ -85,7 +105,10 @@ class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
-        layout.prop(scene, "r2b_sync_folder", text="Sync Folder")
+        row = layout.row(align=True)
+        row.prop(scene, "r2b_sync_folder", text="作業資料夾")
+        row.operator("loopflow_r2b_dev.reset_paths", text="", icon="FILE_REFRESH")
+
         row = layout.row(align=True)
         row.prop(scene, "r2b_cam_scale", text="Scale")
         row.prop(scene, "r2b_cam_lens_mult", text="Lens")
@@ -112,12 +135,11 @@ class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
         col = layout.column(align=True)
         op = col.operator("loopflow_r2b_dev.stub", text="Open / Health")
         op.action = "Open / Health"
-        op = col.operator("loopflow_r2b_dev.stub", text="Reset Paths")
-        op.action = "Reset Paths"
 
 
 _CLASSES = (
     LOOPFLOW_R2B_DEV_OT_stub,
+    LOOPFLOW_R2B_DEV_OT_reset_paths,
     LOOPFLOW_R2B_DEV_OT_camera_auto_on,
     LOOPFLOW_R2B_DEV_OT_camera_auto_off,
     LOOPFLOW_R2B_DEV_OT_camera_push,
@@ -129,8 +151,8 @@ def register():
     for cls in _CLASSES:
         bpy.utils.register_class(cls)
     bpy.types.Scene.r2b_sync_folder = bpy.props.StringProperty(
-        name="Sync Folder",
-        description="專案 _LoopFlow_Config/loopflow_R2B（內含 live/camera.json）",
+        name="作業資料夾",
+        description="與 .3dm／.blend／_LoopFlow_Config 同層；內含 _LoopFlow_Config/loopflow_R2B/live/camera.json",
         default="",
         subtype="DIR_PATH",
     )

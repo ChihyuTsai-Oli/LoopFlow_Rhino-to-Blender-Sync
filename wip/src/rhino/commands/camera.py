@@ -144,3 +144,10 @@ def camera_is_auto_on() -> bool:
         return _STICKY_EVENT in _sticky()
     except Exception:
         return False
+
+
+def camera_toggle_auto() -> Result:
+    """開／關自動同步（按一下切換）。"""
+    if camera_is_auto_on():
+        return camera_auto_off()
+    return camera_auto_on()
