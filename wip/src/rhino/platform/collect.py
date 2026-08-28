@@ -18,19 +18,34 @@ DEFAULT_INCLUDED_KINDS: Set[str] = {
 }
 
 DEFAULT_EXCLUDED_KINDS: Set[str] = {"point", "curve"}
+DEFAULT_LAYER_EXCLUDE_TOKEN = "//"
 
 
-def layer_path_is_excluded(full_path: str) -> bool:
-    """FullPath 含 `//` 者不匯出（與 2.x 清理語意一致）。"""
-    return "//" in (full_path or "")
+def layer_path_is_excluded(
+    full_path: str, exclude_token: str = DEFAULT_LAYER_EXCLUDE_TOKEN
+) -> bool:
+    """
+    圖層 FullPath 含排除標記則不匯出。
+
+    預設標記 `//`（與 2.x 一致）。空白標記＝不排除。
+    """
+    token = (exclude_token or "").strip()
+    if not token:
+        return False
+    return token in (full_path or "")
 
 
-def layer_subtree_paths(all_paths: Sequence[str], root: str) -> tuple:
-    """回傳 root 與其子圖層 FullPath（`::` 分隔）；略過含 // 者。"""
+def layer_subtree_paths(
+    all_paths: Sequence[str],
+    root: str,
+    *,
+    exclude_token: str = DEFAULT_LAYER_EXCLUDE_TOKEN,
+) -> tuple:
+    """回傳 root 與其子圖層 FullPath（`::` 分隔）；略過含排除標記者。"""
     root = (root or "").strip()
     if not root:
         return ()
-    if layer_path_is_excluded(root):
+    if layer_path_is_excluded(root, exclude_token):
         return ()
     prefix = root + "::"
     out = []
@@ -38,7 +53,7 @@ def layer_subtree_paths(all_paths: Sequence[str], root: str) -> tuple:
         if path is None:
             continue
         p = str(path)
-        if layer_path_is_excluded(p):
+        if layer_path_is_excluded(p, exclude_token):
             continue
         if p == root or p.startswith(prefix):
             out.append(p)
@@ -51,6 +66,7 @@ def collect_ids_under_layer(
     *,
     include_kinds: Optional[Iterable[str]] = None,
     exclude_kinds: Optional[Iterable[str]] = None,
+    exclude_token: str = DEFAULT_LAYER_EXCLUDE_TOKEN,
 ) -> tuple:
     """
     依圖層子樹收集物件 ID。
@@ -59,7 +75,9 @@ def collect_ids_under_layer(
     - include_kinds 預設 DEFAULT_INCLUDED_KINDS；exclude_kinds 預設 point／curve。
     - 空清單由呼叫端決定是否阻擋（ED-07 Models）。
     """
-    paths = layer_subtree_paths(session.layer_paths(), root)
+    paths = layer_subtree_paths(
+        session.layer_paths(), root, exclude_token=exclude_token
+    )
     if not paths:
         return ()
 

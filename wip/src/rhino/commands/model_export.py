@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Set
+from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 from foundation.result import Result
 from rhino.platform.collect import layer_path_is_excluded
 
 
-def _copy_layer_fields(dst, src) -> None:
-    """把來源圖層的名稱／顏色／階層等寫到目標（不含舊材質）。"""
+def _new_layer_from(src, LayerCls):
+    """新建 Layer 並複製顯示／階層欄位（不複製 Id，避免 File3dm 衝突）。"""
+    dst = LayerCls()
     try:
         dst.Name = src.Name
     except Exception:
@@ -29,23 +30,47 @@ def _copy_layer_fields(dst, src) -> None:
         except Exception:
             pass
     try:
+        # 暫存來源 Parent Id；稍後以 old_id→new_id 重寫
         dst.ParentLayerId = src.ParentLayerId
-    except Exception:
-        pass
-    try:
-        dst.Id = src.Id
     except Exception:
         pass
     try:
         dst.RenderMaterialIndex = -1
     except Exception:
         pass
+    return dst
 
 
-def export_ids_to_3dm(ids: Sequence[str], path: Path) -> Result:
+def _fresh_attributes(Rhino, src_attr, layer_index: int):
+    """精簡 ObjectAttributes，避免來源檔材質／群組索引拖垮 File3dm.Add。"""
+    attr = Rhino.DocObjects.ObjectAttributes()
+    attr.LayerIndex = int(layer_index)
+    attr.MaterialSource = Rhino.DocObjects.ObjectMaterialSource.MaterialFromLayer
+    try:
+        attr.MaterialIndex = -1
+    except Exception:
+        pass
+    for name in ("Name", "ObjectColor", "ColorSource", "PlotColor", "PlotColorSource", "PlotWeight", "PlotWeightSource"):
+        try:
+            setattr(attr, name, getattr(src_attr, name))
+        except Exception:
+            pass
+    try:
+        attr.Mode = src_attr.Mode
+    except Exception:
+        pass
+    return attr
+
+
+def export_ids_to_3dm(
+    ids: Sequence[str],
+    path: Path,
+    *,
+    exclude_token: str = "//",
+) -> Result:
     """
     將指定物件寫入 3dm：
-    - 圖層名稱／顏色／階層比照作業檔（FullPath 含 // 者不寫入）
+    - 圖層名稱／顏色／階層比照作業檔（FullPath 含 exclude_token 者不寫入）
     - 清掉舊材質指派；每用到的圖層新建同名同色材質；物件 MaterialFromLayer
     - 複製具名視圖，並加入目前作用中視角
     """
@@ -67,13 +92,14 @@ def export_ids_to_3dm(ids: Sequence[str], path: Path) -> Result:
     except Exception:
         pass
 
+    LayerCls = Rhino.DocObjects.Layer
     kept: List[object] = []
     src_layers_by_index: Dict[int, object] = {}
     for layer in src.Layers:
         if layer is None or getattr(layer, "IsDeleted", False):
             continue
         full = str(getattr(layer, "FullPath", "") or "")
-        if layer_path_is_excluded(full):
+        if layer_path_is_excluded(full, exclude_token):
             continue
         kept.append(layer)
         src_layers_by_index[int(layer.Index)] = layer
@@ -94,77 +120,123 @@ def export_ids_to_3dm(ids: Sequence[str], path: Path) -> Result:
             return int(out.Layers.Add(layer_obj))
 
     old_index_to_new: Dict[int, int] = {}
+    old_id_to_new_id: Dict[object, object] = {}
     kept_old_ids: Set[object] = set()
 
-    # File3dm 天生有 Default＠0：覆寫成第一個保留圖層，其餘再 Add
+    # File3dm 天生有 Default＠0：覆寫成第一個保留圖層（不強行改 Id）
     first_dst = _layer_table_get(0)
-    _copy_layer_fields(first_dst, kept[0])
-    old_index_to_new[int(kept[0].Index)] = 0
-    kept_old_ids.add(kept[0].Id)
+    first_src = kept[0]
+    try:
+        first_dst.Name = first_src.Name
+    except Exception:
+        pass
+    for attr in ("Color", "PlotColor", "PlotWeight", "LinetypeIndex", "IsVisible", "IsLocked", "IsExpanded"):
+        try:
+            setattr(first_dst, attr, getattr(first_src, attr))
+        except Exception:
+            pass
+    try:
+        first_dst.ParentLayerId = first_src.ParentLayerId
+    except Exception:
+        pass
+    try:
+        first_dst.RenderMaterialIndex = -1
+    except Exception:
+        pass
+    old_index_to_new[int(first_src.Index)] = 0
+    old_id_to_new_id[first_src.Id] = first_dst.Id
+    kept_old_ids.add(first_src.Id)
 
+    add_fail = 0
     for layer in kept[1:]:
         try:
-            dup = layer.Duplicate()
+            new_layer = _new_layer_from(layer, LayerCls)
+            new_idx = _layer_table_add(new_layer)
+            if new_idx < 0:
+                add_fail += 1
+                continue
+            written = _layer_table_get(new_idx)
+            old_index_to_new[int(layer.Index)] = int(new_idx)
+            old_id_to_new_id[layer.Id] = written.Id
+            kept_old_ids.add(layer.Id)
         except Exception:
+            add_fail += 1
             continue
-        try:
-            dup.RenderMaterialIndex = -1
-        except Exception:
-            pass
-        new_idx = _layer_table_add(dup)
-        if new_idx < 0:
-            continue
-        # Duplicate 通常已帶 Id／Parent；再保險覆寫一次
-        try:
-            _layer_table_get(new_idx).Id = layer.Id
-        except Exception:
-            pass
-        old_index_to_new[int(layer.Index)] = int(new_idx)
-        kept_old_ids.add(layer.Id)
 
-    # Parent 被排除時改掛 Empty
+    # Parent 對應：排除層改掛 Empty；其餘改寫成新 Id
     try:
         empty = Guid.Empty
         for new_idx in list(old_index_to_new.values()):
             layer_out = _layer_table_get(new_idx)
             parent_id = getattr(layer_out, "ParentLayerId", None)
-            if parent_id is None:
+            if parent_id is None or parent_id == empty:
                 continue
-            if parent_id != empty and parent_id not in kept_old_ids:
+            if parent_id in old_id_to_new_id:
+                layer_out.ParentLayerId = old_id_to_new_id[parent_id]
+            elif parent_id not in kept_old_ids:
                 layer_out.ParentLayerId = empty
     except Exception:
         pass
 
     used_new_layers: Set[int] = set()
     added = 0
+    skip_no_obj = 0
+    skip_layer = 0
+    skip_geom = 0
+    skip_add = 0
+    last_add_err = ""
+
     for oid in ids:
         try:
             guid = rs.coerceguid(oid)
             robj = src.Objects.FindId(guid) if guid else None
             if robj is None:
+                skip_no_obj += 1
                 continue
             old_li = int(robj.Attributes.LayerIndex)
             if old_li not in old_index_to_new:
+                skip_layer += 1
                 continue
             geom = robj.Geometry
             if geom is None:
+                skip_geom += 1
                 continue
-            attr = robj.Attributes.Duplicate()
             new_li = old_index_to_new[old_li]
-            attr.LayerIndex = new_li
-            attr.MaterialSource = Rhino.DocObjects.ObjectMaterialSource.MaterialFromLayer
+            attr = _fresh_attributes(Rhino, robj.Attributes, new_li)
             try:
-                attr.MaterialIndex = -1
+                dup = geom.Duplicate()
             except Exception:
-                pass
-            out.Objects.Add(geom.Duplicate(), attr)
-            used_new_layers.add(new_li)
-            added += 1
-        except Exception:
+                dup = geom
+            try:
+                out.Objects.Add(dup, attr)
+                used_new_layers.add(new_li)
+                added += 1
+            except Exception as exc:
+                skip_add += 1
+                last_add_err = str(exc)
+                continue
+        except Exception as exc:
+            skip_add += 1
+            last_add_err = str(exc)
             continue
 
     if added == 0:
-        return Result.fail("沒有可寫入的幾何（可能都在 // 圖層）", stage="export")
+        detail = (
+            "收集 {}；略過找不到={} 圖層未對應={} 無幾何={} 寫入失敗={}；"
+            "圖層表保留={} 對應={} Add層失敗={}"
+        ).format(
+            len(ids),
+            skip_no_obj,
+            skip_layer,
+            skip_geom,
+            skip_add,
+            len(kept),
+            len(old_index_to_new),
+            add_fail,
+        )
+        if last_add_err:
+            detail += "；末次錯誤={}".format(last_add_err)
+        return Result.fail("沒有可寫入的幾何（{}）".format(detail), stage="export")
 
     new_to_old = {v: k for k, v in old_index_to_new.items()}
     for new_li in sorted(used_new_layers):

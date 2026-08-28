@@ -28,6 +28,17 @@ class LayerCollectTests(unittest.TestCase):
         self.assertEqual(layer_subtree_paths(all_paths, "A"), ("A", "A::keep"))
         self.assertEqual(layer_subtree_paths(all_paths, "//Work"), ())
 
+    def test_subtree_custom_exclude_token(self):
+        all_paths = ("A", "A::keep", "A::TMP_skip", "TMP_root")
+        self.assertEqual(
+            layer_subtree_paths(all_paths, "A", exclude_token="TMP_"),
+            ("A", "A::keep"),
+        )
+        self.assertEqual(
+            layer_subtree_paths(all_paths, "A", exclude_token=""),
+            ("A", "A::keep", "A::TMP_skip"),
+        )
+
     def test_collect_excludes_point_curve_by_default(self):
         s = MemorySession()
         s.add_object("m1", "Model", kind="brep")
