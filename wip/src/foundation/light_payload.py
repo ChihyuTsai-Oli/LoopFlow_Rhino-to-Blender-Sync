@@ -61,37 +61,37 @@ def build_light_payload(
 def validate_light_payload(data: Any) -> Optional[str]:
     """回傳錯誤字串；通過則 None。空 points 僅在 clear=true 時合法。"""
     if not isinstance(data, Mapping):
-        return "Light JSON 根節點必須是物件"
+        return "Light JSON root must be an object"
     try:
         ver = int(data.get("schema_version"))
     except (TypeError, ValueError):
-        return "缺少或無效的 schema_version"
+        return "Missing or invalid schema_version"
     if ver != SCHEMA_VERSION:
-        return "不支援的 schema_version：{}（需要 {}）".format(ver, SCHEMA_VERSION)
+        return "Unsupported schema_version: {} (need {})".format(ver, SCHEMA_VERSION)
     points = data.get("points")
     if not isinstance(points, list):
-        return "欄位 points 必須是陣列"
+        return "Field points must be an array"
     clear = bool(data.get("clear"))
     if len(points) == 0 and not clear:
-        return "points 為空：不發布、不清燈（ED-07）；需 clear=true 才可清空"
+        return "Empty points: do not publish or clear lights (ED-07); set clear=true to clear"
     if clear and len(points) != 0:
-        return "clear=true 時 points 必須為空陣列"
+        return "clear=true requires an empty points array"
     for idx, item in enumerate(points):
         if not isinstance(item, Mapping):
-            return "points[{}] 必須是物件".format(idx)
+            return "points[{}] must be an object".format(idx)
         if not str(item.get("guid") or "").strip():
-            return "points[{}] 缺少 guid".format(idx)
+            return "points[{}] is missing guid".format(idx)
         if not str(item.get("type") or "").strip():
-            return "points[{}] 缺少 type".format(idx)
+            return "points[{}] is missing type".format(idx)
         loc = item.get("loc")
         if not isinstance(loc, (list, tuple)) or len(loc) != 3:
-            return "points[{}] loc 必須是長度 3 的陣列".format(idx)
+            return "points[{}] loc must be an array of length 3".format(idx)
         try:
             float(loc[0])
             float(loc[1])
             float(loc[2])
         except (TypeError, ValueError):
-            return "points[{}] loc 必須是數值".format(idx)
+            return "points[{}] loc must be numeric".format(idx)
     return None
 
 
@@ -133,5 +133,5 @@ def validate_light_file(path) -> Optional[str]:
         text = Path(path).read_text(encoding="utf-8")
         data = json.loads(text)
     except Exception as exc:
-        return "Light pending 無法解析：{}".format(exc)
+        return "Light pending could not be parsed: {}".format(exc)
     return validate_light_payload(data)

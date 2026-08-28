@@ -60,7 +60,7 @@ def run_guarded(session, action: Callable[[], Result]) -> Result:
             result = Result.fail("action 回傳型別錯誤", stage="run_guarded")
     except Exception as exc:
         restore_snapshot(session, snap, restore_document_modified=True)
-        return Result.fail("執行例外：{}".format(exc), stage="run_guarded")
+        return Result.fail("Unhandled exception: {}".format(exc), stage="run_guarded")
 
     restore_snapshot(session, snap, restore_document_modified=True)
     return result

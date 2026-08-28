@@ -29,10 +29,10 @@ BLOCKS_FILE_NAME = "R2B_blocks.json"
 def require_saved_document_path(doc_path: Optional[str]) -> Result:
     """未存檔工作檔不得發布設定／交換檔。"""
     if not doc_path or not str(doc_path).strip():
-        return Result.blocked("請先儲存 Rhino 檔案", stage="require_saved")
+        return Result.blocked("Save the Rhino file first", stage="require_saved")
     path = Path(doc_path)
     if not path.is_file():
-        return Result.blocked("工作檔路徑無效或不存在：{}".format(doc_path), stage="require_saved")
+        return Result.blocked("Document path is invalid or missing: {}".format(doc_path), stage="require_saved")
     return Result.success(data=str(path.resolve()), stage="require_saved")
 
 

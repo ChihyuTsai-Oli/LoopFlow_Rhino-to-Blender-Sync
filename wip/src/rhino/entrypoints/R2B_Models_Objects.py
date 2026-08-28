@@ -25,7 +25,7 @@ def main() -> None:
     msg = "{} [{}] {}".format(_CMD, result.status, result.message)
     print(msg)
     if result.ok:
-        rs.MessageBox("Objects 匯出成功\n\n{}".format(result.message), title=_CMD)
+        rs.MessageBox("Objects export succeeded\n\n{}".format(result.message), title=_CMD)
     elif result.status in ("blocked", "fail"):
         rs.MessageBox(result.message, title=_CMD)
 

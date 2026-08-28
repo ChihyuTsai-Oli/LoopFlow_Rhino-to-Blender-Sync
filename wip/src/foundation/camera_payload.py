@@ -49,20 +49,20 @@ def build_camera_payload(
 def validate_camera_payload(data: Any) -> Optional[str]:
     """回傳錯誤字串；通過則 None。"""
     if not isinstance(data, Mapping):
-        return "Camera JSON 根節點必須是物件"
+        return "Camera JSON root must be an object"
     try:
         ver = int(data.get("schema_version"))
     except (TypeError, ValueError):
-        return "缺少或無效的 schema_version"
+        return "Missing or invalid schema_version"
     if ver != SCHEMA_VERSION:
-        return "不支援的 schema_version：{}（需要 {}）".format(ver, SCHEMA_VERSION)
+        return "Unsupported schema_version: {} (need {})".format(ver, SCHEMA_VERSION)
     for key in ("location", "direction", "up"):
         if _as_xyz(data.get(key), key) is None:
-            return "欄位 {} 必須含 x/y/z 數值".format(key)
+            return "Field {} must contain numeric x/y/z".format(key)
     try:
         float(data.get("lens"))
     except (TypeError, ValueError):
-        return "欄位 lens 必須是數值"
+        return "Field lens must be numeric"
     return None
 
 
@@ -129,5 +129,5 @@ def validate_camera_file(path) -> Optional[str]:
         text = Path(path).read_text(encoding="utf-8")
         data = json.loads(text)
     except Exception as exc:
-        return "Camera pending 無法解析：{}".format(exc)
+        return "Camera pending could not be parsed: {}".format(exc)
     return validate_camera_payload(data)

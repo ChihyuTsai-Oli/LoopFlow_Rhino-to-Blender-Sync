@@ -77,7 +77,7 @@ def collect_light_points(light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
         )
     if not collected:
         return Result.blocked(
-            "無符合 LightLayer「{}::…」子層的 Point：手動不發布；若先前有點，自動同步會發 clear".format(
+            "No Point on LightLayer '{}::…' sublayers: manual push skipped; auto sync may send clear if points existed".format(
                 light_layer
             ),
             stage="collect_lights",
@@ -124,7 +124,7 @@ def publish_light_once(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
         except Exception:
             pass
         return Result.success(
-            "已發布 {} 個燈點：{}".format(len(collected.data), final),
+            "Published {} light points: {}".format(len(collected.data), final),
             stage="publish_light",
             data=str(final),
         )
@@ -321,7 +321,7 @@ def light_auto_on(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
         return target
     sticky = _sticky()
     if _STICKY_HANDLERS in sticky:
-        return Result.success("Light 自動同步已在執行", stage="light_auto_on")
+        return Result.success("Light auto sync already running", stage="light_auto_on")
 
     path = str(target.data["light"])
     sticky[_STICKY_PATH] = path
@@ -351,10 +351,10 @@ def light_auto_on(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
     append_log(target.data["root"], "Light Auto On → {}".format(path))
     if push.ok:
         sticky[_STICKY_HAD_POINTS] = True
-        return Result.success("Light 自動同步已開啟：{}".format(path), stage="light_auto_on")
+        return Result.success("Light auto sync on: {}".format(path), stage="light_auto_on")
     sticky[_STICKY_HAD_POINTS] = False
     return Result.success(
-        "Light 自動同步已開啟（首次推送：{}）".format(push.message),
+        "Light auto sync on (first push: {})".format(push.message),
         stage="light_auto_on",
     )
 
@@ -364,7 +364,7 @@ def light_auto_off() -> Result:
 
     sticky = _sticky()
     if _STICKY_HANDLERS not in sticky:
-        return Result.success("Light 自動同步本來就關閉", stage="light_auto_off")
+        return Result.success("Light auto sync was already off", stage="light_auto_off")
     handlers = sticky.get(_STICKY_HANDLERS) or {}
     try:
         if "add" in handlers:
@@ -386,7 +386,7 @@ def light_auto_off() -> Result:
     sticky.pop(_STICKY_LAYER, None)
     sticky.pop(_STICKY_DIRTY, None)
     sticky.pop(_STICKY_LAST_EVENT, None)
-    return Result.success("Light 自動同步已關閉", stage="light_auto_off")
+    return Result.success("Light auto sync off", stage="light_auto_off")
 
 
 def light_is_auto_on() -> bool:

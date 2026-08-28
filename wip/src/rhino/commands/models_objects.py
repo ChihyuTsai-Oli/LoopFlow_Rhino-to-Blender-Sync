@@ -48,7 +48,7 @@ def publish_objects_once() -> Result:
     def _action() -> Result:
         ids = _selected_ids()
         if not ids:
-            return Result.blocked("請先選取要匯出的物件", stage="objects_select")
+            return Result.blocked("Select objects to export first", stage="objects_select")
 
         _ensure_visible_for_export(session, ids)
         exported = export_ids_to_3dm(
@@ -56,6 +56,7 @@ def publish_objects_once() -> Result:
             pending,
             exclude_token="",
             block_mode=BLOCK_MODE_EXPLODE_ALL,
+            assign_layer_materials=False,
         )
         if not exported.ok:
             try:
@@ -76,7 +77,7 @@ def publish_objects_once() -> Result:
         )
         if published.ok:
             return Result.success(
-                "已發布 {} 個選取物件 → {}".format(len(ids), final),
+                "Published {} selected objects → {}".format(len(ids), final),
                 stage="publish_objects",
                 data=str(final),
             )

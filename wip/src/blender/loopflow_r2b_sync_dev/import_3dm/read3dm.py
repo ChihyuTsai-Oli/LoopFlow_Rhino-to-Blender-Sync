@@ -100,6 +100,7 @@ def read_3dm(
     import_nested_groups = options.get("import_nested_groups", False)
     import_instances = options.get("import_instances",False)
     update_materials = options.get("update_materials", False)
+    import_materials = options.get("import_materials", True)
 
     model = None
 
@@ -143,8 +144,9 @@ def read_3dm(
     if import_named_views:
         converters.handle_views(context, model, toplayer, model.NamedViews, "NamedViews", scale)
 
-    # Handle materials（Update 旗標只影響是否覆寫節點）
-    converters.handle_materials(context, model, materials, update_materials)
+    # Handle materials（Update 旗標只影響是否覆寫節點；Import Objects 不建材質）
+    if import_materials:
+        converters.handle_materials(context, model, materials, update_materials)
 
     # Handle layers
     layers_container_name = options.get("layers_container_name")
@@ -213,32 +215,35 @@ def read_3dm(
 
         # Get render material, either from object. or if MaterialSource
         # is set to MaterialFromLayer, from the layer.
-        mat_index = attr.MaterialIndex
-        if attr.MaterialSource == r3d.ObjectMaterialSource.MaterialFromLayer:
-            mat_index = rhinolayer.RenderMaterialIndex
-        rhino_material = model.Materials.FindIndex(mat_index)
-
-        # Get material name. In case of the Rhino default material use
-        # DEFAULT_RHINO_MATERIAL, otherwise compute a name from the material
-        # so that it is fit for Blender usage.
-        if mat_index == -1 or rhino_material is None or not getattr(rhino_material, "Name", ""):
-            matname = converters.material.DEFAULT_RHINO_MATERIAL
+        if not import_materials:
+            blender_material = None
         else:
-            matname = rhino_material.Name
+            mat_index = attr.MaterialIndex
+            if attr.MaterialSource == r3d.ObjectMaterialSource.MaterialFromLayer:
+                mat_index = rhinolayer.RenderMaterialIndex
+            rhino_material = model.Materials.FindIndex(mat_index)
+
+            # Get material name. In case of the Rhino default material use
+            # DEFAULT_RHINO_MATERIAL, otherwise compute a name from the material
+            # so that it is fit for Blender usage.
+            if mat_index == -1 or rhino_material is None or not getattr(rhino_material, "Name", ""):
+                matname = converters.material.DEFAULT_RHINO_MATERIAL
+            else:
+                matname = rhino_material.Name
+
+            # Get the corresponding Blender material based on the material name
+            # from the material dictionary
+            if matname not in materials or materials.get(matname) is None:
+                matname = converters.material.DEFAULT_RHINO_MATERIAL
+            blender_material = materials[matname]
+            if og.ObjectType == r3d.ObjectType.Annotation:
+                blender_material = materials[converters.material.DEFAULT_TEXT_MATERIAL]
 
         # Handle object view color
         if ob.Attributes.ColorSource == r3d.ObjectColorSource.ColorFromLayer:
             view_color = rhinolayer.Color
         else:
             view_color = ob.Attributes.ObjectColor
-
-        # Get the corresponding Blender material based on the material name
-        # from the material dictionary
-        if matname not in materials or materials.get(matname) is None:
-            matname = converters.material.DEFAULT_RHINO_MATERIAL
-        blender_material = materials[matname]
-        if og.ObjectType == r3d.ObjectType.Annotation:
-            blender_material = materials[converters.material.DEFAULT_TEXT_MATERIAL]
 
         # Fetch layer
         layer = layerids[str(rhinolayer.Id)][1]

@@ -13,7 +13,7 @@ from __future__ import annotations
 __all__ = ["default_import_options"]
 
 
-def default_import_options(*, update_materials: bool) -> dict:
+def default_import_options(*, update_materials: bool, import_materials: bool = True) -> dict:
     """Models Update／Import 用的預設選項（對齊上游 Import3dm 常用預設）。"""
     return {
         "import_views": False,
@@ -35,6 +35,7 @@ def default_import_options(*, update_materials: bool) -> dict:
         "import_instances_grid": 10,
         "link_materials_to": "PREFERENCES",
         "update_materials": bool(update_materials),
+        "import_materials": bool(import_materials),
         "merge_by_distance": False,
         "merge_distance": 0.0001,
         "subD_level_viewport": 2,

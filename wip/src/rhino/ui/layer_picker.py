@@ -36,7 +36,7 @@ def pick_layer_path(
     *,
     default_path: Optional[str] = None,
     title: str = "R2B Models",
-    message: str = "選擇要匯出的模型圖層，含子層",
+    message: str = "Select the model layer (includes sublayers)",
 ) -> Optional[str]:
     """優先 Eto TreeGridView；失敗則縮排 ListBox。"""
     paths = [str(p) for p in layer_paths if p]
@@ -124,9 +124,9 @@ def _pick_layer_eto(
             tree.CellDoubleClick += self._on_double_click
 
             ok = forms.Button()
-            ok.Text = "確定"
+            ok.Text = "OK"
             cancel = forms.Button()
-            cancel.Text = "取消"
+            cancel.Text = "Cancel"
             ok.Click += self._on_ok
             cancel.Click += self._on_cancel
             self.DefaultButton = ok

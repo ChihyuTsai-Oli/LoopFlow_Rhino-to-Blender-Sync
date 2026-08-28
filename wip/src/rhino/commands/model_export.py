@@ -56,11 +56,14 @@ def _layer_color(layer, ColorCls):
         return None
 
 
-def _fresh_attributes(Rhino, src_attr, layer_index: int):
+def _fresh_attributes(Rhino, src_attr, layer_index: int, *, assign_layer_material: bool = True):
     """精簡 ObjectAttributes，避免來源檔材質／群組索引拖垮 File3dm.Add。"""
     attr = Rhino.DocObjects.ObjectAttributes()
     attr.LayerIndex = int(layer_index)
-    attr.MaterialSource = Rhino.DocObjects.ObjectMaterialSource.MaterialFromLayer
+    if assign_layer_material:
+        attr.MaterialSource = Rhino.DocObjects.ObjectMaterialSource.MaterialFromLayer
+    else:
+        attr.MaterialSource = Rhino.DocObjects.ObjectMaterialSource.MaterialFromObject
     try:
         attr.MaterialIndex = -1
     except Exception:
@@ -140,6 +143,25 @@ def _layer_full_of(src, layer_index: int) -> str:
         return ""
 
 
+def _object_layer_index(robj) -> int:
+    try:
+        return int(robj.Attributes.LayerIndex)
+    except Exception:
+        return -1
+
+
+def mapped_piece_layer(
+    child_layer_index: int,
+    old_index_to_new: Dict[int, int],
+    instance_layer_index: int,
+) -> Optional[int]:
+    """炸開後的幾何：優先定義內物件圖層，對不到才用 Block 插入圖層。"""
+    mapped = old_index_to_new.get(int(child_layer_index))
+    if mapped is not None:
+        return mapped
+    return old_index_to_new.get(int(instance_layer_index))
+
+
 def _iter_definition_objects(idef, src=None):
     try:
         ids = idef.GetObjectIds()
@@ -188,8 +210,37 @@ def _combine_xform(prefix, local, Transform):
         return prefix * local
 
 
+def _collect_definition_layer_indices(robj, ObjectType, src, _seen=None) -> Set[int]:
+    """遞迴收集 Block 定義內葉物件圖層（不含 Instance 本身插入層）。"""
+    seen = _seen if _seen is not None else set()
+    if not _is_instance_ref(robj, ObjectType):
+        li = _object_layer_index(robj)
+        return {li} if li >= 0 else set()
+    def_id = _instance_def_id(robj)
+    if def_id and def_id in seen:
+        return set()
+    if def_id:
+        seen.add(def_id)
+    idef = None
+    try:
+        idef = robj.InstanceDefinition
+    except Exception:
+        idef = None
+    if idef is None and src is not None:
+        try:
+            idef = src.InstanceDefinitions.FindId(robj.Geometry.ParentIdefId)
+        except Exception:
+            idef = None
+    if idef is None:
+        return set()
+    out: Set[int] = set()
+    for child in _iter_definition_objects(idef, src):
+        out.update(_collect_definition_layer_indices(child, ObjectType, src, seen))
+    return out
+
+
 def _explode_instance_geoms(robj, xform_prefix, ObjectType, Transform, src=None):
-    """遞迴展開 Instance；產出已在世界座標的幾何複製。不改作業檔。"""
+    """遞迴展開 Instance；產出 (世界座標幾何, 定義內物件圖層索引)。不改作業檔。"""
     if not _is_instance_ref(robj, ObjectType):
         geom = getattr(robj, "Geometry", None)
         if geom is None:
@@ -203,7 +254,7 @@ def _explode_instance_geoms(robj, xform_prefix, ObjectType, Transform, src=None)
                 dup.Transform(xform_prefix)
             except Exception:
                 pass
-        yield dup
+        yield dup, _object_layer_index(robj)
         return
 
     local = _instance_xform(robj)
@@ -241,11 +292,13 @@ def export_ids_to_3dm(
     *,
     exclude_token: str = "//",
     block_mode: str = BLOCK_MODE_PROTOTYPE,
+    assign_layer_materials: bool = True,
 ) -> Result:
     """
     將指定物件寫入 3dm：
     - 只帶「有物件的圖層＋其祖先」；略過排除標記圖層
-    - 材質名＝父::末端；顏色＝圖層色；物件 MaterialFromLayer
+    - Block 炸開後幾何跟定義內物件圖層（對不到才用插入層）
+    - assign_layer_materials：Models 寫父::末端材質；Objects 通道關閉
     - Block：prototype＝炸第一顆＋sidecar；explode_all＝每顆獨立展開
     - 複製具名視圖與目前作用視角；寫入後釋放 File3dm 把手
     """
@@ -259,9 +312,12 @@ def export_ids_to_3dm(
 
     src = sc.doc
     if src is None:
-        return Result.fail("無作用中文件", stage="export")
+        return Result.fail("No active document", stage="export")
 
-    # --- 先解析物件，決定真正需要的圖層（含子樹祖先）---
+    ObjectType = Rhino.DocObjects.ObjectType
+    Transform = Rhino.Geometry.Transform
+
+    # --- 先解析物件，決定真正需要的圖層（含子樹祖先＋Block 定義內圖層）---
     resolved = []  # (robj, old_li)
     used_old_indices: Set[int] = set()
     for oid in ids:
@@ -273,11 +329,15 @@ def export_ids_to_3dm(
             old_li = int(robj.Attributes.LayerIndex)
             resolved.append((robj, old_li))
             used_old_indices.add(old_li)
+            if _is_instance_ref(robj, ObjectType):
+                used_old_indices.update(
+                    _collect_definition_layer_indices(robj, ObjectType, src)
+                )
         except Exception:
             continue
 
     if not resolved:
-        return Result.fail("沒有可寫入的幾何", stage="export")
+        return Result.fail("No exportable geometry", stage="export")
 
     by_index: Dict[int, object] = {}
     by_id: Dict[object, object] = {}
@@ -320,7 +380,10 @@ def export_ids_to_3dm(
             continue
 
     if not needed_indices:
-        return Result.fail("物件圖層皆不可匯出（可能在排除標記下）", stage="export_layers")
+        return Result.fail(
+            "Object layers are not exportable (excluded?)",
+            stage="export_layers",
+        )
 
     kept = sorted(
         (by_index[i] for i in needed_indices if i in by_index),
@@ -457,7 +520,7 @@ def export_ids_to_3dm(
 
         if not old_index_to_new:
             return Result.fail(
-                "無法建立匯出圖層表（Add 失敗 {}）".format(add_fail),
+                "Could not build export layer table (Add failed {})".format(add_fail),
                 stage="export_layers",
             )
 
@@ -485,8 +548,6 @@ def export_ids_to_3dm(
         skip_layer = 0
         skip_add = 0
         last_add_err = ""
-        ObjectType = Rhino.DocObjects.ObjectType
-        Transform = Rhino.Geometry.Transform
         block_defs: List[dict] = []
         instance_groups: Dict[str, List] = {}
         instance_order: List[str] = []
@@ -498,7 +559,12 @@ def export_ids_to_3dm(
                 return
             try:
                 new_li = old_index_to_new[old_li]
-                attr = _fresh_attributes(Rhino, robj.Attributes, new_li)
+                attr = _fresh_attributes(
+                    Rhino,
+                    robj.Attributes,
+                    new_li,
+                    assign_layer_material=assign_layer_materials,
+                )
                 if user_strings:
                     for key, value in user_strings:
                         try:
@@ -519,16 +585,21 @@ def export_ids_to_3dm(
 
         def _append_exploded(robj, old_li, user_strings=None) -> int:
             nonlocal added, skip_layer, skip_add, last_add_err
-            if old_li not in old_index_to_new:
-                skip_layer += 1
-                return 0
-            layer_index = old_index_to_new[old_li]
             count = 0
             try:
-                for geom in _explode_instance_geoms(
+                for geom, child_li in _explode_instance_geoms(
                     robj, None, ObjectType, Transform, src
                 ):
-                    piece_attr = _fresh_attributes(Rhino, robj.Attributes, layer_index)
+                    mapped = mapped_piece_layer(child_li, old_index_to_new, old_li)
+                    if mapped is None:
+                        skip_layer += 1
+                        continue
+                    piece_attr = _fresh_attributes(
+                        Rhino,
+                        robj.Attributes,
+                        mapped,
+                        assign_layer_material=assign_layer_materials,
+                    )
                     if user_strings:
                         for key, value in user_strings:
                             try:
@@ -536,13 +607,13 @@ def export_ids_to_3dm(
                             except Exception:
                                 pass
                     out.Objects.Add(geom, piece_attr)
+                    used_new_layers.add(mapped)
                     count += 1
             except Exception as exc:
                 skip_add += 1
                 last_add_err = str(exc)
                 return count
             if count:
-                used_new_layers.add(layer_index)
                 added += count
             return count
 
@@ -592,12 +663,12 @@ def export_ids_to_3dm(
             )
 
         if added == 0:
-            detail = "圖層未對應={} 寫入失敗={}；對應={}".format(
+            detail = "unmapped layers={} write failures={}; mapped={}".format(
                 skip_layer, skip_add, len(old_index_to_new)
             )
             if last_add_err:
-                detail += "；末次錯誤={}".format(last_add_err)
-            return Result.fail("沒有可寫入的幾何（{}）".format(detail), stage="export")
+                detail += "; last error={}".format(last_add_err)
+            return Result.fail("No exportable geometry ({})".format(detail), stage="export")
 
         new_to_old = {v: k for k, v in old_index_to_new.items()}
 
@@ -644,40 +715,41 @@ def export_ids_to_3dm(
                     pass
             return None
 
-        for mapped_li in sorted(used_new_layers):
-            old_li = new_to_old.get(mapped_li)
-            src_layer = src_layers_by_index.get(old_li) if old_li is not None else None
-            layer_out = _layer_at(mapped_li)
-            if src_layer is not None:
-                name = material_name_from_full_path(_layer_full_path(src_layer))
-                color = _layer_color(src_layer, Color)
-            else:
-                name = material_name_from_full_path(
-                    _layer_full_path(layer_out) if layer_out is not None else ""
-                )
-                color = _layer_color(layer_out, Color) if layer_out is not None else None
+        if assign_layer_materials:
+            for mapped_li in sorted(used_new_layers):
+                old_li = new_to_old.get(mapped_li)
+                src_layer = src_layers_by_index.get(old_li) if old_li is not None else None
+                layer_out = _layer_at(mapped_li)
+                if src_layer is not None:
+                    name = material_name_from_full_path(_layer_full_path(src_layer))
+                    color = _layer_color(src_layer, Color)
+                else:
+                    name = material_name_from_full_path(
+                        _layer_full_path(layer_out) if layer_out is not None else ""
+                    )
+                    color = _layer_color(layer_out, Color) if layer_out is not None else None
 
-            mat = Rhino.DocObjects.Material()
-            try:
-                mat.Name = name
-            except Exception:
-                pass
-            if color is not None:
+                mat = Rhino.DocObjects.Material()
                 try:
-                    mat.DiffuseColor = color
+                    mat.Name = name
                 except Exception:
                     pass
+                if color is not None:
+                    try:
+                        mat.DiffuseColor = color
+                    except Exception:
+                        pass
 
-            mat_index = _add_material_index(mat)
-            if mat_index is None or layer_out is None:
-                continue
-            try:
-                layer_out.RenderMaterialIndex = mat_index
-            except Exception:
+                mat_index = _add_material_index(mat)
+                if mat_index is None or layer_out is None:
+                    continue
                 try:
-                    layer_out.MaterialIndex = mat_index
+                    layer_out.RenderMaterialIndex = mat_index
                 except Exception:
-                    pass
+                    try:
+                        layer_out.MaterialIndex = mat_index
+                    except Exception:
+                        pass
 
         try:
             for named in src.NamedViews:
@@ -779,20 +851,20 @@ def export_ids_to_3dm(
             try:
                 path.unlink()
             except OSError as exc:
-                return Result.fail("無法清除舊 pending：{}".format(exc), stage="export")
+                return Result.fail("Could not remove old pending: {}".format(exc), stage="export")
         path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
             write_opts = Rhino.FileIO.File3dmWriteOptions()
             ok = out.Write(str(path.resolve()), write_opts)
         except Exception as exc:
-            return Result.fail("寫入 3dm 失敗：{}".format(exc), stage="export")
+            return Result.fail("Failed to write 3dm: {}".format(exc), stage="export")
         if not ok:
-            return Result.fail("File3dm.Write 回傳失敗", stage="export")
+            return Result.fail("File3dm.Write returned failure", stage="export")
         if not path.is_file() or path.stat().st_size <= 0:
-            return Result.fail("匯出後找不到有效 pending 檔", stage="export")
+            return Result.fail("Pending file missing or empty after export", stage="export")
         return Result.success(
-            "已寫入 {} 個物件、{} 個圖層".format(added, len(old_index_to_new)),
+            "Wrote {} objects, {} layers".format(added, len(old_index_to_new)),
             stage="export",
             data={
                 "path": str(path),

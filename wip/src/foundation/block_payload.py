@@ -32,31 +32,31 @@ def _as_mat4(node: Any) -> Optional[List[float]]:
 
 def validate_blocks_payload(data: Any) -> Optional[str]:
     if not isinstance(data, Mapping):
-        return "Block JSON 根節點必須是物件"
+        return "Block JSON root must be an object"
     try:
         ver = int(data.get("schema_version"))
     except (TypeError, ValueError):
-        return "缺少或無效的 schema_version"
+        return "Missing or invalid schema_version"
     if ver != SCHEMA_VERSION:
-        return "不支援的 schema_version：{}（需要 {}）".format(ver, SCHEMA_VERSION)
+        return "Unsupported schema_version: {} (need {})".format(ver, SCHEMA_VERSION)
     defs = data.get("definitions")
     if not isinstance(defs, list):
-        return "欄位 definitions 必須是陣列"
+        return "Field definitions must be an array"
     for idx, item in enumerate(defs):
         if not isinstance(item, Mapping):
-            return "definitions[{}] 必須是物件".format(idx)
+            return "definitions[{}] must be an object".format(idx)
         if not str(item.get("id") or "").strip():
-            return "definitions[{}] 缺少 id".format(idx)
+            return "definitions[{}] is missing id".format(idx)
         if _as_mat4(item.get("prototype_xform")) is None:
-            return "definitions[{}] prototype_xform 必須是 16 個數值".format(idx)
+            return "definitions[{}] prototype_xform must be 16 numbers".format(idx)
         copies = item.get("copies")
         if not isinstance(copies, list):
-            return "definitions[{}] copies 必須是陣列".format(idx)
+            return "definitions[{}] copies must be an array".format(idx)
         for cidx, copy in enumerate(copies):
             if not isinstance(copy, Mapping):
-                return "definitions[{}].copies[{}] 必須是物件".format(idx, cidx)
+                return "definitions[{}].copies[{}] must be an object".format(idx, cidx)
             if _as_mat4(copy.get("xform")) is None:
-                return "definitions[{}].copies[{}] xform 必須是 16 個數值".format(
+                return "definitions[{}].copies[{}] xform must be 16 numbers".format(
                     idx, cidx
                 )
     return None
@@ -98,7 +98,7 @@ def validate_blocks_file(path) -> Optional[str]:
         text = Path(path).read_text(encoding="utf-8")
         data = json.loads(text)
     except Exception as exc:
-        return "Block sidecar 無法解析：{}".format(exc)
+        return "Block sidecar could not be parsed: {}".format(exc)
     return validate_blocks_payload(data)
 
 

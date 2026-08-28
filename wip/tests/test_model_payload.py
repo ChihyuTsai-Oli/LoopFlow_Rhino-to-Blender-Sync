@@ -21,7 +21,7 @@ from foundation.paths import (
     resolve_model_3dm_from_work_folder,
     resolve_objects_3dm_from_work_folder,
 )
-from rhino.commands.model_export import material_name_from_full_path
+from rhino.commands.model_export import mapped_piece_layer, material_name_from_full_path
 
 
 class ModelPublishTests(unittest.TestCase):
@@ -106,6 +106,12 @@ class ModelPublishTests(unittest.TestCase):
                 work / "_LoopFlow_Config" / "loopflow_R2B"
             )
             self.assertEqual(objects_path(root).name, "R2B_Objects.3dm")
+
+    def test_mapped_piece_layer_prefers_definition(self):
+        old_to_new = {10: 0, 20: 1, 30: 2}
+        self.assertEqual(mapped_piece_layer(20, old_to_new, 10), 1)
+        self.assertEqual(mapped_piece_layer(99, old_to_new, 10), 0)
+        self.assertIsNone(mapped_piece_layer(99, old_to_new, 50))
 
     def test_material_name_parent_and_leaf(self):
         self.assertEqual(material_name_from_full_path("A::B::C"), "B::C")

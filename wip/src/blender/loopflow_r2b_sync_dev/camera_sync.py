@@ -36,12 +36,12 @@ def _camera_json_path(scene) -> str:
 def read_and_parse_camera(path: str):
     """回傳 (parsed_data_dict | None, error_message | None)。"""
     if not os.path.isfile(path):
-        return None, "找不到 Camera 檔：{}".format(path)
+        return None, "Camera file not found: {}".format(path)
     try:
         with open(path, "r", encoding="utf-8") as handle:
             raw = json.load(handle)
     except Exception as exc:
-        return None, "讀取／JSON 失敗：{}".format(exc)
+        return None, "Read/JSON failed: {}".format(exc)
     result = parse_camera_payload(raw)
     if not result.ok:
         return None, result.message
@@ -60,13 +60,13 @@ def apply_camera_to_viewport(context, parsed, *, scale: float, lens_mult: float)
         dir_vec = mathutils.Vector(dir_raw).normalized()
         up_vec = mathutils.Vector(up_raw).normalized()
         if dir_vec.length < 1e-8 or up_vec.length < 1e-8:
-            return "direction／up 向量無效"
+            return "Invalid direction/up vector"
         final_lens = float(parsed.get("lens", DEFAULT_LENS)) * lens_mult
 
         z_axis = -dir_vec
         x_axis = up_vec.cross(z_axis)
         if x_axis.length < 1e-8:
-            return "無法建立視角基底"
+            return "Could not build view basis"
         x_axis.normalize()
         y_axis = z_axis.cross(x_axis).normalized()
         mat = mathutils.Matrix((x_axis, y_axis, z_axis)).transposed()
@@ -76,7 +76,7 @@ def apply_camera_to_viewport(context, parsed, *, scale: float, lens_mult: float)
         if screen is None and context.window:
             screen = context.window.screen
         if screen is None:
-            return "無可用 screen"
+            return "No available screen"
         applied = False
         for area in screen.areas:
             if area.type != "VIEW_3D":
@@ -93,10 +93,10 @@ def apply_camera_to_viewport(context, parsed, *, scale: float, lens_mult: float)
             area.tag_redraw()
             applied = True
         if not applied:
-            return "找不到 VIEW_3D"
+            return "VIEW_3D not found"
         return ""
     except Exception as exc:
-        return "套用失敗：{}".format(exc)
+        return "Apply failed: {}".format(exc)
 
 
 def push_camera_once(context) -> str:

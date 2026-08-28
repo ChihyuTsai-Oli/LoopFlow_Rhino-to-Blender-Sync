@@ -57,9 +57,9 @@ def _prompt_exclude_token(default_token: str) -> Optional[str]:
 
     seed = default_token if default_token is not None else DEFAULT_LAYER_EXCLUDE_TOKEN
     value = rs.StringBox(
-        message="圖層路徑含此文字者不匯出（空白＝不排除）",
+        message="Layer paths containing this text are skipped (blank = none)",
         default_value=seed,
-        title="R2B Models — 排除標記",
+        title="R2B Models — Exclude Token",
     )
     if value is None:
         return None
@@ -83,7 +83,7 @@ def _prompt_layer(
         paths,
         default_path=default_layer,
         title="R2B Models",
-        message="選擇要匯出的模型圖層，含子層",
+        message="Select the model layer (includes sublayers)",
     )
 
 
@@ -132,11 +132,11 @@ def _prompt_type_flags(
 
     chosen = rs.CheckListBox(
         checklist,
-        message="勾選要匯出的幾何類別",
+        message="Select geometry types to export",
         title="R2B Models",
     )
     if chosen is None:
-        return Result.blocked("已取消幾何類別選擇", stage="models_types")
+        return Result.blocked("Geometry type selection cancelled", stage="models_types")
 
     include: Set[str] = set()
     selected_labels: List[str] = []
@@ -145,7 +145,7 @@ def _prompt_type_flags(
             include.update(kinds)
             selected_labels.append(label)
     if not include:
-        return Result.blocked("未勾選任何幾何類別", stage="models_types")
+        return Result.blocked("No geometry types selected", stage="models_types")
 
     all_kinds: Set[str] = set()
     for kinds in row_kinds:
@@ -203,7 +203,7 @@ def publish_models_once(
                 sticky.get(_STICKY_EXCLUDE_TOKEN, DEFAULT_LAYER_EXCLUDE_TOKEN)
             )
             if token is None:
-                return Result.blocked("已取消排除標記設定", stage="models_exclude")
+                return Result.blocked("Exclude token cancelled", stage="models_exclude")
         if token is None:
             token = DEFAULT_LAYER_EXCLUDE_TOKEN
 
@@ -213,10 +213,10 @@ def publish_models_once(
                 session, sticky.get(_STICKY_LAST_LAYER), token
             )
             if not target_layer:
-                return Result.blocked("已取消圖層選擇", stage="models_layer")
+                return Result.blocked("Layer selection cancelled", stage="models_layer")
 
         if not target_layer:
-            return Result.blocked("未指定模型圖層", stage="models_layer")
+            return Result.blocked("No model layer specified", stage="models_layer")
 
         kinds_include = include_kinds
         kinds_exclude = exclude_kinds
@@ -241,7 +241,7 @@ def publish_models_once(
         )
         if not ids:
             return Result.blocked(
-                "圖層「{}」無符合物件可匯出".format(target_layer),
+                "No matching objects under layer '{}'".format(target_layer),
                 stage="models_collect",
             )
 
@@ -284,7 +284,7 @@ def publish_models_once(
             if kinds_labels is not None:
                 sticky[_STICKY_LAST_TYPES] = kinds_labels
             return Result.success(
-                "已發布 {} 個物件 → {}".format(len(ids), final),
+                "Published {} objects → {}".format(len(ids), final),
                 stage="publish_models",
                 data=str(final),
             )

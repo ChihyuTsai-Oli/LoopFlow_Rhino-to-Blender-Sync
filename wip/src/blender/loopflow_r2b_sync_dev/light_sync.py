@@ -55,12 +55,12 @@ def get_template_objects(type_name: str):
 
 def read_and_parse_light(path: str):
     if not os.path.isfile(path):
-        return None, "找不到 Light 檔：{}".format(path)
+        return None, "Light file not found: {}".format(path)
     try:
         with open(path, "r", encoding="utf-8") as handle:
             raw = json.load(handle)
     except Exception as exc:
-        return None, "讀取／JSON 失敗：{}".format(exc)
+        return None, "Read/JSON failed: {}".format(exc)
     result = parse_light_payload(raw)
     if not result.ok:
         return None, result.message
@@ -194,12 +194,12 @@ def apply_light_points(context, parsed, *, scale: float) -> str:
 
     if do_clear or not points:
         if not do_clear:
-            return "points 為空：不清燈（ED-07）"
+            return "Empty points: lights not cleared (ED-07)"
         try:
             for empty in list(_iter_rhino_empties(light_col)):
                 _purge_rhino_empty(empty)
         except Exception as exc:
-            return "清空失敗：{}".format(exc)
+            return "Clear failed: {}".format(exc)
         _last_applied = {}
         return ""
 
@@ -259,7 +259,7 @@ def apply_light_points(context, parsed, *, scale: float) -> str:
             if guid not in active_guids:
                 _purge_rhino_empty(empty)
     except Exception as exc:
-        return "套用失敗：{}".format(exc)
+        return "Apply failed: {}".format(exc)
     _last_applied = next_applied
     return ""
 

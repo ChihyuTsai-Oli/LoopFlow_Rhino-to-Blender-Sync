@@ -96,7 +96,7 @@ def atomic_publish_bytes(
     try:
         final.parent.mkdir(parents=True, exist_ok=True)
         if final.exists() and not _same_volume(final, pending):
-            return Result.fail("pending 與目標不在同一磁碟區，拒絕發布", stage=stage)
+            return Result.fail("pending and target are on different volumes", stage=stage)
 
         with open(pending, "wb") as handle:
             handle.write(data)
@@ -118,17 +118,17 @@ def atomic_publish_bytes(
         )
         if replace_err is not None:
             return Result.fail(
-                "發布失敗：{}（pending 仍保留：{}）".format(replace_err, pending),
+                "Publish failed: {} (pending kept: {})".format(replace_err, pending),
                 stage=stage,
             )
-        return Result.success("已發布：{}".format(final), stage=stage, data=str(final))
+        return Result.success("Published: {}".format(final), stage=stage, data=str(final))
     except Exception as exc:
         try:
             if pending.exists():
                 pending.unlink()
         except OSError:
             pass
-        return Result.fail("發布失敗：{}".format(exc), stage=stage)
+        return Result.fail("Publish failed: {}".format(exc), stage=stage)
 
 
 def atomic_publish_text(
@@ -173,9 +173,9 @@ def direct_overwrite_json(
             text = json.dumps(payload, ensure_ascii=False, indent=indent)
         with open(final, "w", encoding=encoding) as handle:
             handle.write(text)
-        return Result.success("已覆蓋：{}".format(final), stage=stage, data=str(final))
+        return Result.success("Overwrote: {}".format(final), stage=stage, data=str(final))
     except Exception as exc:
-        return Result.fail("覆蓋失敗：{}".format(exc), stage=stage)
+        return Result.fail("Overwrite failed: {}".format(exc), stage=stage)
 
 
 def atomic_publish_json(
@@ -225,9 +225,9 @@ def atomic_publish_from_pending(
     try:
         final.parent.mkdir(parents=True, exist_ok=True)
         if not pending.is_file():
-            return Result.fail("找不到 pending：{}".format(pending), stage=stage)
+            return Result.fail("pending not found: {}".format(pending), stage=stage)
         if final.exists() and not _same_volume(final, pending):
-            return Result.fail("pending 與目標不在同一磁碟區，拒絕發布", stage=stage)
+            return Result.fail("pending and target are on different volumes", stage=stage)
 
         if validate is not None:
             err = validate(pending)
@@ -242,13 +242,13 @@ def atomic_publish_from_pending(
         if replace_err is not None:
             hint = ""
             if _is_sharing_violation(replace_err):
-                hint = "；請關閉已開啟的 R2B.3dm，並稍候 Dropbox 同步後重試"
+                hint = "; close any open R2B.3dm and retry after Dropbox sync"
             return Result.fail(
-                "發布失敗：{}（pending 仍保留：{}{}）".format(
+                "Publish failed: {} (pending kept: {}{})".format(
                     replace_err, pending, hint
                 ),
                 stage=stage,
             )
-        return Result.success("已發布：{}".format(final), stage=stage, data=str(final))
+        return Result.success("Published: {}".format(final), stage=stage, data=str(final))
     except Exception as exc:
-        return Result.fail("發布失敗：{}".format(exc), stage=stage)
+        return Result.fail("Publish failed: {}".format(exc), stage=stage)

@@ -124,15 +124,15 @@ def _call_import_3dm(context, filepath: str, *, update_materials: bool, options=
     try:
         result = read_3dm(context, filepath, opts)
     except ImportError as exc:
-        return "載入 rhino3dm 失敗：{}".format(exc)
+        return "Failed to load rhino3dm: {}".format(exc)
     except Exception as exc:
-        return "匯入失敗：{}".format(exc)
+        return "Import failed: {}".format(exc)
     if not result:
-        return "匯入未完成（空結果）"
+        return "Import did not finish (empty result)"
     if "FINISHED" not in result and "CANCELLED" in result:
-        return "匯入取消或讀檔失敗：{}".format(filepath)
+        return "Import cancelled or file could not be read: {}".format(filepath)
     if "FINISHED" not in result:
-        return "匯入未完成：{}".format(result)
+        return "Import did not finish: {}".format(result)
     return ""
 
 
@@ -177,7 +177,7 @@ def apply_block_instances(context, work_folder: str, model_path: str) -> str:
     try:
         raw = json.loads(Path(path).read_text(encoding="utf-8"))
     except Exception as exc:
-        return "讀取 Block sidecar 失敗：{}".format(exc)
+        return "Failed to read Block sidecar: {}".format(exc)
     parsed = parse_blocks_payload(raw)
     if not parsed.ok:
         return parsed.message
@@ -242,18 +242,18 @@ def import_objects(context) -> str:
     folder = bpy.path.abspath(scene.r2b_sync_folder)
     path = str(resolve_objects_3dm_from_work_folder(folder))
     if not os.path.isfile(path):
-        return "找不到物件檔：{}".format(path)
+        return "Objects file not found: {}".format(path)
 
     before_collections = set(bpy.data.collections.keys())
     tmp_name = "_r2b_tmp_objects_{}".format(uuid.uuid4().hex[:8])
     layers_name = "_r2b_tmp_layers_{}".format(uuid.uuid4().hex[:8])
-    options = default_import_options(update_materials=True)
+    options = default_import_options(update_materials=False, import_materials=False)
     options["container_name"] = tmp_name
     options["wipe_container"] = False
     options["link_container"] = False
     options["layers_container_name"] = layers_name
     err = _call_import_3dm(
-        context, path, update_materials=True, options=options
+        context, path, update_materials=False, options=options
     )
     if err:
         for name in set(bpy.data.collections.keys()) - before_collections:
@@ -294,7 +294,6 @@ def import_objects(context) -> str:
                 except Exception:
                     pass
         _remove_collection_tree(col)
-    merge_duplicate_materials()
     return ""
 
 
@@ -303,7 +302,7 @@ def sync_models(context, *, update_materials: bool) -> str:
     scene = context.scene
     path = _model_3dm_path(scene)
     if not os.path.isfile(path):
-        return "找不到模型檔：{}".format(path)
+        return "Model file not found: {}".format(path)
 
     col_states, obj_states = _capture_visibility(context)
     err = _call_import_3dm(context, path, update_materials=update_materials)

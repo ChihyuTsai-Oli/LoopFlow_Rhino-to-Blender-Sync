@@ -41,10 +41,10 @@ def capture_active_camera() -> Result:
 
     doc = Rhino.RhinoDoc.ActiveDoc
     if not doc:
-        return Result.fail("無作用中文件", stage="capture_camera")
+        return Result.fail("No active document", stage="capture_camera")
     view = doc.Views.ActiveView
     if not view:
-        return Result.fail("無作用中視角", stage="capture_camera")
+        return Result.fail("No active view", stage="capture_camera")
     vp = view.ActiveViewport
     loc = vp.CameraLocation
     direction = vp.CameraDirection
@@ -124,7 +124,7 @@ def camera_auto_on() -> Result:
         return target
     sticky = _sticky()
     if _STICKY_EVENT in sticky:
-        return Result.success("Camera 自動同步已在執行", stage="camera_auto_on")
+        return Result.success("Camera auto sync already running", stage="camera_auto_on")
 
     path = str(target.data["camera"])
     sticky[_STICKY_PATH] = path
@@ -138,9 +138,9 @@ def camera_auto_on() -> Result:
         sticky[_STICKY_GATE].mark_published(payload_pose(cap.data))
     append_log(target.data["root"], "Camera Auto On → {}".format(path))
     if push.ok:
-        return Result.success("Camera 自動同步已開啟：{}".format(path), stage="camera_auto_on")
+        return Result.success("Camera auto sync on: {}".format(path), stage="camera_auto_on")
     return Result.success(
-        "Camera 自動同步已開啟（首次推送：{}）".format(push.message),
+        "Camera auto sync on (first push: {})".format(push.message),
         stage="camera_auto_on",
     )
 
@@ -150,7 +150,7 @@ def camera_auto_off() -> Result:
 
     sticky = _sticky()
     if _STICKY_EVENT not in sticky:
-        return Result.success("Camera 自動同步本來就關閉", stage="camera_auto_off")
+        return Result.success("Camera auto sync was already off", stage="camera_auto_off")
     func = sticky.get(_STICKY_EVENT)
     try:
         if func is not None:
@@ -167,7 +167,7 @@ def camera_auto_off() -> Result:
             Rhino.RhinoApp.Idle -= idle
     except Exception:
         pass
-    return Result.success("Camera 自動同步已關閉", stage="camera_auto_off")
+    return Result.success("Camera auto sync off", stage="camera_auto_off")
 
 
 def camera_is_auto_on() -> bool:

@@ -114,10 +114,12 @@ def convert_object(
 
         if text_curve:
             text_tags = utils.create_tag_dict(uuid.uuid1(), f"TXT{ob.Attributes.Name}")
-            text_curve[0].materials.append(rhinomat)
+            if rhinomat is not None:
+                text_curve[0].materials.append(rhinomat)
             text_object = utils.get_or_create_iddata(context.blend_data.objects, text_tags, text_curve[0])
-            text_object.material_slots[0].link = 'OBJECT'
-            text_object.material_slots[0].material = rhinomat
+            if rhinomat is not None and text_object.material_slots:
+                text_object.material_slots[0].link = 'OBJECT'
+                text_object.material_slots[0].material = rhinomat
             text_object.parent = blender_object
             texmatrix = text_curve[1]
             text_object.matrix_world = texmatrix

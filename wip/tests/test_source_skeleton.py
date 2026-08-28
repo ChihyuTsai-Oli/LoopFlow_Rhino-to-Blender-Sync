@@ -35,7 +35,7 @@ class SourceSkeletonTests(unittest.TestCase):
         from foundation.stub import stub_message
 
         self.assertIn("R2B_Models", stub_message("R2B_Models"))
-        self.assertIn("尚未實作", stub_message("R2B_Models"))
+        self.assertIn("Not implemented", stub_message("R2B_Models"))
 
     def test_entrypoint_scripts_compile(self):
         for name in REQUIRED_ENTRYPOINTS:

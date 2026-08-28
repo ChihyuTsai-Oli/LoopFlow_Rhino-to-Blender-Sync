@@ -11,3 +11,4 @@
 | 2026-08-28 | `read_3dm`：不再把預設材質設成 None；`convert_object` 一律掛槽（Update 仍不覆寫節點） |
 | 2026-08-28 | `read_3dm`：`container_name`／`wipe_container`／`link_container`（Import Objects 用暫存集合、不掛 Scene 子集合） |
 | 2026-08-28 | `handle_layers`：`layers_container_name` 可建獨立 Layers，避免 Import Objects 重用 `R2B/Layers` |
+| 2026-08-28 | `read_3dm`：`import_materials=False` 不建／不掛材質（Import Objects 對齊 FBX 純物件） |

@@ -24,4 +24,4 @@ def append_log(root: PathLike, message: str, *, level: str = "INFO") -> Result:
             handle.write(line)
         return Result.success(data=str(path), stage="append_log")
     except Exception as exc:
-        return Result.fail("寫入 log 失敗：{}".format(exc), stage="append_log")
+        return Result.fail("Failed to write log: {}".format(exc), stage="append_log")
