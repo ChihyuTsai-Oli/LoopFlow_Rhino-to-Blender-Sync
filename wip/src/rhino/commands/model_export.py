@@ -3,42 +3,31 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Set, Tuple
+from typing import Dict, List, Optional, Sequence, Set
 
 from foundation.result import Result
 from rhino.platform.collect import layer_path_is_excluded
 
 
-def _new_layer_from(src, LayerCls):
-    """新建 Layer 並複製顯示／階層欄位（不複製 Id，避免 File3dm 衝突）。"""
-    dst = LayerCls()
+def _layer_name(layer) -> str:
     try:
-        dst.Name = src.Name
+        name = str(getattr(layer, "Name", "") or "")
     except Exception:
-        pass
-    for attr in (
-        "Color",
-        "PlotColor",
-        "PlotWeight",
-        "LinetypeIndex",
-        "IsVisible",
-        "IsLocked",
-        "IsExpanded",
-    ):
-        try:
-            setattr(dst, attr, getattr(src, attr))
-        except Exception:
-            pass
+        name = ""
+    return name or "Layer"
+
+
+def _layer_color(layer, ColorCls):
     try:
-        # 暫存來源 Parent Id；稍後以 old_id→new_id 重寫
-        dst.ParentLayerId = src.ParentLayerId
+        color = getattr(layer, "Color", None)
+        if color is not None:
+            return color
     except Exception:
         pass
     try:
-        dst.RenderMaterialIndex = -1
+        return ColorCls.Black
     except Exception:
-        pass
-    return dst
+        return None
 
 
 def _fresh_attributes(Rhino, src_attr, layer_index: int):
@@ -50,7 +39,15 @@ def _fresh_attributes(Rhino, src_attr, layer_index: int):
         attr.MaterialIndex = -1
     except Exception:
         pass
-    for name in ("Name", "ObjectColor", "ColorSource", "PlotColor", "PlotColorSource", "PlotWeight", "PlotWeightSource"):
+    for name in (
+        "Name",
+        "ObjectColor",
+        "ColorSource",
+        "PlotColor",
+        "PlotColorSource",
+        "PlotWeight",
+        "PlotWeightSource",
+    ):
         try:
             setattr(attr, name, getattr(src_attr, name))
         except Exception:
@@ -78,6 +75,7 @@ def export_ids_to_3dm(
     import rhinoscriptsyntax as rs  # type: ignore
     import scriptcontext as sc  # type: ignore
     from System import Guid  # type: ignore
+    from System.Drawing import Color  # type: ignore
 
     src = sc.doc
     if src is None:
@@ -92,7 +90,6 @@ def export_ids_to_3dm(
     except Exception:
         pass
 
-    LayerCls = Rhino.DocObjects.Layer
     kept: List[object] = []
     src_layers_by_index: Dict[int, object] = {}
     for layer in src.Layers:
@@ -102,79 +99,157 @@ def export_ids_to_3dm(
         if layer_path_is_excluded(full, exclude_token):
             continue
         kept.append(layer)
-        src_layers_by_index[int(layer.Index)] = layer
+        try:
+            src_layers_by_index[int(layer.Index)] = layer
+        except Exception:
+            continue
 
     if not kept:
         return Result.fail("沒有可匯出的圖層", stage="export_layers")
 
-    def _layer_table_get(idx: int):
-        try:
-            return out.AllLayers[idx]
-        except Exception:
-            return out.Layers[idx]
+    def _layers_count() -> int:
+        for table in (getattr(out, "AllLayers", None), getattr(out, "Layers", None)):
+            if table is None:
+                continue
+            try:
+                return int(table.Count)
+            except Exception:
+                pass
+        return 0
 
-    def _layer_table_add(layer_obj) -> int:
-        try:
-            return int(out.AllLayers.Add(layer_obj))
-        except Exception:
-            return int(out.Layers.Add(layer_obj))
+    def _layer_at(idx: int):
+        for table in (getattr(out, "AllLayers", None), getattr(out, "Layers", None)):
+            if table is None:
+                continue
+            try:
+                layer = table[idx]
+            except Exception:
+                try:
+                    layer = table.FindIndex(idx)
+                except Exception:
+                    layer = None
+            if layer is not None:
+                return layer
+        return None
+
+    def _add_layer(name: str, color) -> int:
+        """回傳新圖層 index；失敗回傳 -1。"""
+        tables = (
+            getattr(out, "AllLayers", None),
+            getattr(out, "Layers", None),
+        )
+        for table in tables:
+            if table is None:
+                continue
+            try:
+                if color is not None and hasattr(table, "AddLayer"):
+                    idx = int(table.AddLayer(name, color))
+                    if idx >= 0:
+                        return idx
+            except Exception:
+                pass
+            try:
+                layer_obj = Rhino.DocObjects.Layer()
+                layer_obj.Name = name
+                if color is not None:
+                    layer_obj.Color = color
+                idx = int(table.Add(layer_obj))
+                if idx >= 0:
+                    return idx
+            except Exception:
+                pass
+        return -1
 
     old_index_to_new: Dict[int, int] = {}
     old_id_to_new_id: Dict[object, object] = {}
     kept_old_ids: Set[object] = set()
+    new_index_to_old_parent: Dict[int, object] = {}
 
-    # File3dm 天生有 Default＠0：覆寫成第一個保留圖層（不強行改 Id）
-    first_dst = _layer_table_get(0)
-    first_src = kept[0]
-    try:
-        first_dst.Name = first_src.Name
-    except Exception:
-        pass
-    for attr in ("Color", "PlotColor", "PlotWeight", "LinetypeIndex", "IsVisible", "IsLocked", "IsExpanded"):
-        try:
-            setattr(first_dst, attr, getattr(first_src, attr))
-        except Exception:
-            pass
-    try:
-        first_dst.ParentLayerId = first_src.ParentLayerId
-    except Exception:
-        pass
-    try:
-        first_dst.RenderMaterialIndex = -1
-    except Exception:
-        pass
-    old_index_to_new[int(first_src.Index)] = 0
-    old_id_to_new_id[first_src.Id] = first_dst.Id
-    kept_old_ids.add(first_src.Id)
-
+    # 用 AddLayer 建表；若 File3dm 已有 Default＠0，第一層覆寫它，其餘再 Add
     add_fail = 0
-    for layer in kept[1:]:
+    for i, layer in enumerate(kept):
+        name = _layer_name(layer)
+        color = _layer_color(layer, Color)
+        new_idx = -1
+
+        if i == 0 and _layers_count() >= 1:
+            dst = _layer_at(0)
+            if dst is not None:
+                try:
+                    dst.Name = name
+                except Exception:
+                    pass
+                if color is not None:
+                    try:
+                        dst.Color = color
+                    except Exception:
+                        pass
+                for attr in ("PlotColor", "PlotWeight", "IsVisible", "IsLocked"):
+                    try:
+                        setattr(dst, attr, getattr(layer, attr))
+                    except Exception:
+                        pass
+                try:
+                    dst.RenderMaterialIndex = -1
+                except Exception:
+                    pass
+                new_idx = 0
+
+        if new_idx < 0:
+            new_idx = _add_layer(name, color)
+
+        if new_idx < 0:
+            add_fail += 1
+            continue
+
         try:
-            new_layer = _new_layer_from(layer, LayerCls)
-            new_idx = _layer_table_add(new_layer)
-            if new_idx < 0:
-                add_fail += 1
-                continue
-            written = _layer_table_get(new_idx)
             old_index_to_new[int(layer.Index)] = int(new_idx)
-            old_id_to_new_id[layer.Id] = written.Id
-            kept_old_ids.add(layer.Id)
         except Exception:
             add_fail += 1
             continue
 
-    # Parent 對應：排除層改掛 Empty；其餘改寫成新 Id
+        try:
+            old_id = layer.Id
+        except Exception:
+            old_id = None
+        written = _layer_at(new_idx)
+        if old_id is not None and written is not None:
+            try:
+                old_id_to_new_id[old_id] = written.Id
+            except Exception:
+                pass
+            kept_old_ids.add(old_id)
+
+        try:
+            parent_id = layer.ParentLayerId
+            if parent_id is not None and parent_id != Guid.Empty:
+                new_index_to_old_parent[int(new_idx)] = parent_id
+        except Exception:
+            pass
+
+    if not old_index_to_new:
+        return Result.fail(
+            "無法建立匯出圖層表（Add 失敗 {}）".format(add_fail),
+            stage="export_layers",
+        )
+
+    # 重寫 ParentLayerId
     try:
         empty = Guid.Empty
-        for new_idx in list(old_index_to_new.values()):
-            layer_out = _layer_table_get(new_idx)
-            parent_id = getattr(layer_out, "ParentLayerId", None)
-            if parent_id is None or parent_id == empty:
+        for new_idx, parent_id in list(new_index_to_old_parent.items()):
+            layer_out = _layer_at(new_idx)
+            if layer_out is None:
                 continue
             if parent_id in old_id_to_new_id:
-                layer_out.ParentLayerId = old_id_to_new_id[parent_id]
+                try:
+                    layer_out.ParentLayerId = old_id_to_new_id[parent_id]
+                except Exception:
+                    pass
             elif parent_id not in kept_old_ids:
-                layer_out.ParentLayerId = empty
+                try:
+                    layer_out.ParentLayerId = empty
+                except Exception:
+                    pass
     except Exception:
         pass
 
@@ -242,9 +317,15 @@ def export_ids_to_3dm(
     for new_li in sorted(used_new_layers):
         old_li = new_to_old.get(new_li)
         src_layer = src_layers_by_index.get(old_li) if old_li is not None else None
-        layer_out = _layer_table_get(new_li)
-        name = str(getattr(src_layer, "Name", None) or getattr(layer_out, "Name", "Layer"))
-        color = getattr(src_layer, "Color", None) or getattr(layer_out, "Color", None)
+        layer_out = _layer_at(new_li)
+        name = _layer_name(src_layer) if src_layer is not None else (
+            _layer_name(layer_out) if layer_out is not None else "Layer"
+        )
+        color = None
+        if src_layer is not None:
+            color = _layer_color(src_layer, Color)
+        elif layer_out is not None:
+            color = _layer_color(layer_out, Color)
 
         mat = Rhino.DocObjects.Material()
         mat.Name = name
@@ -260,7 +341,7 @@ def export_ids_to_3dm(
                 mat_index = int(out.Materials.Add(mat))
             except Exception as exc:
                 return Result.fail("建立圖層材質失敗：{}".format(exc), stage="export_materials")
-        if mat_index < 0:
+        if mat_index < 0 or layer_out is None:
             continue
         try:
             layer_out.RenderMaterialIndex = mat_index
@@ -272,6 +353,8 @@ def export_ids_to_3dm(
 
     try:
         for named in src.NamedViews:
+            if named is None:
+                continue
             try:
                 out.NamedViews.Add(named)
             except Exception:
@@ -284,7 +367,7 @@ def export_ids_to_3dm(
 
     try:
         active = src.Views.ActiveView
-        if active is not None:
+        if active is not None and getattr(active, "MainViewport", None) is not None:
             view_info = Rhino.DocObjects.ViewInfo(active.MainViewport)
             view_info.Name = "R2B_Active"
             try:
