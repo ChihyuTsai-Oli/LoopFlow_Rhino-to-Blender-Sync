@@ -28,6 +28,7 @@ from bpy_extras.node_shader_utils import ShaderWrapper, PrincipledBSDFWrapper
 from bpy_extras.node_shader_utils import rgba_to_rgb, rgb_to_rgba
 from . import utils
 from . import rdk_manager
+from .r2b_materials import classic_diffuse_linear_rgb
 from pathlib import Path, PureWindowsPath, PurePosixPath
 import base64
 import tempfile
@@ -479,37 +480,64 @@ def handle_embedded_files(model : r3d.File3dm):
 
 
 
+def apply_basic_principled_from_diffuse(blender_material: bpy.types.Material, color) -> None:
+    """基本 Principled BSDF；Base Color＝Rhino Diffuse。"""
+    blender_material.use_nodes = True
+    pbr = PrincipledBSDFWrapper(blender_material, is_readonly=False)
+    pbr.base_color = classic_diffuse_linear_rgb(color)
+    pbr.roughness = 1.0
+
+
+def _blender_material_by_name(context, name: str):
+    """依名稱取既有材質；沒有才新建。回傳 (material, created)。"""
+    existing = context.blend_data.materials.get(name)
+    if existing is not None:
+        return existing, False
+    return context.blend_data.materials.new(name=name), True
+
+
 def handle_materials(context, model : r3d.File3dm, materials, update):
     """
+    R2B：依 R2B.3dm 材質名對到 Blender。
+    無 RDK 時用經典 Name＋Diffuse 建 Principled。
+    Update 不覆寫已有同名材質的節點。
     """
     handle_embedded_files(model)
 
     if DEFAULT_RHINO_MATERIAL not in materials:
-        tags = utils.create_tag_dict(DEFAULT_RHINO_MATERIAL_ID, DEFAULT_RHINO_MATERIAL)
-        blmat = utils.get_or_create_iddata(context.blend_data.materials, tags, None)
-        if not blmat.use_nodes:
+        blmat, created = _blender_material_by_name(context, DEFAULT_RHINO_MATERIAL)
+        if created:
             default_material(blmat)
         materials[DEFAULT_RHINO_MATERIAL] = blmat
 
     if DEFAULT_TEXT_MATERIAL not in materials:
-        tags = utils.create_tag_dict(DEFAULT_RHINO_TEXT_MATERIAL_ID, DEFAULT_TEXT_MATERIAL)
-        blmat = utils.get_or_create_iddata(context.blend_data.materials, tags, None)
-        if not blmat.use_nodes:
+        blmat, created = _blender_material_by_name(context, DEFAULT_TEXT_MATERIAL)
+        if created:
             default_text_material(blmat)
         materials[DEFAULT_TEXT_MATERIAL] = blmat
 
     for mat in model.Materials:
-        if not mat.PhysicallyBased:
-            mat.ToPhysicallyBased()
-        m = model.RenderContent.FindId(mat.RenderMaterialInstanceId)
+        classic_name = (getattr(mat, "Name", None) or "").strip()
+        classic_diffuse = getattr(mat, "DiffuseColor", None)
+        render_content = None
+        try:
+            if not mat.PhysicallyBased:
+                mat.ToPhysicallyBased()
+            render_content = model.RenderContent.FindId(mat.RenderMaterialInstanceId)
+        except Exception:
+            render_content = None
 
-        if not m:
-            continue
+        if render_content:
+            matname = rendermaterial_name(render_content) or classic_name
+        else:
+            matname = classic_name
+        if not matname:
+            matname = DEFAULT_RHINO_MATERIAL
 
-        matname = rendermaterial_name(m)
-        tags = utils.create_tag_dict(m.Id, m.Name)
-        blmat = utils.get_or_create_iddata(context.blend_data.materials, tags, None)
-        # Update：已有節點的材質不覆寫；新建材質仍建立基本節點（對齊 2.x）
-        if update or not blmat.use_nodes:
-            harvest_from_rendercontent(model, m, blmat)
+        blmat, created = _blender_material_by_name(context, matname)
+        if update or created:
+            if render_content:
+                harvest_from_rendercontent(model, render_content, blmat)
+            else:
+                apply_basic_principled_from_diffuse(blmat, classic_diffuse)
         materials[matname] = blmat

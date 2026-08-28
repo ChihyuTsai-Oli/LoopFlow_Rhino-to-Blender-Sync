@@ -101,13 +101,13 @@ def _publish_camera_hot(json_path: str, payload: dict) -> bool:
         indent=None,
         validate=None,
         fsync=False,
-        retries=2,
-        delay_sec=0.01,
+        retries=1,
+        delay_sec=0.0,
     )
     return bool(result.ok)
 
 
-def _flush_auto_camera(*, force: bool) -> None:
+def _flush_auto_camera() -> None:
     try:
         sticky = _sticky()
         json_path = sticky.get(_STICKY_PATH)
@@ -118,7 +118,7 @@ def _flush_auto_camera(*, force: bool) -> None:
         if not cap.ok:
             return
         pose = payload_pose(cap.data)
-        decision = gate.decide(time.monotonic(), pose, force=force)
+        decision = gate.decide(time.monotonic(), pose)
         if decision != "publish":
             return
         if _publish_camera_hot(str(json_path), cap.data):
@@ -128,20 +128,19 @@ def _flush_auto_camera(*, force: bool) -> None:
 
 
 def _on_view_modified(sender: Any, e: Any) -> None:
-    """自動同步：只標記 dirty，由時間閘／Idle 合併寫盤。"""
+    """自動同步：只標記 dirty，不在視角事件裡寫盤。"""
     try:
         gate = _sticky().get(_STICKY_GATE)
         if gate is None:
             return
         gate.note_view_modified()
-        _flush_auto_camera(force=False)
     except Exception:
         pass
 
 
 def _on_idle(sender: Any, e: Any) -> None:
-    """視角停下來後補發最後一幀。"""
-    _flush_auto_camera(force=True)
+    """Idle 守間隔後才擷取並寫盤。"""
+    _flush_auto_camera()
 
 
 def camera_auto_on() -> Result:

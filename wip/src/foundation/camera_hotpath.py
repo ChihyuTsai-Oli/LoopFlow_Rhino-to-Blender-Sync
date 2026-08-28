@@ -6,14 +6,14 @@ from typing import Optional, Tuple
 
 from foundation.camera_payload import poses_equivalent
 
-DEFAULT_INTERVAL_SEC = 0.04
+DEFAULT_INTERVAL_SEC = 0.08
 
 Pose = Optional[Tuple[float, ...]]
 
 
 class CameraAutoPublishGate:
     """
-    View.Modified 只標記 dirty；達到間隔或 Idle 強制刷新才發布。
+    View.Modified 只標記 dirty；Idle 達到間隔才發布。
     姿態與上次成功發布相同則略過寫盤。
     """
 
@@ -26,18 +26,14 @@ class CameraAutoPublishGate:
     def note_view_modified(self) -> None:
         self.dirty = True
 
-    def decide(self, now: float, pose: Pose, *, force: bool) -> str:
-        """回傳 publish／skip／wait。"""
+    def decide(self, now: float, pose: Pose) -> str:
+        """回傳 publish／skip／wait。Idle 與 Modified 都守間隔。"""
         if not self.dirty:
             return "skip"
         if poses_equivalent(pose, self.last_pose):
             self.dirty = False
             return "skip"
-        if (
-            self.last_pose is not None
-            and not force
-            and (now - self.last_publish_t) < self.interval_sec
-        ):
+        if self.last_pose is not None and (now - self.last_publish_t) < self.interval_sec:
             return "wait"
         return "publish"
 

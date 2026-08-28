@@ -65,25 +65,25 @@ class CameraPoseTests(unittest.TestCase):
 
 class CameraAutoPublishGateTests(unittest.TestCase):
     def test_debounce_then_idle_flush(self):
-        gate = CameraAutoPublishGate(interval_sec=0.04)
+        gate = CameraAutoPublishGate(interval_sec=0.08)
         _payload, pose = _pose_at(1.0)
         gate.note_view_modified()
-        self.assertEqual(gate.decide(0.01, pose, force=False), "publish")
+        self.assertEqual(gate.decide(0.01, pose), "publish")
         gate.mark_published(0.01, pose)
 
         _payload2, pose2 = _pose_at(2.0)
         gate.note_view_modified()
-        self.assertEqual(gate.decide(0.02, pose2, force=False), "wait")
-        self.assertEqual(gate.decide(0.02, pose2, force=True), "publish")
+        self.assertEqual(gate.decide(0.02, pose2), "wait")
+        self.assertEqual(gate.decide(0.10, pose2), "publish")
 
     def test_skip_unchanged_pose(self):
-        gate = CameraAutoPublishGate(interval_sec=0.04)
+        gate = CameraAutoPublishGate(interval_sec=0.08)
         _payload, pose = _pose_at(1.0)
         gate.note_view_modified()
-        self.assertEqual(gate.decide(1.0, pose, force=False), "publish")
+        self.assertEqual(gate.decide(1.0, pose), "publish")
         gate.mark_published(1.0, pose)
         gate.note_view_modified()
-        self.assertEqual(gate.decide(2.0, pose, force=True), "skip")
+        self.assertEqual(gate.decide(2.0, pose), "skip")
         self.assertFalse(gate.dirty)
 
 

@@ -102,7 +102,8 @@ def convert_object(
     tags = utils.create_tag_dict(ob.Attributes.Id, ob.Attributes.Name)
     if data is not None:
         data.materials.clear()
-        data.materials.append(rhinomat)
+        if rhinomat is not None:
+            data.materials.append(rhinomat)
         blender_object = utils.get_or_create_iddata(context.blend_data.objects, tags, data)
         if link_materials_to == "PREFERENCES":
             link_materials_to = bpy.context.preferences.edit.material_link
@@ -145,8 +146,9 @@ def convert_object(
         blender_object[pair[0]] = pair[1]
 
     if not ob.Attributes.IsInstanceDefinitionObject and ob.Geometry.ObjectType != r3d.ObjectType.InstanceReference and update_materials:
-        blender_object.material_slots[0].link = 'OBJECT'
-        blender_object.material_slots[0].material = rhinomat
+        if rhinomat is not None and blender_object.material_slots:
+            blender_object.material_slots[0].link = 'OBJECT'
+            blender_object.material_slots[0].material = rhinomat
 
     #instance definition objects are linked within their definition collections
     if not ob.Attributes.IsInstanceDefinitionObject:

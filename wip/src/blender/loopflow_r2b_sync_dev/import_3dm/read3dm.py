@@ -131,12 +131,15 @@ def read_3dm(
     if import_named_views:
         converters.handle_views(context, model, toplayer, model.NamedViews, "NamedViews", scale)
 
-    # Handle materials
+    # Handle materials（Update 旗標只影響是否覆寫節點）
     converters.handle_materials(context, model, materials, update_materials)
 
     # Handle layers
     converters.handle_layers(context, model, toplayer, layerids, materials, update_materials, import_hidden_layers, import_layers_as_empties)
-    materials[converters.DEFAULT_RHINO_MATERIAL] = None
+
+    # wipe 後物件皆新：一律掛槽；節點覆寫仍由上面的 update_materials 決定（對齊 2.x）
+    link_options = options.copy()
+    link_options["update_materials"] = True
 
     #build skeletal hierarchy of instance definitions as collections (will be populated by object importer)
     if import_instances:
@@ -195,10 +198,10 @@ def read_3dm(
         # Get material name. In case of the Rhino default material use
         # DEFAULT_RHINO_MATERIAL, otherwise compute a name from the material
         # so that it is fit for Blender usage.
-        if mat_index == -1 or rhino_material.Name == "":
+        if mat_index == -1 or rhino_material is None or not getattr(rhino_material, "Name", ""):
             matname = converters.material.DEFAULT_RHINO_MATERIAL
         else:
-            matname = converters.material_name(rhino_material)
+            matname = rhino_material.Name
 
         # Handle object view color
         if ob.Attributes.ColorSource == r3d.ObjectColorSource.ColorFromLayer:
@@ -208,7 +211,7 @@ def read_3dm(
 
         # Get the corresponding Blender material based on the material name
         # from the material dictionary
-        if matname not in materials.keys():
+        if matname not in materials or materials.get(matname) is None:
             matname = converters.material.DEFAULT_RHINO_MATERIAL
         blender_material = materials[matname]
         if og.ObjectType == r3d.ObjectType.Annotation:
@@ -221,7 +224,7 @@ def read_3dm(
             object_name = model.InstanceDefinitions.FindId(og.ParentIdefId).Name
 
         # Convert object
-        converters.convert_object(context, ob, object_name, layer, blender_material, view_color, scale, options)
+        converters.convert_object(context, ob, object_name, layer, blender_material, view_color, scale, link_options)
 
         if import_groups:
             converters.handle_groups(context,attr,toplayer,import_nested_groups)
