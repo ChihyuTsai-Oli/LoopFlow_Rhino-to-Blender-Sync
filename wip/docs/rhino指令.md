@@ -8,7 +8,7 @@
 
 - 入口檔名＝開發期指令 ID。入口只轉交 command，不放業務邏輯。
 - 巨集路徑指向**這台開發機**的 repo；換機只改路徑前綴，不改指令名稱。程式與契約不得寫死 Dropbox 或他機絕對路徑。
-- 目前 `wip/src/rhino/entrypoints/` **已落地**（Models／Camera／Light／Open 已接）；換機後路徑前綴若不同，只改本檔巨集。
+- 目前 `wip/src/rhino/entrypoints/` **已落地**（Models／Camera／Light／Open 已接並合入 `v3-development`）；換機後路徑前綴若不同，只改本檔巨集。
 - 改程式或入口後須**完全關掉 Rhino 再開**。
 - 不要用已發布 2.x 工具列與 3.0 開發按鈕混著測同一案。
 - 下列名稱**已凍結**（2026-08-28）；改名須使用者明示。
@@ -31,7 +31,7 @@ E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 | `R2B_Camera_Push` | Camera Push Once | 手動推送相機 JSON 一次 | **已接** |
 | `R2B_Light` | Light Auto On／Off | 開／關自動同步 | **已接** |
 | `R2B_Light_Push` | Sync Lights | 手動推送燈光點位 JSON 一次 | **已接** |
-| `R2B_Open` | Open / Health | 設定根／Health／開資料夾 | **已接** |
+| `R2B_Open` | Open / Health；Open Docs | 四顆等寬：Config／live／models／Docs | **已接** |
 
 ## 按鈕巨集（可直接貼上）
 
@@ -67,7 +67,7 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 | 日期 | 說明 |
 |---|---|
-| 2026-08-28 | `R2B_Open`／N 面板 Open Docs：GitHub `docs/README.md` 入口 |
+| 2026-08-29 | Open／Health 家中通過；合入 `v3-development` |
 | 2026-08-28 | `R2B_Models` 接業務（精準 ID／atomic／無 Open 中間檔）；Blender Update／Import |
 | 2026-08-28 | `R2B_Light`＝toggle；新增 `R2B_Light_Push`；Light 兩端 D02 |
 | 2026-08-28 | `R2B_Camera`＝toggle；新增 `R2B_Camera_Push`；Blender 作業資料夾＝工作檔同層 |
