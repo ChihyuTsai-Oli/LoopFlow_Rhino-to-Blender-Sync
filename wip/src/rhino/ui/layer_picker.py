@@ -1,8 +1,35 @@
 # -*- coding: utf-8 -*-
-"""Rhino 端簡易 Eto 對話框：階層圖層選取（可捲動）。"""
+"""Rhino 端簡易對話框：階層圖層選取（可捲動）。"""
 from __future__ import annotations
 
 from typing import Optional, Sequence
+
+
+def _pick_layer_listbox(
+    layer_paths: Sequence[str],
+    *,
+    default_path: Optional[str],
+    title: str,
+    message: str,
+) -> Optional[str]:
+    """備援：縮排 ListBox（有捲軸；視覺階層）。"""
+    import rhinoscriptsyntax as rs  # type: ignore
+
+    display = []
+    for path in layer_paths:
+        parts = path.split("::")
+        indent = "    " * (len(parts) - 1)
+        display.append("{}{}".format(indent, parts[-1]))
+
+    # ListBox 回傳選到的顯示字串；對回 FullPath
+    selected = rs.ListBox(display, message=message, title=title)
+    if selected is None:
+        return None
+    try:
+        idx = display.index(selected)
+    except ValueError:
+        return None
+    return str(layer_paths[idx])
 
 
 def pick_layer_path(
@@ -13,91 +40,103 @@ def pick_layer_path(
     message: str = "選擇要匯出的模型圖層，含子層",
 ) -> Optional[str]:
     """
-    以 TreeGridView 顯示圖層階層，內建捲軸；確定／雙擊回傳 FullPath。
-
-    失敗或取消回傳 None。
+    優先 Eto TreeGridView（階層＋捲軸）；失敗則縮排 ListBox。
     """
-    import Eto.Drawing as drawing  # type: ignore
-    import Eto.Forms as forms  # type: ignore
-    import Rhino.UI  # type: ignore
-
     paths = [str(p) for p in layer_paths if p]
     if not paths:
         return None
 
-    class LayerTreeDialog(forms.Dialog[bool]):
+    try:
+        return _pick_layer_eto(paths, default_path=default_path, title=title, message=message)
+    except Exception:
+        return _pick_layer_listbox(
+            paths, default_path=default_path, title=title, message=message
+        )
+
+
+def _pick_layer_eto(
+    paths,
+    *,
+    default_path: Optional[str],
+    title: str,
+    message: str,
+) -> Optional[str]:
+    import Eto.Drawing as drawing  # type: ignore
+    import Eto.Forms as forms  # type: ignore
+    import Rhino.UI  # type: ignore
+
+    # 不可用 Dialog[bool]：ScriptEditor／部分 runtime 初始化不完整
+    class LayerTreeDialog(forms.Dialog):
         def __init__(self):
+            # 必須先呼叫基底建構子，再設 Title（否則 NullReference）
+            forms.Dialog.__init__(self)
             self.Title = title
             self.Padding = drawing.Padding(10)
             self.Resizable = True
             self.ClientSize = drawing.Size(440, 520)
-            self.selected_path = None  # type: Optional[str]
+            self.selected_path = None
 
-            self._label = forms.Label(Text=message)
+            label = forms.Label()
+            label.Text = message
 
-            self._tree = forms.TreeGridView()
-            self._tree.ShowHeader = False
-            self._tree.AllowMultipleSelection = False
+            tree = forms.TreeGridView()
+            tree.ShowHeader = False
+            tree.AllowMultipleSelection = False
             col = forms.GridColumn()
             col.HeaderText = "圖層"
             col.DataCell = forms.TextBoxCell(0)
             col.Editable = False
             col.Expand = True
-            self._tree.Columns.Add(col)
-            self._tree.CellDoubleClick += self._on_double_click
+            tree.Columns.Add(col)
 
-            self._nodes = {}
+            self._tree = tree
+            self._path_by_item = {}
             root_items = forms.TreeGridItemCollection()
+            nodes = {}
+
             for path in paths:
                 parts = path.split("::")
                 for depth in range(len(parts)):
                     full = "::".join(parts[: depth + 1])
-                    if full in self._nodes:
+                    if full in nodes:
                         continue
                     item = forms.TreeGridItem()
                     item.Values = [parts[depth]]
                     item.Expanded = True
-                    # Tag 存 FullPath
-                    try:
-                        item.Tag = full
-                    except Exception:
-                        pass
-                    self._nodes[full] = item
+                    nodes[full] = item
+                    self._path_by_item[id(item)] = full
                     if depth == 0:
                         root_items.Add(item)
                     else:
                         parent_full = "::".join(parts[:depth])
-                        self._nodes[parent_full].Children.Add(item)
+                        nodes[parent_full].Children.Add(item)
 
-            self._tree.DataStore = root_items
-            if default_path and default_path in self._nodes:
+            tree.DataStore = root_items
+            if default_path and default_path in nodes:
                 try:
-                    self._tree.SelectedItem = self._nodes[default_path]
+                    tree.SelectedItem = nodes[default_path]
                 except Exception:
                     pass
 
-            ok = forms.Button(Text="確定")
-            cancel = forms.Button(Text="取消")
+            tree.CellDoubleClick += self._on_double_click
+
+            ok = forms.Button()
+            ok.Text = "確定"
+            cancel = forms.Button()
+            cancel.Text = "取消"
             ok.Click += self._on_ok
             cancel.Click += self._on_cancel
             self.DefaultButton = ok
             self.AbortButton = cancel
 
-            buttons = forms.TableLayout()
-            buttons.Spacing = drawing.Size(8, 0)
-            buttons.Rows.Add(
-                forms.TableRow(
-                    None,
-                    forms.TableCell(ok),
-                    forms.TableCell(cancel),
-                )
-            )
+            buttons = forms.DynamicLayout()
+            buttons.DefaultSpacing = drawing.Size(8, 0)
+            buttons.AddRow(None, ok, cancel)
 
             layout = forms.DynamicLayout()
             layout.DefaultSpacing = drawing.Size(6, 8)
-            layout.AddRow(self._label)
-            # TreeGridView 自帶捲軸；yscale 讓它吃滿對話框高度
-            layout.Add(self._tree, yscale=True, xscale=True)
+            layout.AddRow(label)
+            layout.Add(tree, yscale=True, xscale=True)
             layout.AddRow(buttons)
             self.Content = layout
 
@@ -105,35 +144,30 @@ def pick_layer_path(
             item = self._tree.SelectedItem
             if item is None:
                 return None
-            tag = getattr(item, "Tag", None)
-            if tag:
-                return str(tag)
-            # 備援：由樹重建 FullPath（向上找父）
-            return None
+            return self._path_by_item.get(id(item))
 
         def _on_ok(self, sender, e):
             path = self._current_path()
             if not path:
                 return
             self.selected_path = path
-            self.Close(True)
+            self.Close()
 
         def _on_cancel(self, sender, e):
             self.selected_path = None
-            self.Close(False)
+            self.Close()
 
         def _on_double_click(self, sender, e):
             path = self._current_path()
             if path:
                 self.selected_path = path
-                self.Close(True)
+                self.Close()
 
     dialog = LayerTreeDialog()
+    parent = None
     try:
-        result = dialog.ShowModal(Rhino.UI.RhinoEtoApp.MainWindow)
+        parent = Rhino.UI.RhinoEtoApp.MainWindow
     except Exception:
-        # 少數環境 MainWindow 不可用時退回無父視窗
-        result = dialog.ShowModal(None)
-    if result and dialog.selected_path:
-        return dialog.selected_path
-    return None
+        parent = None
+    dialog.ShowModal(parent)
+    return dialog.selected_path
