@@ -2,16 +2,16 @@
 """LoopFlow R2B Sync — 開發用 add-on（Camera／Light／Models 已接；Open 仍空殼）。
 
 隔離 package：勿與 2.x `Import Rhinoceros 3D (R2B Pro)`／Toolkit 同 profile 混用正式專案。
-Models Update／Import 會呼叫本機已啟用的 `import_3dm.some_data`。
+Models Update／Import 使用內嵌 `import_3dm` fork（含 rhino3dm wheels）。
 """
 
 bl_info = {
     "name": "LoopFlow R2B Sync (Dev Stub)",
     "author": "Chihyu Tsai",
-    "version": (0, 0, 6),
+    "version": (0, 0, 7),
     "blender": (5, 2, 1),
     "location": "N-Panel > LoopFlow R2B Dev",
-    "description": "3.0 開發 Sync：Models／Camera／Light；作業資料夾自動偵測",
+    "description": "3.0 開發 Sync：Models／Camera／Light；內嵌 import_3dm",
     "category": "Import-Export",
 }
 

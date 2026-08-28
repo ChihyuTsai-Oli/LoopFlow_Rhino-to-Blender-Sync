@@ -1,6 +1,6 @@
 #Requires -Version 5.1
-# Link R2B dev Sync add-on + import_3dm 0.0.18 into Portable Blender via directory junctions.
-# Source of truth stays in the repo; do not develop inside portable\ as the primary copy.
+# Link R2B dev Sync add-on into Portable Blender via directory junction.
+# import_3dm is embedded inside Sync (with rhino3dm wheels); no separate addon needed.
 $ErrorActionPreference = "Stop"
 
 $BlenderRoot = "E:\blender-5.2.1_wip"
@@ -64,12 +64,24 @@ $SyncName = "loopflow_r2b_sync_dev"
 $SyncTarget = Join-Path $RepoRoot "wip\src\blender\$SyncName"
 Set-AddonJunction -LinkName $SyncName -TargetPath $SyncTarget -EnableHint "LoopFlow R2B Sync (Dev Stub)"
 
-$ImportName = "import_3dm"
-$ImportTarget = Join-Path $RepoRoot "import_3dm\import_3dm-0.0.18-windows_x64"
-Set-AddonJunction -LinkName $ImportName -TargetPath $ImportTarget -EnableHint "Import Rhinoceros 3D"
+# Remove legacy standalone import_3dm junction (embedded in Sync now)
+$LegacyImport = Join-Path $AddonsDir "import_3dm"
+if (Test-Path -LiteralPath $LegacyImport) {
+    $item = Get-Item -LiteralPath $LegacyImport -Force
+    $isReparse = [bool]($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)
+    if ($isReparse) {
+        Write-Host "Removing legacy import_3dm junction: $LegacyImport"
+        cmd /c "rmdir `"$LegacyImport`""
+        if (Test-Path -LiteralPath $LegacyImport) {
+            Write-Host "WARNING: could not remove $LegacyImport ; delete it manually."
+        }
+    }
+    else {
+        Write-Host "WARNING: $LegacyImport exists and is not a junction; leave untouched."
+    }
+}
 
 Write-Host ""
 Write-Host "Open $BlenderExe"
-Write-Host "Preferences > Add-ons: enable both:"
-Write-Host "  - LoopFlow R2B Sync (Dev Stub)"
-Write-Host "  - Import Rhinoceros 3D"
+Write-Host "Preferences > Add-ons: enable LoopFlow R2B Sync (Dev Stub) only."
+Write-Host "Models Import/Update embeds import_3dm + rhino3dm; no separate Import Rhinoceros 3D needed."
