@@ -21,7 +21,6 @@ def _pick_layer_listbox(
         indent = "    " * (len(parts) - 1)
         display.append("{}{}".format(indent, parts[-1]))
 
-    # ListBox 回傳選到的顯示字串；對回 FullPath
     selected = rs.ListBox(display, message=message, title=title)
     if selected is None:
         return None
@@ -39,9 +38,7 @@ def pick_layer_path(
     title: str = "R2B Models",
     message: str = "選擇要匯出的模型圖層，含子層",
 ) -> Optional[str]:
-    """
-    優先 Eto TreeGridView（階層＋捲軸）；失敗則縮排 ListBox。
-    """
+    """優先 Eto TreeGridView；失敗則縮排 ListBox。"""
     paths = [str(p) for p in layer_paths if p]
     if not paths:
         return None
@@ -65,15 +62,15 @@ def _pick_layer_eto(
     import Eto.Forms as forms  # type: ignore
     import Rhino.UI  # type: ignore
 
-    # 不可用 Dialog[bool]：ScriptEditor／部分 runtime 初始化不完整
     class LayerTreeDialog(forms.Dialog):
         def __init__(self):
-            # 必須先呼叫基底建構子，再設 Title（否則 NullReference）
             forms.Dialog.__init__(self)
             self.Title = title
-            self.Padding = drawing.Padding(10)
+            self.Padding = drawing.Padding(8)
             self.Resizable = True
-            self.ClientSize = drawing.Size(440, 520)
+            # 約為先前 440×520 的一半
+            self.ClientSize = drawing.Size(220, 260)
+            self.MinimumSize = drawing.Size(200, 200)
             self.selected_path = None
 
             label = forms.Label()
@@ -83,14 +80,12 @@ def _pick_layer_eto(
             tree.ShowHeader = False
             tree.AllowMultipleSelection = False
             col = forms.GridColumn()
-            col.HeaderText = "圖層"
             col.DataCell = forms.TextBoxCell(0)
             col.Editable = False
             col.Expand = True
             tree.Columns.Add(col)
 
             self._tree = tree
-            self._path_by_item = {}
             root_items = forms.TreeGridItemCollection()
             nodes = {}
 
@@ -101,10 +96,10 @@ def _pick_layer_eto(
                     if full in nodes:
                         continue
                     item = forms.TreeGridItem()
-                    item.Values = [parts[depth]]
-                    item.Expanded = True
+                    # Values[0]=顯示名；Values[1]=FullPath（選取時讀回）
+                    item.Values = [parts[depth], full]
+                    item.Expanded = False  # 預設全部摺起，只見頂層
                     nodes[full] = item
-                    self._path_by_item[id(item)] = full
                     if depth == 0:
                         root_items.Add(item)
                     else:
@@ -113,11 +108,19 @@ def _pick_layer_eto(
 
             tree.DataStore = root_items
             if default_path and default_path in nodes:
+                # 展開通往預設項的祖先，其餘保持摺起
+                parts = default_path.split("::")
+                for depth in range(len(parts) - 1):
+                    ancestor = "::".join(parts[: depth + 1])
+                    if ancestor in nodes:
+                        nodes[ancestor].Expanded = True
                 try:
                     tree.SelectedItem = nodes[default_path]
+                    self.selected_path = default_path
                 except Exception:
                     pass
 
+            tree.SelectedItemChanged += self._on_selection_changed
             tree.CellDoubleClick += self._on_double_click
 
             ok = forms.Button()
@@ -134,20 +137,36 @@ def _pick_layer_eto(
             buttons.AddRow(None, ok, cancel)
 
             layout = forms.DynamicLayout()
-            layout.DefaultSpacing = drawing.Size(6, 8)
+            layout.DefaultSpacing = drawing.Size(4, 6)
             layout.AddRow(label)
             layout.Add(tree, yscale=True, xscale=True)
             layout.AddRow(buttons)
             self.Content = layout
 
-        def _current_path(self):
-            item = self._tree.SelectedItem
+        def _path_from_item(self, item):
             if item is None:
                 return None
-            return self._path_by_item.get(id(item))
+            try:
+                values = item.Values
+                if values is not None and len(values) >= 2 and values[1]:
+                    return str(values[1])
+            except Exception:
+                pass
+            return None
+
+        def _current_path(self):
+            try:
+                return self._path_from_item(self._tree.SelectedItem)
+            except Exception:
+                return None
+
+        def _on_selection_changed(self, sender, e):
+            path = self._current_path()
+            if path:
+                self.selected_path = path
 
         def _on_ok(self, sender, e):
-            path = self._current_path()
+            path = self._current_path() or self.selected_path
             if not path:
                 return
             self.selected_path = path
@@ -158,7 +177,15 @@ def _pick_layer_eto(
             self.Close()
 
         def _on_double_click(self, sender, e):
-            path = self._current_path()
+            # 雙擊列：以該列路徑確認（不依賴 SelectedItem 時序）
+            path = None
+            try:
+                if e is not None and getattr(e, "Item", None) is not None:
+                    path = self._path_from_item(e.Item)
+            except Exception:
+                path = None
+            if not path:
+                path = self._current_path() or self.selected_path
             if path:
                 self.selected_path = path
                 self.Close()
