@@ -138,6 +138,20 @@ def _on_doc_changed(sender: Any, e: Any) -> None:
     _try_auto_publish()
 
 
+def _on_attributes_modified(sender: Any, e: Any) -> None:
+    """換圖層等屬性變更：僅 LayerIndex 變動才重發（避免選取雜訊）。"""
+    try:
+        old_attrs = getattr(e, "OldAttributes", None)
+        new_attrs = getattr(e, "NewAttributes", None)
+        if old_attrs is None or new_attrs is None:
+            return
+        if int(old_attrs.LayerIndex) == int(new_attrs.LayerIndex):
+            return
+        _try_auto_publish()
+    except Exception:
+        pass
+
+
 def light_auto_on(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
     import Rhino  # type: ignore
 
@@ -157,11 +171,13 @@ def light_auto_on(*, light_layer: str = DEFAULT_LIGHT_LAYER) -> Result:
         "delete": _on_doc_changed,
         "replace": _on_doc_changed,
         "undelete": _on_doc_changed,
+        "attrs": _on_attributes_modified,
     }
     Rhino.RhinoDoc.AddRhinoObject += handlers["add"]
     Rhino.RhinoDoc.DeleteRhinoObject += handlers["delete"]
     Rhino.RhinoDoc.ReplaceRhinoObject += handlers["replace"]
     Rhino.RhinoDoc.UndeleteRhinoObject += handlers["undelete"]
+    Rhino.RhinoDoc.ModifyObjectAttributes += handlers["attrs"]
     sticky[_STICKY_HANDLERS] = handlers
 
     push = publish_light_once(light_layer=light_layer)
@@ -190,6 +206,8 @@ def light_auto_off() -> Result:
             Rhino.RhinoDoc.ReplaceRhinoObject -= handlers["replace"]
         if "undelete" in handlers:
             Rhino.RhinoDoc.UndeleteRhinoObject -= handlers["undelete"]
+        if "attrs" in handlers:
+            Rhino.RhinoDoc.ModifyObjectAttributes -= handlers["attrs"]
     except Exception:
         pass
     sticky.pop(_STICKY_HANDLERS, None)
