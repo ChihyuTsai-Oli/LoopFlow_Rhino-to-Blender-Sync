@@ -40,6 +40,10 @@ class SourceSkeletonTests(unittest.TestCase):
     def test_entrypoint_scripts_compile(self):
         for name in REQUIRED_ENTRYPOINTS:
             py_compile.compile(str(ENTRYPOINTS / name), doraise=True)
+            text = (ENTRYPOINTS / name).read_text(encoding="utf-8")
+            self.assertIn("_prepare_src", text)
+            self.assertIn("_isolate.py", text)
+        self.assertTrue((ENTRYPOINTS / "_isolate.py").is_file())
 
     def test_foundation_compile(self):
         self.assertTrue(compileall.compile_dir(str(SRC / "foundation"), quiet=1))
