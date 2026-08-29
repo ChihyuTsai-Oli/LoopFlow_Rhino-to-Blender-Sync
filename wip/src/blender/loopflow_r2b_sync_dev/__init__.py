@@ -8,7 +8,7 @@ Models Update／Import 使用內嵌 `import_3dm` fork（含 rhino3dm wheels）�
 bl_info = {
     "name": "LoopFlow R2B Sync (Dev Stub)",
     "author": "Chihyu Tsai",
-    "version": (0, 0, 11),
+    "version": (0, 0, 12),
     "blender": (5, 2, 1),
     "location": "N-Panel > LoopFlow; Shader Editor > LoopFlow > Box Projection",
     "description": "R2B 3.0 Sync: Models, Camera, Light, Open; Shader Editor Box Projection; embedded import_3dm",
@@ -343,6 +343,7 @@ def register():
         default=1.80,
         min=0.000001,
     )
+    box_proj.register_props()
 
 
 def unregister():
@@ -353,6 +354,7 @@ def unregister():
     del bpy.types.Scene.r2b_sync_folder
     del bpy.types.Scene.r2b_cam_scale
     del bpy.types.Scene.r2b_cam_lens_mult
+    box_proj.unregister_props()
 
 
 if __name__ == "__main__":

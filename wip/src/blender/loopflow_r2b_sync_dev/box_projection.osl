@@ -1,0 +1,76 @@
+vector loopflow_rot_x(vector p, float a)
+{
+    float c = cos(a);
+    float s = sin(a);
+    return vector(p[0], c * p[1] - s * p[2], s * p[1] + c * p[2]);
+}
+
+vector loopflow_rot_y(vector p, float a)
+{
+    float c = cos(a);
+    float s = sin(a);
+    return vector(c * p[0] + s * p[2], p[1], -s * p[0] + c * p[2]);
+}
+
+vector loopflow_rot_z(vector p, float a)
+{
+    float c = cos(a);
+    float s = sin(a);
+    return vector(c * p[0] - s * p[1], s * p[0] + c * p[1], p[2]);
+}
+
+/* Blender Euler XYZ：R = Rz Ry Rx；反旋轉先 Rz(-z) 再 Ry(-y) 再 Rx(-x) */
+vector loopflow_inv_euler_xyz(vector p, vector degrees)
+{
+    float deg2rad = 0.017453292519943295;
+    float ax = degrees[0] * deg2rad;
+    float ay = degrees[1] * deg2rad;
+    float az = degrees[2] * deg2rad;
+    vector t = loopflow_rot_z(p, -az);
+    t = loopflow_rot_y(t, -ay);
+    t = loopflow_rot_x(t, -ax);
+    return t;
+}
+
+shader LoopFlowBoxProjection(
+    string Filename = ""
+        [[ string widget = "filename", string help = "Image file on disk (Cycles OSL)" ]],
+    vector Scale = 1
+        [[ string help = "Metres per tile, XYZ" ]],
+    vector Location = 0
+        [[ string help = "World XYZ offset" ]],
+    vector Rotation = 0
+        [[ string help = "Euler XYZ in degrees (Blender XYZ order)" ]],
+    float Blend = 0
+        [[ float min = 0, float max = 1, string help = "0 = sharp seams" ]],
+    output color Color = 0)
+{
+    vector v = loopflow_inv_euler_xyz(vector(P) - Location, Rotation);
+    float sx = max(Scale[0], 0.001);
+    float sy = max(Scale[1], 0.001);
+    float sz = max(Scale[2], 0.001);
+    v = vector(v[0] / sx, v[1] / sy, v[2] / sz);
+
+    vector n = loopflow_inv_euler_xyz(vector(Ng), Rotation);
+    n = vector(abs(n[0]), abs(n[1]), abs(n[2]));
+
+    float sharp = 1.0 + (1.0 - Blend) * 31.0;
+    float wx = pow(n[0], sharp);
+    float wy = pow(n[1], sharp);
+    float wz = pow(n[2], sharp);
+    float wsum = max(wx + wy + wz, 0.0001);
+    wx = wx / wsum;
+    wy = wy / wsum;
+    wz = wz / wsum;
+
+    color cx = 0;
+    color cy = 0;
+    color cz = 0;
+    if (Filename != "")
+    {
+        cx = texture(Filename, v[1], v[2], "wrap", "periodic");
+        cy = texture(Filename, v[0], v[2], "wrap", "periodic");
+        cz = texture(Filename, v[0], v[1], "wrap", "periodic");
+    }
+    Color = wx * cx + wy * cy + wz * cz;
+}

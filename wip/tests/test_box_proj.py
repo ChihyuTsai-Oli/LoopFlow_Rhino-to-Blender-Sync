@@ -16,14 +16,14 @@ from foundation.box_mapping import (
     COLOR_SOCKET,
     DEFAULT_SCALE_XYZ,
     DEFAULT_SIZE_M,
-    GROUP_NAME,
-    GROUP_VERSION,
-    SCALE_SOCKET,
+    NODE_LABEL,
+    OSL_FILE_NAME,
     scale_from_size_meters,
 )
 
 ADDON = SRC / "blender" / "loopflow_r2b_sync_dev" / "__init__.py"
 BOX_PROJ = SRC / "blender" / "loopflow_r2b_sync_dev" / "box_proj.py"
+OSL = SRC / "blender" / "loopflow_r2b_sync_dev" / OSL_FILE_NAME
 
 
 class BoxMappingTests(unittest.TestCase):
@@ -37,14 +37,23 @@ class BoxMappingTests(unittest.TestCase):
             scale_from_size_meters(-1)
         self.assertEqual(DEFAULT_SIZE_M, 1.0)
         self.assertEqual(DEFAULT_SCALE_XYZ, (1.0, 1.0, 1.0))
-        self.assertEqual(GROUP_NAME, "LoopFlow Box Projection")
-        self.assertEqual(GROUP_VERSION, 2)
-        self.assertEqual(SCALE_SOCKET, "Scale")
+        self.assertEqual(NODE_LABEL, "LoopFlow Box Projection")
         self.assertEqual(COLOR_SOCKET, "Color")
 
     def test_box_proj_module_compiles(self):
         py_compile.compile(str(SRC / "foundation" / "box_mapping.py"), doraise=True)
         py_compile.compile(str(BOX_PROJ), doraise=True)
+
+    def test_osl_shader_file(self):
+        self.assertTrue(OSL.is_file(), OSL)
+        src = OSL.read_text(encoding="utf-8")
+        self.assertIn("shader LoopFlowBoxProjection", src)
+        self.assertIn("loopflow_inv_euler_xyz", src)
+        self.assertIn("texture(", src)
+        self.assertIn("periodic", src)
+        self.assertIn("vector(P)", src)
+        self.assertIn("Ng", src)
+        self.assertNotIn("ShaderNodeMapping", src)
 
     def test_shader_editor_panel_not_on_view3d_sync_bar(self):
         tree = ast.parse(BOX_PROJ.read_text(encoding="utf-8"))
@@ -74,24 +83,21 @@ class BoxMappingTests(unittest.TestCase):
         addon = ADDON.read_text(encoding="utf-8")
         self.assertIn("box_proj", addon)
         self.assertIn("box_proj.CLASSES", addon)
-        self.assertNotIn("Add Box Projection", addon.split("class LOOPFLOW_R2B_DEV_PT_panel")[1].split("class ")[0] if "class LOOPFLOW_R2B_DEV_PT_panel" in addon else addon)
+        self.assertIn("box_proj.register_props", addon)
         sync_panel = addon.split("class LOOPFLOW_R2B_DEV_PT_panel")[1]
         self.assertNotIn("add_box_projection", sync_panel)
         self.assertNotIn("Box Projection", sync_panel.split("_CLASSES")[0])
 
         src = BOX_PROJ.read_text(encoding="utf-8")
-        self.assertIn("ShaderNodeNewGeometry", src)
-        self.assertIn("ShaderNodeVectorRotate", src)
-        self.assertIn("invert = True", src)
-        self.assertIn("IMAGE_NODE_NAMES", src)
-        self.assertIn("COLOR_SOCKET", src)
-        self.assertIn("SCALE_SOCKET", src)
+        self.assertIn("ShaderNodeScript", src)
+        self.assertIn("shading_system", src)
+        self.assertIn("r2b_box_image", src)
         self.assertNotIn("ShaderNodeMapping", src)
+        self.assertNotIn("ShaderNodeVectorRotate", src)
+        self.assertNotIn("ShaderNodeNewGeometry", src)
+        self.assertNotIn("IMAGE_NODE_NAMES", src)
         self.assertNotIn("ShaderNodeUVMap", src)
         self.assertNotIn("uv.cube_project", src)
-        self.assertNotIn('projection = "BOX"', src)
-        mapping = (SRC / "foundation" / "box_mapping.py").read_text(encoding="utf-8")
-        self.assertIn("LoopFlow Box Image X", mapping)
 
 
 if __name__ == "__main__":
