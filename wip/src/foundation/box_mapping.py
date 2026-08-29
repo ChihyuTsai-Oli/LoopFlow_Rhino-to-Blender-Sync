@@ -8,6 +8,10 @@ OSL_FILE_NAME = "box_projection.osl"
 OSL_NODE_FLAG = "loopflow_box_osl"
 COLOR_SOCKET = "Color"
 FILENAME_SOCKET = "Filename"
+SCALE_SOCKET = "Scale"
+LOCATION_SOCKET = "Location"
+ROTATION_SOCKET = "Rotation"
+BLEND_SOCKET = "Blend"
 DEFAULT_SIZE_M = 1.0
 DEFAULT_SCALE_XYZ = (1.0, 1.0, 1.0)
 

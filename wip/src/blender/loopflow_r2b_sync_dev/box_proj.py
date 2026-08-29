@@ -13,12 +13,16 @@ if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
 from foundation.box_mapping import (
+    BLEND_SOCKET,
     COLOR_SOCKET,
     FILENAME_SOCKET,
+    LOCATION_SOCKET,
     NODE_LABEL,
     OSL_FILE_NAME,
     OSL_NODE_FLAG,
     OSL_TEXT_NAME,
+    ROTATION_SOCKET,
+    SCALE_SOCKET,
 )
 
 _OSL_PATH = Path(__file__).resolve().parent / OSL_FILE_NAME
@@ -35,6 +39,26 @@ def _shader_tree(context):
 
 def _selected_image_nodes(tree):
     return [n for n in tree.nodes if n.select and n.type == "TEX_IMAGE"]
+
+
+def _box_script_node(tree):
+    """目前要操作的 Box Script：先看選中，否則第一顆已標記的。"""
+    if tree is None:
+        return None
+    active = tree.nodes.active
+    if active is not None and active.get(OSL_NODE_FLAG) == 1:
+        return active
+    flagged = [n for n in tree.nodes if n.get(OSL_NODE_FLAG) == 1]
+    return flagged[0] if flagged else None
+
+
+def _draw_xyz(layout, sock, text):
+    col = layout.column(align=True)
+    col.label(text=text)
+    row = col.row(align=True)
+    row.prop(sock, "default_value", index=0, text="X")
+    row.prop(sock, "default_value", index=1, text="Y")
+    row.prop(sock, "default_value", index=2, text="Z")
 
 
 def _osl_source():
@@ -139,13 +163,7 @@ def add_box_projection_to_tree(context, tree, selected_images):
 
 
 def _on_box_image_update(self, context):
-    tree = _shader_tree(context)
-    if tree is None:
-        return
-    node = tree.nodes.active
-    if node is None or node.get(OSL_NODE_FLAG) != 1:
-        flagged = [n for n in tree.nodes if n.get(OSL_NODE_FLAG) == 1]
-        node = flagged[0] if flagged else None
+    node = _box_script_node(_shader_tree(context))
     if node is None:
         return
     path = _set_filename(node, self.r2b_box_image)
@@ -213,11 +231,25 @@ class LOOPFLOW_R2B_DEV_PT_box_projection(bpy.types.Panel):
             "loopflow_r2b_dev.add_box_projection", text="Add Box Projection"
         )
         layout.template_ID(context.scene, "r2b_box_image", open="image.open")
-        col = layout.column()
-        col.label(text="Cycles + OSL only. One Script node.")
-        col.label(text="Scale XYZ = metres per tile.")
-        col.label(text="Location = world XYZ. Rotation = degrees.")
-        col.label(text="Image must be a file on disk.")
+
+        node = _box_script_node(_shader_tree(context))
+        if node is None:
+            layout.label(text="Add first, then edit Scale / Location / Rotation here.")
+            return
+
+        scale = node.inputs.get(SCALE_SOCKET)
+        location = node.inputs.get(LOCATION_SOCKET)
+        rotation = node.inputs.get(ROTATION_SOCKET)
+        blend = node.inputs.get(BLEND_SOCKET)
+        if scale is None or location is None or rotation is None or blend is None:
+            layout.label(text="OSL sockets missing. Reload add-on, then Add again.")
+            return
+
+        layout.separator()
+        _draw_xyz(layout, scale, "Scale (m per tile)")
+        _draw_xyz(layout, location, "Location (world)")
+        _draw_xyz(layout, rotation, "Rotation (degrees)")
+        layout.prop(blend, "default_value", text="Blend", slider=True)
 
 
 def register_props():
