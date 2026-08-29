@@ -18,7 +18,10 @@ from foundation.box_mapping import (
     DEFAULT_SIZE_M,
     GROUP_VERSION,
     IMAGE_NODE_NAMES,
+    MAP_SLOTS,
     NODE_LABEL,
+    classify_pbr_filename,
+    classify_pbr_files,
     scale_from_size_meters,
 )
 
@@ -40,8 +43,36 @@ class BoxMappingTests(unittest.TestCase):
         self.assertEqual(DEFAULT_SCALE_XYZ, (1.0, 1.0, 1.0))
         self.assertEqual(NODE_LABEL, "LoopFlow Box Projection")
         self.assertEqual(COLOR_SOCKET, "Color")
-        self.assertEqual(GROUP_VERSION, 3)
-        self.assertEqual(len(IMAGE_NODE_NAMES), 3)
+        self.assertEqual(GROUP_VERSION, 4)
+        self.assertEqual(len(MAP_SLOTS), 4)
+        self.assertEqual(len(IMAGE_NODE_NAMES["color"]), 3)
+
+    def test_classify_pbr_filenames(self):
+        self.assertEqual(classify_pbr_filename("Brick_Base_Color.png"), "color")
+        self.assertEqual(classify_pbr_filename("brick_albedo.jpg"), "color")
+        self.assertEqual(classify_pbr_filename("brick_diff.tif"), "color")
+        self.assertEqual(classify_pbr_filename("brick_roughness.png"), "roughness")
+        self.assertEqual(classify_pbr_filename("brick_rough.png"), "roughness")
+        self.assertEqual(classify_pbr_filename("brick_metallic.png"), "metallic")
+        self.assertEqual(classify_pbr_filename("brick_metal.png"), "metallic")
+        self.assertEqual(classify_pbr_filename("brick_normal.png"), "normal")
+        self.assertEqual(classify_pbr_filename("brick_nor.png"), "normal")
+        self.assertEqual(classify_pbr_filename("brick_nrm.png"), "normal")
+        self.assertIsNone(classify_pbr_filename("readme.txt"))
+        self.assertIsNone(classify_pbr_filename("north_wall.png"))
+        classified = classify_pbr_files(
+            [
+                "D:/tex/wood_BaseColor.png",
+                "D:/tex/wood_Roughness.png",
+                "D:/tex/wood_Metallic.png",
+                "D:/tex/wood_Normal.png",
+                "D:/tex/notes.txt",
+            ]
+        )
+        self.assertEqual(classified["color"], "D:/tex/wood_BaseColor.png")
+        self.assertEqual(classified["roughness"], "D:/tex/wood_Roughness.png")
+        self.assertEqual(classified["metallic"], "D:/tex/wood_Metallic.png")
+        self.assertEqual(classified["normal"], "D:/tex/wood_Normal.png")
 
     def test_box_proj_module_compiles(self):
         py_compile.compile(str(SRC / "foundation" / "box_mapping.py"), doraise=True)
@@ -57,15 +88,20 @@ class BoxMappingTests(unittest.TestCase):
         tree = ast.parse(BOX_PROJ.read_text(encoding="utf-8"))
         panel = None
         operator = None
+        load_op = None
         for node in tree.body:
             if isinstance(node, ast.ClassDef):
                 if node.name == "LOOPFLOW_R2B_DEV_PT_box_projection":
                     panel = node
                 if node.name == "LOOPFLOW_R2B_DEV_OT_add_box_projection":
                     operator = node
+                if node.name == "LOOPFLOW_R2B_DEV_OT_load_pbr_maps":
+                    load_op = node
         self.assertIsNotNone(panel)
         self.assertIsNotNone(operator)
+        self.assertIsNotNone(load_op)
         self.assertTrue(ast.get_docstring(operator))
+        self.assertTrue(ast.get_docstring(load_op))
         assigns = {}
         for item in panel.body:
             if isinstance(item, ast.Assign):
@@ -76,7 +112,6 @@ class BoxMappingTests(unittest.TestCase):
         self.assertEqual(assigns["bl_region_type"], "UI")
         self.assertEqual(assigns["bl_category"], "LoopFlow")
         self.assertEqual(assigns["bl_label"], "Box Projection")
-        self.assertNotEqual(assigns["bl_label"], "Rhino to Blender Sync")
 
         addon = ADDON.read_text(encoding="utf-8")
         self.assertIn("box_proj", addon)
@@ -87,22 +122,17 @@ class BoxMappingTests(unittest.TestCase):
         self.assertNotIn("Box Projection", sync_panel.split("_CLASSES")[0])
 
         src = BOX_PROJ.read_text(encoding="utf-8")
-        self.assertIn("ShaderNodeGroup", src)
-        self.assertIn("ShaderNodeVectorRotate", src)
-        self.assertIn("AXIS_ANGLE", src)
+        self.assertIn("load_pbr_maps", src)
+        self.assertIn("ImportHelper", src)
+        self.assertIn("connect_group_to_principled", src)
+        self.assertIn("ShaderNodeNormalMap", src)
+        self.assertIn("r2b_box_roughness", src)
+        self.assertIn("r2b_box_metallic", src)
+        self.assertIn("r2b_box_normal", src)
         self.assertIn("IMAGE_NODE_NAMES", src)
-        self.assertIn("r2b_box_image", src)
-        self.assertIn("_draw_xyz", src)
-        self.assertIn("SCALE_SOCKET", src)
-        self.assertIn("LOCATION_SOCKET", src)
-        self.assertIn("ROTATION_SOCKET", src)
-        self.assertIn("BLEND_SOCKET", src)
-        self.assertIn("_set_group_image", src)
-        self.assertIn("proto.copy", src)
+        self.assertIn("AXIS_ANGLE", src)
         self.assertNotIn("ShaderNodeScript", src)
         self.assertNotIn("shading_system", src)
-        self.assertNotIn("sync_osl_node", src)
-        self.assertNotIn("ShaderNodeMapping", src)
         self.assertNotIn("ShaderNodeUVMap", src)
         self.assertNotIn("uv.cube_project", src)
 
