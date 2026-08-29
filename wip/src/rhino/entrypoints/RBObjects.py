@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""R2B_Light_Push：手動推送燈光點位 JSON 一次。"""
+"""RBObjects：發布選取物件 → models/R2B_Objects_時戳.3dm。"""
 from __future__ import annotations
 
 import importlib.util
 import os
 
-_CMD = "R2B_Light_Push"
+_CMD = "R2B_Objects"
 
 
 def _prepare_src() -> str:
@@ -24,13 +24,15 @@ def main() -> None:
 
     import rhinoscriptsyntax as rs  # type: ignore
 
-    from rhino.commands.light import publish_light_once
+    from rhino.commands.objects import publish_objects_once
 
-    result = publish_light_once()
+    result = publish_objects_once()
     msg = "{} [{}] {}".format(_CMD, result.status, result.message)
     print(msg)
-    if not result.ok and result.status in ("blocked", "fail"):
-        rs.MessageBox(result.message)
+    if result.ok:
+        rs.MessageBox("Objects export succeeded\n\n{}".format(result.message), title=_CMD)
+    elif result.status in ("blocked", "fail"):
+        rs.MessageBox(result.message, title=_CMD)
 
 
 if __name__ == "__main__":

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""R2B_Open：Health 摘要與開啟設定資料夾。"""
+"""RBCamera：開／關自動同步 toggle（再按一次停止）。"""
 from __future__ import annotations
 
 import importlib.util
 import os
 
-_CMD = "R2B_Open"
+_CMD = "RBCamera"
 
 
 def _prepare_src() -> str:
@@ -22,12 +22,16 @@ def _prepare_src() -> str:
 def main() -> None:
     _prepare_src()
 
-    from rhino.commands.open import run_open
+    import rhinoscriptsyntax as rs  # type: ignore
 
-    result = run_open()
-    print("{} [{}]".format(_CMD, result.status))
-    if result.message:
-        print(result.message)
+    from rhino.commands.camera import camera_toggle_auto
+
+    result = camera_toggle_auto()
+
+    msg = "{} [{}] {}".format(_CMD, result.status, result.message)
+    print(msg)
+    if not result.ok and result.status == "blocked":
+        rs.MessageBox(result.message)
 
 
 if __name__ == "__main__":

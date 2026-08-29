@@ -54,7 +54,7 @@ def show_open_dialog(health: Result) -> None:
     if not health.ok:
         import rhinoscriptsyntax as rs  # type: ignore
 
-        rs.MessageBox(health.message, title="R2B_Open")
+        rs.MessageBox(health.message, title="RBOpen")
         return
     data = health.data or {}
     try:
@@ -62,7 +62,7 @@ def show_open_dialog(health: Result) -> None:
     except Exception:
         import rhinoscriptsyntax as rs  # type: ignore
 
-        rs.MessageBox(health.message, title="R2B_Open")
+        rs.MessageBox(health.message, title="RBOpen")
 
 
 def _show_eto(report: str, data: dict) -> None:
@@ -73,7 +73,7 @@ def _show_eto(report: str, data: dict) -> None:
     class OpenHealthDialog(forms.Dialog):
         def __init__(self):
             forms.Dialog.__init__(self)
-            self.Title = "R2B Open / Health"
+            self.Title = "RBOpen / Health"
             self.Padding = drawing.Padding(10)
             self.Resizable = True
             self.ClientSize = drawing.Size(520, 300)

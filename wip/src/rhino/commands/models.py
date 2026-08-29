@@ -59,7 +59,7 @@ def _prompt_exclude_token(default_token: str) -> Optional[str]:
     value = rs.StringBox(
         message="Layer paths containing this text are skipped (blank = none)",
         default_value=seed,
-        title="R2B Models — Exclude Token",
+        title="RBModels — Exclude Token",
     )
     if value is None:
         return None
@@ -82,7 +82,7 @@ def _prompt_layer(
     return pick_layer_path(
         paths,
         default_path=default_layer,
-        title="R2B Models",
+        title="RBModels",
         message="Select the model layer (includes sublayers)",
     )
 
@@ -133,7 +133,7 @@ def _prompt_type_flags(
     chosen = rs.CheckListBox(
         checklist,
         message="Select geometry types to export",
-        title="R2B Models",
+        title="RBModels",
     )
     if chosen is None:
         return Result.blocked("Geometry type selection cancelled", stage="models_types")

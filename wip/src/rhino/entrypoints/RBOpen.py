@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""R2B_Light：開／關自動同步 toggle（再按一次停止）。"""
+"""RBOpen：Health 摘要與開啟設定資料夾。"""
 from __future__ import annotations
 
 import importlib.util
 import os
 
-_CMD = "R2B_Light"
+_CMD = "RBOpen"
 
 
 def _prepare_src() -> str:
@@ -22,15 +22,12 @@ def _prepare_src() -> str:
 def main() -> None:
     _prepare_src()
 
-    import rhinoscriptsyntax as rs  # type: ignore
+    from rhino.commands.open import run_open
 
-    from rhino.commands.light import light_toggle_auto
-
-    result = light_toggle_auto()
-    msg = "{} [{}] {}".format(_CMD, result.status, result.message)
-    print(msg)
-    if not result.ok and result.status == "blocked":
-        rs.MessageBox(result.message)
+    result = run_open()
+    print("{} [{}]".format(_CMD, result.status))
+    if result.message:
+        print(result.message)
 
 
 if __name__ == "__main__":

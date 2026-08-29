@@ -15,13 +15,13 @@ ENTRYPOINTS = SRC / "rhino" / "entrypoints"
 ADDON = SRC / "blender" / "loopflow_r2b_sync_dev" / "__init__.py"
 
 REQUIRED_ENTRYPOINTS = (
-    "R2B_Models.py",
-    "R2B_Objects.py",
-    "R2B_Camera.py",
-    "R2B_Camera_Push.py",
-    "R2B_Light.py",
-    "R2B_Light_Push.py",
-    "R2B_Open.py",
+    "RBModels.py",
+    "RBObjects.py",
+    "RBCamera.py",
+    "RBCameraPush.py",
+    "RBLight.py",
+    "RBLightPush.py",
+    "RBOpen.py",
 )
 
 
@@ -34,8 +34,8 @@ class SourceSkeletonTests(unittest.TestCase):
         sys.path.insert(0, str(SRC))
         from foundation.stub import stub_message
 
-        self.assertIn("R2B_Models", stub_message("R2B_Models"))
-        self.assertIn("Not implemented", stub_message("R2B_Models"))
+        self.assertIn("RBModels", stub_message("RBModels"))
+        self.assertIn("Not implemented", stub_message("RBModels"))
 
     def test_entrypoint_scripts_compile(self):
         for name in REQUIRED_ENTRYPOINTS:

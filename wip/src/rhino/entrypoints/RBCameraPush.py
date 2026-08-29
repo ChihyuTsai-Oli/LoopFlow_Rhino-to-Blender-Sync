@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""R2B_Objects：發布選取物件 → models/R2B_Objects_時戳.3dm。"""
+"""RBCameraPush：手動推送相機 JSON 一次。"""
 from __future__ import annotations
 
 import importlib.util
 import os
 
-_CMD = "R2B_Objects"
+_CMD = "RBCameraPush"
 
 
 def _prepare_src() -> str:
@@ -24,15 +24,13 @@ def main() -> None:
 
     import rhinoscriptsyntax as rs  # type: ignore
 
-    from rhino.commands.objects import publish_objects_once
+    from rhino.commands.camera import publish_camera_once
 
-    result = publish_objects_once()
+    result = publish_camera_once()
     msg = "{} [{}] {}".format(_CMD, result.status, result.message)
     print(msg)
-    if result.ok:
-        rs.MessageBox("Objects export succeeded\n\n{}".format(result.message), title=_CMD)
-    elif result.status in ("blocked", "fail"):
-        rs.MessageBox(result.message, title=_CMD)
+    if not result.ok and result.status == "blocked":
+        rs.MessageBox(result.message)
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@
 - 改程式或入口後須**完全關掉 Rhino 再開**。
 - 同一 Rhino 可測 R2B 與 R2O：每個入口會清掉對方的 `rhino`／`foundation` 快取。仍須關再開才載入最新腳本。
 - 不要用已發布 2.x 工具列與 3.0 開發按鈕混著測同一案。
-- 下列名稱**已凍結**（2026-08-28）；改名須使用者明示。
+- 下列名稱**已凍結**（2026-08-29 自 `R2B_*` 改連寫）；再改名須使用者明示。Blender N 面板與磁碟檔名不變。
 
 ## 路徑前綴（本機）
 
@@ -26,37 +26,37 @@ E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 
 | 指令 ID（入口檔名） | 成對 Blender | 顯示用途 | 狀態 |
 |---|---|---|---|
-| `R2B_Models` | Sync Models／Update Models | 選圖層＋型別 → `R2B.3dm`（**有材質**；Block→sidecar） | **已接** |
-| `R2B_Objects` | Import Objects | 目前選取 → `R2B_Objects_時戳.3dm`（**無材質**；Block 各自展開；不覆蓋） | **已接** |
-| `R2B_Camera` | Camera Auto On／Off | 開／關自動同步 | **已接** |
-| `R2B_Camera_Push` | Camera Push Once | 手動推送相機 JSON 一次 | **已接** |
-| `R2B_Light` | Light Auto On／Off | 開／關自動同步 | **已接** |
-| `R2B_Light_Push` | Sync Lights | 手動推送燈光點位 JSON 一次 | **已接** |
-| `R2B_Open` | Open / Health；Open Docs | 四顆等寬：Config／live／models／Docs | **已接** |
+| `RBModels` | Sync Models／Update Models | 選圖層＋型別 → `R2B.3dm`（**有材質**；Block→sidecar） | **已接** |
+| `RBObjects` | Import Objects | 目前選取 → `R2B_Objects_時戳.3dm`（**無材質**；Block 各自展開；不覆蓋） | **已接** |
+| `RBCamera` | Camera Auto On／Off | 開／關自動同步 | **已接** |
+| `RBCameraPush` | Camera Push Once | 手動推送相機 JSON 一次 | **已接** |
+| `RBLight` | Light Auto On／Off | 開／關自動同步 | **已接** |
+| `RBLightPush` | Sync Lights | 手動推送燈光點位 JSON 一次 | **已接** |
+| `RBOpen` | Open / Health；Open Docs | 四顆等寬：Config／live／models／Docs | **已接** |
 
 ## 按鈕巨集（可直接貼上）
 
 ```text
-R2B_Models
-_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Models.py"
+RBModels
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\RBModels.py"
 
-R2B_Objects
-_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Objects.py"
+RBObjects
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\RBObjects.py"
 
-R2B_Camera
-_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Camera.py"
+RBCamera
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\RBCamera.py"
 
-R2B_Camera_Push
-_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Camera_Push.py"
+RBCameraPush
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\RBCameraPush.py"
 
-R2B_Light
-_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Light.py"
+RBLight
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\RBLight.py"
 
-R2B_Light_Push
-_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Light_Push.py"
+RBLightPush
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\RBLightPush.py"
 
-R2B_Open
-_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Open.py"
+RBOpen
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\RBOpen.py"
 ```
 
 ## 不經 Rhino 按鈕
@@ -68,13 +68,14 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 | 日期 | 說明 |
 |---|---|
+| 2026-08-29 | Rhino 指令改連寫：`RBModels`／`RBObjects`／`RBCamera`／`RBCameraPush`／`RBLight`／`RBLightPush`／`RBOpen` |
 | 2026-08-29 | Import Objects 檔案總管預設 `_LoopFlow_Config/loopflow_R2B/models/` |
 | 2026-08-29 | 入口隔離，避免與 R2O 同 Rhino 互踩 |
-| 2026-08-29 | `R2B_Objects`；時戳 3dm 不覆蓋；Import Objects 開檔案總管 |
+| 2026-08-29 | `RBObjects`；時戳 3dm 不覆蓋；Import Objects 開檔案總管 |
 | 2026-08-29 | Open／Health 家中通過；合入 `v3-development` |
-| 2026-08-28 | `R2B_Models` 接業務（精準 ID／atomic／無 Open 中間檔）；Blender Update／Import |
-| 2026-08-28 | `R2B_Light`＝toggle；新增 `R2B_Light_Push`；Light 兩端 D02 |
-| 2026-08-28 | `R2B_Camera`＝toggle；新增 `R2B_Camera_Push`；Blender 作業資料夾＝工作檔同層 |
+| 2026-08-28 | `RBModels` 接業務（精準 ID／atomic／無 Open 中間檔）；Blender Update／Import |
+| 2026-08-28 | `RBLight`＝toggle；新增 `RBLightPush`；Light 兩端 D02 |
+| 2026-08-28 | `RBCamera`＝toggle；新增 `RBCameraPush`；Blender 作業資料夾＝工作檔同層 |
 | 2026-08-28 | entrypoints 空殼落地；註明 Blender Dev Stub 路徑 |
 | 2026-08-28 | 註明 Blender 測試 add-on 空殼測法（對齊 Rhino entrypoints） |
 | 2026-08-27 | 初版：自系統設定抽出完整指令清單與巨集 |

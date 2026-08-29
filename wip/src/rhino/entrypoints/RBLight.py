@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""R2B_Camera：開／關自動同步 toggle（再按一次停止）。"""
+"""RBLight：開／關自動同步 toggle（再按一次停止）。"""
 from __future__ import annotations
 
 import importlib.util
 import os
 
-_CMD = "R2B_Camera"
+_CMD = "RBLight"
 
 
 def _prepare_src() -> str:
@@ -24,10 +24,9 @@ def main() -> None:
 
     import rhinoscriptsyntax as rs  # type: ignore
 
-    from rhino.commands.camera import camera_toggle_auto
+    from rhino.commands.light import light_toggle_auto
 
-    result = camera_toggle_auto()
-
+    result = light_toggle_auto()
     msg = "{} [{}] {}".format(_CMD, result.status, result.message)
     print(msg)
     if not result.ok and result.status == "blocked":

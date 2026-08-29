@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""R2B_Models：發布 models/R2B.3dm（精準 ID、atomic；來源還原）。"""
+"""RBLightPush：手動推送燈光點位 JSON 一次。"""
 from __future__ import annotations
 
 import importlib.util
 import os
 
-_CMD = "R2B_Models"
+_CMD = "RBLightPush"
 
 
 def _prepare_src() -> str:
@@ -24,15 +24,13 @@ def main() -> None:
 
     import rhinoscriptsyntax as rs  # type: ignore
 
-    from rhino.commands.models import publish_models_once
+    from rhino.commands.light import publish_light_once
 
-    result = publish_models_once(interactive=True)
+    result = publish_light_once()
     msg = "{} [{}] {}".format(_CMD, result.status, result.message)
     print(msg)
-    if result.ok:
-        rs.MessageBox("Models export succeeded\n\n{}".format(result.message), title=_CMD)
-    elif result.status in ("blocked", "fail"):
-        rs.MessageBox(result.message, title=_CMD)
+    if not result.ok and result.status in ("blocked", "fail"):
+        rs.MessageBox(result.message)
 
 
 if __name__ == "__main__":
