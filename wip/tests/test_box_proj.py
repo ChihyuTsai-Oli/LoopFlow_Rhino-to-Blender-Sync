@@ -20,6 +20,7 @@ from foundation.box_mapping import (
     IMAGE_NODE_NAMES,
     MAP_SLOTS,
     NODE_LABEL,
+    NODE_WIDTH_SCALE,
     classify_pbr_filename,
     classify_pbr_files,
     scale_from_size_meters,
@@ -43,7 +44,8 @@ class BoxMappingTests(unittest.TestCase):
         self.assertEqual(DEFAULT_SCALE_XYZ, (1.0, 1.0, 1.0))
         self.assertEqual(NODE_LABEL, "LoopFlow Box Projection")
         self.assertEqual(COLOR_SOCKET, "Color")
-        self.assertEqual(GROUP_VERSION, 6)
+        self.assertEqual(GROUP_VERSION, 7)
+        self.assertEqual(NODE_WIDTH_SCALE, 1.5)
         self.assertEqual(len(MAP_SLOTS), 4)
         self.assertEqual(len(IMAGE_NODE_NAMES["color"]), 3)
 
@@ -83,6 +85,8 @@ class BoxMappingTests(unittest.TestCase):
         src = OSL.read_text(encoding="utf-8")
         self.assertIn("loopflow_inv_euler_xyz", src)
         self.assertIn("loopflow_rot_z", src)
+        self.assertIn("1e-8", src)
+        self.assertNotIn("0.0001", src)
 
     def test_shader_editor_panel_not_on_view3d_sync_bar(self):
         tree = ast.parse(BOX_PROJ.read_text(encoding="utf-8"))
@@ -136,6 +140,9 @@ class BoxMappingTests(unittest.TestCase):
         self.assertIn("r2b_box_normal", src)
         self.assertIn("IMAGE_NODE_NAMES", src)
         self.assertIn("AXIS_ANGLE", src)
+        self.assertIn("NODE_WIDTH_SCALE", src)
+        self.assertIn("1e-8", src)
+        self.assertNotIn("0.0001", src)
         self.assertNotIn("ShaderNodeScript", src)
         self.assertNotIn("shading_system", src)
         self.assertNotIn("ShaderNodeUVMap", src)

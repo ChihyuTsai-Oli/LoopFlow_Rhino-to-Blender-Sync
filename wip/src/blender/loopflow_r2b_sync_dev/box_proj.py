@@ -27,6 +27,7 @@ from foundation.box_mapping import (
     METALLIC_SOCKET,
     MIN_SIZE_M,
     NODE_LABEL,
+    NODE_WIDTH_SCALE,
     NORMAL_SOCKET,
     ROTATION_SOCKET,
     ROUGHNESS_SOCKET,
@@ -330,7 +331,7 @@ def _fill_group(ng):
     sum_xyz.operation = "ADD"
     clamp_sum = _new(nodes, "ShaderNodeMath", (120, -80))
     clamp_sum.operation = "MAXIMUM"
-    clamp_sum.inputs[1].default_value = 0.0001
+    clamp_sum.inputs[1].default_value = 1e-8
     L(_out(pow_x, "Value"), sum_xy.inputs[0])
     L(_out(pow_y, "Value"), sum_xy.inputs[1])
     L(_out(sum_xy, "Value"), sum_xyz.inputs[0])
@@ -524,6 +525,7 @@ def add_box_projection_to_tree(context, tree, selected_images):
     node.node_tree = group
     node.name = GROUP_NAME
     node.label = NODE_LABEL
+    node.width = node.width * NODE_WIDTH_SCALE
     node[GROUP_FLAG] = 1
     image = None
     if selected_images:

@@ -58,7 +58,7 @@ shader LoopFlowBoxProjection(
     float wx = pow(ln[0], sharp);
     float wy = pow(ln[1], sharp);
     float wz = pow(ln[2], sharp);
-    float wsum = max(wx + wy + wz, 0.0001);
+    float wsum = max(wx + wy + wz, 1e-8);
     wx = wx / wsum;
     wy = wy / wsum;
     wz = wz / wsum;
