@@ -74,7 +74,7 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertEqual(bl_info["author"], "Chihyu Tsai")
         self.assertEqual(bl_info["blender"], (5, 2, 1))
         self.assertIn("Dev Stub", bl_info["name"])
-        self.assertEqual(bl_info["version"], (0, 0, 13))
+        self.assertEqual(bl_info["version"], (0, 0, 14))
 
     def test_addon_registers_expected_stub_idnames(self):
         text = ADDON.read_text(encoding="utf-8")

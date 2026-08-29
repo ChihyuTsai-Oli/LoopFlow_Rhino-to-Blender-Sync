@@ -19,7 +19,7 @@ vector loopflow_rot_z(vector p, float a)
     return vector(c * p[0] - s * p[1], s * p[0] + c * p[1], p[2]);
 }
 
-/* Blender Euler XYZ：R = Rz Ry Rx；反旋轉先 Rz(-z) 再 Ry(-y) 再 Rx(-x) */
+/* Inverse of Blender Euler XYZ: R = Rz Ry Rx */
 vector loopflow_inv_euler_xyz(vector p, vector degrees)
 {
     float deg2rad = 0.017453292519943295;
@@ -45,19 +45,19 @@ shader LoopFlowBoxProjection(
         [[ float min = 0, float max = 1, string help = "0 = sharp seams" ]],
     output color Color = 0)
 {
-    vector v = loopflow_inv_euler_xyz(vector(P) - Location, Rotation);
+    vector lp = loopflow_inv_euler_xyz(vector(P) - Location, Rotation);
     float sx = max(Scale[0], 0.001);
     float sy = max(Scale[1], 0.001);
     float sz = max(Scale[2], 0.001);
-    v = vector(v[0] / sx, v[1] / sy, v[2] / sz);
+    lp = vector(lp[0] / sx, lp[1] / sy, lp[2] / sz);
 
-    vector n = loopflow_inv_euler_xyz(vector(Ng), Rotation);
-    n = vector(abs(n[0]), abs(n[1]), abs(n[2]));
+    vector ln = loopflow_inv_euler_xyz(vector(Ng), Rotation);
+    ln = vector(abs(ln[0]), abs(ln[1]), abs(ln[2]));
 
     float sharp = 1.0 + (1.0 - Blend) * 31.0;
-    float wx = pow(n[0], sharp);
-    float wy = pow(n[1], sharp);
-    float wz = pow(n[2], sharp);
+    float wx = pow(ln[0], sharp);
+    float wy = pow(ln[1], sharp);
+    float wz = pow(ln[2], sharp);
     float wsum = max(wx + wy + wz, 0.0001);
     wx = wx / wsum;
     wy = wy / wsum;
@@ -68,9 +68,9 @@ shader LoopFlowBoxProjection(
     color cz = 0;
     if (Filename != "")
     {
-        cx = texture(Filename, v[1], v[2], "wrap", "periodic");
-        cy = texture(Filename, v[0], v[2], "wrap", "periodic");
-        cz = texture(Filename, v[0], v[1], "wrap", "periodic");
+        cx = texture(Filename, lp[1], lp[2], "wrap", "periodic");
+        cy = texture(Filename, lp[0], lp[2], "wrap", "periodic");
+        cz = texture(Filename, lp[0], lp[1], "wrap", "periodic");
     }
     Color = wx * cx + wy * cy + wz * cz;
 }

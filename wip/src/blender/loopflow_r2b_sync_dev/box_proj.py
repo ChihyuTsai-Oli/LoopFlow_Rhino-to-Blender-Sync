@@ -100,7 +100,7 @@ def image_osl_path(image):
 
 
 def _set_filename(node, image):
-    sock = node.inputs.get(FILENAME_SOCKET)
+    sock = _socket(node, FILENAME_SOCKET)
     if sock is None:
         return ""
     path = image_osl_path(image)
@@ -126,9 +126,45 @@ def _update_script_node(context, node):
     tree.nodes.active = node
     node.select = True
     try:
-        bpy.ops.node.shader_script_update()
+        with context.temp_override(active_node=node):
+            bpy.ops.node.shader_script_update()
     except Exception:
-        pass
+        text = node.script
+        node.script = None
+        node.script = text
+
+
+def _socket(node, name):
+    sock = node.inputs.get(name)
+    if sock is not None:
+        return sock
+    for item in node.inputs:
+        if item.identifier == name or item.name == name:
+            return item
+    return None
+
+
+def sync_osl_node(context, node):
+    """把最新 .osl 寫進 Text 並編譯。已成功則略過；失敗只試同一份原始碼一次。"""
+    ensure_cycles_osl(context.scene)
+    text = ensure_osl_text()
+    src = text.as_string()
+    fail_key = "loopflow_osl_fail"
+    if _socket(node, SCALE_SOCKET) is not None and node.script == text:
+        if fail_key in node.keys():
+            del node[fail_key]
+        return True
+    if node.get(fail_key) == src:
+        return False
+    node.mode = "INTERNAL"
+    node.script = text
+    _update_script_node(context, node)
+    if _socket(node, SCALE_SOCKET) is not None:
+        if fail_key in node.keys():
+            del node[fail_key]
+        return True
+    node[fail_key] = src
+    return False
 
 
 def add_box_projection_to_tree(context, tree, selected_images):
@@ -145,7 +181,7 @@ def add_box_projection_to_tree(context, tree, selected_images):
         node.location = (anchor.location.x - 280, anchor.location.y)
     else:
         node.location = (0, 0)
-    _update_script_node(context, node)
+    sync_osl_node(context, node)
     wired = 0
     image = None
     if selected_images:
@@ -237,12 +273,15 @@ class LOOPFLOW_R2B_DEV_PT_box_projection(bpy.types.Panel):
             layout.label(text="Add first, then edit Scale / Location / Rotation here.")
             return
 
-        scale = node.inputs.get(SCALE_SOCKET)
-        location = node.inputs.get(LOCATION_SOCKET)
-        rotation = node.inputs.get(ROTATION_SOCKET)
-        blend = node.inputs.get(BLEND_SOCKET)
+        sync_osl_node(context, node)
+        scale = _socket(node, SCALE_SOCKET)
+        location = _socket(node, LOCATION_SOCKET)
+        rotation = _socket(node, ROTATION_SOCKET)
+        blend = _socket(node, BLEND_SOCKET)
         if scale is None or location is None or rotation is None or blend is None:
-            layout.label(text="OSL sockets missing. Reload add-on, then Add again.")
+            layout.label(text="OSL did not compile. Check the Blender console.")
+            names = ", ".join(s.name or s.identifier for s in node.inputs) or "(none)"
+            layout.label(text="Sockets: " + names)
             return
 
         layout.separator()
