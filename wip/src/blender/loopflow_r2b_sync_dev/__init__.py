@@ -16,8 +16,11 @@ bl_info = {
 }
 
 import os
+import sys
 
 import bpy
+from bpy.props import StringProperty
+from bpy_extras.io_utils import ImportHelper
 
 from . import camera_sync
 from . import health_sync
@@ -90,15 +93,31 @@ class LOOPFLOW_R2B_DEV_OT_import_models(bpy.types.Operator):
         return {"FINISHED"}
 
 
-class LOOPFLOW_R2B_DEV_OT_import_objects(bpy.types.Operator):
-    """Add objects from models/R2B_Objects.3dm (no materials)."""
+class LOOPFLOW_R2B_DEV_OT_import_objects(bpy.types.Operator, ImportHelper):
+    """Pick a .3dm from models/ and add it (no materials)."""
 
     bl_idname = "loopflow_r2b_dev.import_objects"
     bl_label = "Import Objects"
     bl_options = {"REGISTER"}
 
+    filename_ext = ".3dm"
+    filter_glob: StringProperty(default="*.3dm", options={"HIDDEN"})
+
+    def invoke(self, context, event):
+        src = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        if src not in sys.path:
+            sys.path.insert(0, src)
+        from foundation.paths import resolve_models_dir_from_work_folder
+
+        folder = bpy.path.abspath(getattr(context.scene, "r2b_sync_folder", "") or "")
+        models = resolve_models_dir_from_work_folder(folder)
+        if models.is_dir():
+            self.directory = str(models)
+        context.window_manager.fileselect_add(self)
+        return {"RUNNING_MODAL"}
+
     def execute(self, context):
-        err = model_sync.import_objects(context)
+        err = model_sync.import_objects(context, filepath=self.filepath)
         if err:
             self.report({"ERROR"}, err)
             return {"CANCELLED"}

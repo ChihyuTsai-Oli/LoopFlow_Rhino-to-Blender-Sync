@@ -26,7 +26,7 @@ E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 | 指令 ID（入口檔名） | 成對 Blender | 顯示用途 | 狀態 |
 |---|---|---|---|
 | `R2B_Models` | Sync Models／Update Models | 選圖層＋型別 → `R2B.3dm`（**有材質**；Block→sidecar） | **已接** |
-| `R2B_Models_Objects` | Import Objects | 目前選取 → `R2B_Objects.3dm`（**無材質**；Block 各自展開） | **已接** |
+| `R2B_Objects` | Import Objects | 目前選取 → `R2B_Objects_時戳.3dm`（**無材質**；Block 各自展開；不覆蓋） | **已接** |
 | `R2B_Camera` | Camera Auto On／Off | 開／關自動同步 | **已接** |
 | `R2B_Camera_Push` | Camera Push Once | 手動推送相機 JSON 一次 | **已接** |
 | `R2B_Light` | Light Auto On／Off | 開／關自動同步 | **已接** |
@@ -39,8 +39,8 @@ E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 R2B_Models
 _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Models.py"
 
-R2B_Models_Objects
-_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Models_Objects.py"
+R2B_Objects
+_-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Objects.py"
 
 R2B_Camera
 _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\R2B_Camera.py"
@@ -67,6 +67,7 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 | 日期 | 說明 |
 |---|---|
+| 2026-08-29 | `R2B_Objects`；時戳 3dm 不覆蓋；Import Objects 開檔案總管 |
 | 2026-08-29 | Open／Health 家中通過；合入 `v3-development` |
 | 2026-08-28 | `R2B_Models` 接業務（精準 ID／atomic／無 Open 中間檔）；Blender Update／Import |
 | 2026-08-28 | `R2B_Light`＝toggle；新增 `R2B_Light_Push`；Light 兩端 D02 |

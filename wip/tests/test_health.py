@@ -28,7 +28,7 @@ class HealthReportTests(unittest.TestCase):
             self.assertIn("demo.3dm", text)
             self.assertIn("missing", text)
             self.assertIn("models/R2B.3dm", text)
-            self.assertIn("models/R2B_Objects.3dm", text)
+            self.assertIn("R2B_Objects_YYMMDD_HHMMSS.3dm", text)
             self.assertIn("live/camera.json", text)
             self.assertIn("r2b.log", text)
             self.assertEqual(file_stamp(camera_path(root)), "missing")

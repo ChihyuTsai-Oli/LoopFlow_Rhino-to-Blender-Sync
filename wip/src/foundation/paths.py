@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from typing import Optional, Union
 
+from foundation.object_stamp import latest_stamped_path, unique_stamped_path
 from foundation.result import Result
 
 PathLike = Union[str, os.PathLike]
@@ -22,7 +23,9 @@ LOG_FILE_NAME = "r2b.log"
 CAMERA_FILE_NAME = "camera.json"
 LIGHT_FILE_NAME = "light.json"
 MODEL_FILE_NAME = "R2B.3dm"
-OBJECTS_FILE_NAME = "R2B_Objects.3dm"
+OBJECTS_PREFIX = "R2B_Objects"
+OBJECTS_SUFFIX = ".3dm"
+OBJECTS_FILE_NAME = "R2B_Objects.3dm"  # 舊固定名，僅備援
 BLOCKS_FILE_NAME = "R2B_blocks.json"
 
 
@@ -125,7 +128,26 @@ def model_path(root: PathLike) -> Path:
 
 
 def objects_path(root: PathLike) -> Path:
-    return models_dir(root) / OBJECTS_FILE_NAME
+    """新的時戳檔（寫入用）。"""
+    return unique_stamped_path(models_dir(root), OBJECTS_PREFIX, OBJECTS_SUFFIX)
+
+
+def latest_objects_path(root: PathLike) -> Optional[Path]:
+    return latest_stamped_path(models_dir(root), OBJECTS_PREFIX, OBJECTS_SUFFIX)
+
+
+def resolve_models_dir_from_work_folder(work_folder: PathLike) -> Path:
+    """檔案總管預設目錄：作業資料夾下的 models/。"""
+    folder = Path(work_folder)
+    candidates = (
+        folder / CONFIG_PARENT_NAME / PRODUCT_DIR_NAME / MODELS_DIR_NAME,
+        folder / PRODUCT_DIR_NAME / MODELS_DIR_NAME,
+        folder / MODELS_DIR_NAME,
+    )
+    for path in candidates:
+        if path.is_dir():
+            return path.resolve()
+    return candidates[0]
 
 
 def blocks_path(root: PathLike) -> Path:

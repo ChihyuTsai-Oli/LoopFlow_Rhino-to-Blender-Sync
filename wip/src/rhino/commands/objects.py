@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Rhino 選取物件通道：只匯出目前選取 → models/R2B_Objects.3dm。"""
+"""Rhino 選取組件通道：只匯出目前選取 → models/R2B_Objects_時戳.3dm。"""
 from __future__ import annotations
 
-from pathlib import Path
 from typing import List
 
 from foundation.atomic import atomic_publish_from_pending
@@ -42,7 +41,10 @@ def publish_objects_once() -> Result:
         return saved
 
     root = ensure_config_layout(config_root_for_document(saved.data))
-    final = objects_path(root)
+    try:
+        final = objects_path(root)
+    except RuntimeError as exc:
+        return Result.fail(str(exc), stage="objects_name")
     pending = pending_path_for(final)
 
     def _action() -> Result:

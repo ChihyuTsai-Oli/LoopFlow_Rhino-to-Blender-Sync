@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""R2B_Models_Objects：發布選取物件 → models/R2B_Objects.3dm。"""
+"""R2B_Objects：發布選取物件 → models/R2B_Objects_時戳.3dm。"""
 from __future__ import annotations
 
 import os
 import sys
 
-_CMD = "R2B_Models_Objects"
+_CMD = "R2B_Objects"
 
 
 def _repo_src_root() -> str:
@@ -19,7 +19,7 @@ def main() -> None:
 
     import rhinoscriptsyntax as rs  # type: ignore
 
-    from rhino.commands.models_objects import publish_objects_once
+    from rhino.commands.objects import publish_objects_once
 
     result = publish_objects_once()
     msg = "{} [{}] {}".format(_CMD, result.status, result.message)

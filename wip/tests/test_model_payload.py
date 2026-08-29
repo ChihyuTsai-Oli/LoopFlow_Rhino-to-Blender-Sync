@@ -105,7 +105,10 @@ class ModelPublishTests(unittest.TestCase):
             root = ensure_config_layout(
                 work / "_LoopFlow_Config" / "loopflow_R2B"
             )
-            self.assertEqual(objects_path(root).name, "R2B_Objects.3dm")
+            stamped = objects_path(root)
+            self.assertTrue(stamped.name.startswith("R2B_Objects_"))
+            self.assertTrue(stamped.name.endswith(".3dm"))
+            self.assertEqual(stamped.parent.name, "models")
 
     def test_mapped_piece_layer_prefers_definition(self):
         old_to_new = {10: 0, 20: 1, 30: 2}

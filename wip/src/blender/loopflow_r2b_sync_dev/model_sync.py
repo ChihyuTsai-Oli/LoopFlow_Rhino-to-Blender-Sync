@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Blender Models consumer：Sync／Update 讀 R2B.3dm；Import Objects 讀 R2B_Objects.3dm。"""
+"""Blender Models consumer：Sync／Update 讀 R2B.3dm；Import Objects 由使用者選 3dm。"""
 from __future__ import annotations
 
 import json
@@ -25,7 +25,6 @@ from foundation.block_payload import (
 from foundation.paths import (
     resolve_blocks_json_from_work_folder,
     resolve_model_3dm_from_work_folder,
-    resolve_objects_3dm_from_work_folder,
 )
 
 from .import_3dm import default_import_options
@@ -236,13 +235,15 @@ def _remove_collection_tree(col) -> None:
         pass
 
 
-def import_objects(context) -> str:
-    """累加匯入 R2B_Objects.3dm 到 Scene 最上層，parent＝R2B_Objects Empty。"""
+def import_objects(context, filepath: str = "") -> str:
+    """累加匯入使用者選的 3dm 到 Scene 最上層，parent＝R2B_Objects Empty。"""
+    path = filepath or ""
+    if not path or not os.path.isfile(path):
+        return "No objects file selected"
+    if not path.lower().endswith(".3dm"):
+        return "Select a .3dm file"
+
     scene = context.scene
-    folder = bpy.path.abspath(scene.r2b_sync_folder)
-    path = str(resolve_objects_3dm_from_work_folder(folder))
-    if not os.path.isfile(path):
-        return "Objects file not found: {}".format(path)
 
     before_collections = set(bpy.data.collections.keys())
     tmp_name = "_r2b_tmp_objects_{}".format(uuid.uuid4().hex[:8])
