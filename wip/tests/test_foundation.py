@@ -22,6 +22,7 @@ from foundation.paths import (
     ensure_config_layout,
     pending_path_for,
     require_saved_document_path,
+    resolve_models_dir_from_work_folder,
 )
 from foundation.result import Result
 
@@ -57,6 +58,16 @@ class FoundationPathTests(unittest.TestCase):
             root = ensure_config_layout(Path(tmp) / "cfg")
             self.assertTrue((root / "live").is_dir())
             self.assertTrue((root / "models").is_dir())
+
+    def test_models_dir_from_work_folder(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp) / "job"
+            work.mkdir()
+            (work / "models").mkdir()
+            nested = work / "_LoopFlow_Config" / "loopflow_R2B" / "models"
+            nested.mkdir(parents=True)
+            resolved = resolve_models_dir_from_work_folder(work)
+            self.assertEqual(resolved, nested.resolve())
 
 
 class FoundationAtomicTests(unittest.TestCase):

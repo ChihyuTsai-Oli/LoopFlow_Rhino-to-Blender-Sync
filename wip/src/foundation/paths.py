@@ -137,7 +137,7 @@ def latest_objects_path(root: PathLike) -> Optional[Path]:
 
 
 def resolve_models_dir_from_work_folder(work_folder: PathLike) -> Path:
-    """檔案總管預設目錄：作業資料夾下的 models/。"""
+    """檔案總管預設目錄：`_LoopFlow_Config/loopflow_R2B/models/`。"""
     folder = Path(work_folder)
     candidates = (
         folder / CONFIG_PARENT_NAME / PRODUCT_DIR_NAME / MODELS_DIR_NAME,

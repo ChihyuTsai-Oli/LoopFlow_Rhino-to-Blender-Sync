@@ -102,6 +102,7 @@ class LOOPFLOW_R2B_DEV_OT_import_objects(bpy.types.Operator, ImportHelper):
 
     filename_ext = ".3dm"
     filter_glob: StringProperty(default="*.3dm", options={"HIDDEN"})
+    directory: StringProperty(subtype="DIR_PATH", options={"HIDDEN"})
 
     def invoke(self, context, event):
         src = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -113,6 +114,7 @@ class LOOPFLOW_R2B_DEV_OT_import_objects(bpy.types.Operator, ImportHelper):
         models = resolve_models_dir_from_work_folder(folder)
         if models.is_dir():
             self.directory = str(models)
+            self.filepath = os.path.join(str(models), "")
         context.window_manager.fileselect_add(self)
         return {"RUNNING_MODAL"}
 

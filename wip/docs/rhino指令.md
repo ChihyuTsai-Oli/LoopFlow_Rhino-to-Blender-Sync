@@ -68,6 +68,7 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 | 日期 | 說明 |
 |---|---|
+| 2026-08-29 | Import Objects 檔案總管預設 `_LoopFlow_Config/loopflow_R2B/models/` |
 | 2026-08-29 | 入口隔離，避免與 R2O 同 Rhino 互踩 |
 | 2026-08-29 | `R2B_Objects`；時戳 3dm 不覆蓋；Import Objects 開檔案總管 |
 | 2026-08-29 | Open／Health 家中通過；合入 `v3-development` |
