@@ -33,6 +33,7 @@ from foundation.box_mapping import (
     SCALE_SOCKET,
     SLOT_LABEL,
     SLOT_OUTPUT,
+    SPACE_SOCKET,
     VERSION_KEY,
     classify_pbr_files,
 )
@@ -215,6 +216,10 @@ def _fill_group(ng):
         name=BLEND_SOCKET, in_out="INPUT", socket_type="NodeSocketFloat"
     )
     _set_interface_float(blend_in, 0.0, 0.0, 1.0)
+    space_in = iface.new_socket(
+        name=SPACE_SOCKET, in_out="INPUT", socket_type="NodeSocketFloat"
+    )
+    _set_interface_float(space_in, 0.0, 0.0, 1.0)
     for slot in MAP_SLOTS:
         iface.new_socket(
             name=SLOT_OUTPUT[slot], in_out="OUTPUT", socket_type="NodeSocketColor"
@@ -225,11 +230,26 @@ def _fill_group(ng):
     L = links.new
     gi = _new(nodes, "NodeGroupInput", (-2200, 40))
     go = _new(nodes, "NodeGroupOutput", (1680, 40))
-    geo = _new(nodes, "ShaderNodeNewGeometry", (-2200, 280))
+    geo = _new(nodes, "ShaderNodeNewGeometry", (-2480, 280))
+    texc = _new(nodes, "ShaderNodeTexCoord", (-2480, -40))
+    mix_p = _new(nodes, "ShaderNodeMix", (-2200, 220))
+    mix_p.data_type = "VECTOR"
+    mix_n = _new(nodes, "ShaderNodeMix", (-2200, 20))
+    mix_n.data_type = "VECTOR"
+    L(gi.outputs[SPACE_SOCKET], _sock(mix_p, "Factor", "Fac"))
+    L(gi.outputs[SPACE_SOCKET], _sock(mix_n, "Factor", "Fac"))
+    L(_out(geo, "Position"), _sock(mix_p, "A", "Color1"))
+    L(_out(texc, "Object"), _sock(mix_p, "B", "Color2"))
+    try:
+        world_n = _out(geo, "True Normal")
+    except KeyError:
+        world_n = _out(geo, "Normal")
+    L(world_n, _sock(mix_n, "A", "Color1"))
+    L(_out(texc, "Normal"), _sock(mix_n, "B", "Color2"))
 
     sub = _new(nodes, "ShaderNodeVectorMath", (-1980, 220))
     sub.operation = "SUBTRACT"
-    L(_out(geo, "Position"), _sock(sub, "Vector"))
+    L(_out(mix_p, "Result", "Vector", "Color"), _sock(sub, "Vector"))
     L(gi.outputs[LOCATION_SOCKET], sub.inputs[1])
 
     sep_r = _new(nodes, "ShaderNodeSeparateXYZ", (-1980, -80))
@@ -244,11 +264,15 @@ def _fill_group(ng):
     rot_p = _inv_euler_on(
         nodes, links, _out(sub, "Vector"), neg_x, neg_y, neg_z, (-1540, 220)
     )
-    try:
-        n_src = _out(geo, "True Normal")
-    except KeyError:
-        n_src = _out(geo, "Normal")
-    rot_n = _inv_euler_on(nodes, links, n_src, neg_x, neg_y, neg_z, (-1540, -80))
+    rot_n = _inv_euler_on(
+        nodes,
+        links,
+        _out(mix_n, "Result", "Vector", "Color"),
+        neg_x,
+        neg_y,
+        neg_z,
+        (-1540, -80),
+    )
 
     div = _new(nodes, "ShaderNodeVectorMath", (-980, 220))
     div.operation = "DIVIDE"
@@ -654,6 +678,30 @@ class LOOPFLOW_R2B_DEV_OT_load_pbr_maps(bpy.types.Operator, ImportHelper):
         return {"FINISHED"}
 
 
+class LOOPFLOW_R2B_DEV_OT_box_space(bpy.types.Operator):
+    """Switch Box Projection between world space and object space."""
+
+    bl_idname = "loopflow_r2b_dev.box_space"
+    bl_label = "Box Space"
+    bl_options = {"REGISTER", "UNDO", "INTERNAL"}
+    mode: StringProperty(default="WORLD")
+
+    @classmethod
+    def poll(cls, context):
+        return _box_group_node(_shader_tree(context)) is not None
+
+    def execute(self, context):
+        node = _box_group_node(_shader_tree(context))
+        if node is None:
+            return {"CANCELLED"}
+        sock = node.inputs.get(SPACE_SOCKET)
+        if sock is None:
+            self.report({"WARNING"}, "Reload add-on, then Add or Load PBR again.")
+            return {"CANCELLED"}
+        sock.default_value = 1.0 if self.mode == "OBJECT" else 0.0
+        return {"FINISHED"}
+
+
 class LOOPFLOW_R2B_DEV_PT_box_projection(bpy.types.Panel):
     bl_label = "Box Projection"
     bl_idname = "LOOPFLOW_R2B_DEV_PT_box_projection"
@@ -691,13 +739,32 @@ class LOOPFLOW_R2B_DEV_PT_box_projection(bpy.types.Panel):
         location = node.inputs.get(LOCATION_SOCKET)
         rotation = node.inputs.get(ROTATION_SOCKET)
         blend = node.inputs.get(BLEND_SOCKET)
-        if scale is None or location is None or rotation is None or blend is None:
+        space = node.inputs.get(SPACE_SOCKET)
+        if (
+            scale is None
+            or location is None
+            or rotation is None
+            or blend is None
+            or space is None
+        ):
             layout.label(text="Group sockets missing. Add or Load again.")
             return
 
         layout.separator()
+        row = layout.row(align=True)
+        row.label(text="Space")
+        is_obj = space.default_value > 0.5
+        op_w = row.operator(
+            "loopflow_r2b_dev.box_space", text="World", depress=not is_obj
+        )
+        op_w.mode = "WORLD"
+        op_o = row.operator(
+            "loopflow_r2b_dev.box_space", text="Object", depress=is_obj
+        )
+        op_o.mode = "OBJECT"
+        loc_label = "Location (object)" if is_obj else "Location (world)"
         _draw_xyz(layout, scale, "Scale (m per tile)")
-        _draw_xyz(layout, location, "Location (world)")
+        _draw_xyz(layout, location, loc_label)
         layout.prop(rotation, "default_value", text="Rotation")
         layout.prop(blend, "default_value", text="Blend", slider=True)
 
@@ -739,5 +806,6 @@ def unregister_props():
 CLASSES = (
     LOOPFLOW_R2B_DEV_OT_add_box_projection,
     LOOPFLOW_R2B_DEV_OT_load_pbr_maps,
+    LOOPFLOW_R2B_DEV_OT_box_space,
     LOOPFLOW_R2B_DEV_PT_box_projection,
 )

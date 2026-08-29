@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 GROUP_NAME = "LoopFlow Box Projection"
-GROUP_VERSION = 4
+GROUP_VERSION = 5
 VERSION_KEY = "loopflow_box_proj_version"
 GROUP_FLAG = "loopflow_box_group"
 NODE_LABEL = GROUP_NAME
@@ -14,6 +14,7 @@ SCALE_SOCKET = "Scale"
 LOCATION_SOCKET = "Location"
 ROTATION_SOCKET = "Rotation"
 BLEND_SOCKET = "Blend"
+SPACE_SOCKET = "Object Space"
 COLOR_SOCKET = "Color"
 ROUGHNESS_SOCKET = "Roughness"
 METALLIC_SOCKET = "Metallic"
