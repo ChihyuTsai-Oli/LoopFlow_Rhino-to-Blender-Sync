@@ -43,7 +43,7 @@ class BoxMappingTests(unittest.TestCase):
         self.assertEqual(DEFAULT_SCALE_XYZ, (1.0, 1.0, 1.0))
         self.assertEqual(NODE_LABEL, "LoopFlow Box Projection")
         self.assertEqual(COLOR_SOCKET, "Color")
-        self.assertEqual(GROUP_VERSION, 5)
+        self.assertEqual(GROUP_VERSION, 6)
         self.assertEqual(len(MAP_SLOTS), 4)
         self.assertEqual(len(IMAGE_NODE_NAMES["color"]), 3)
 
@@ -125,6 +125,8 @@ class BoxMappingTests(unittest.TestCase):
         self.assertIn("load_pbr_maps", src)
         self.assertIn("box_space", src)
         self.assertIn("ShaderNodeTexCoord", src)
+        self.assertIn("ShaderNodeVectorTransform", src)
+        self.assertIn("convert_to", src)
         self.assertIn("SPACE_SOCKET", src)
         self.assertIn("ImportHelper", src)
         self.assertIn("connect_group_to_principled", src)

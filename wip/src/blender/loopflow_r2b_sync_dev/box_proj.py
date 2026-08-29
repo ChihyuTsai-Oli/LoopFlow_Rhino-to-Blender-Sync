@@ -244,8 +244,13 @@ def _fill_group(ng):
         world_n = _out(geo, "True Normal")
     except KeyError:
         world_n = _out(geo, "Normal")
+    xf_n = _new(nodes, "ShaderNodeVectorTransform", (-2480, -200))
+    xf_n.vector_type = "NORMAL"
+    xf_n.convert_from = "WORLD"
+    xf_n.convert_to = "OBJECT"
+    L(world_n, _sock(xf_n, "Vector"))
     L(world_n, _sock(mix_n, "A", "Color1"))
-    L(_out(texc, "Normal"), _sock(mix_n, "B", "Color2"))
+    L(_out(xf_n, "Vector"), _sock(mix_n, "B", "Color2"))
 
     sub = _new(nodes, "ShaderNodeVectorMath", (-1980, 220))
     sub.operation = "SUBTRACT"

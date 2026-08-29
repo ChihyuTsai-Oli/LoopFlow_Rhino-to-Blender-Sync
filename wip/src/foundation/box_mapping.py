@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 GROUP_NAME = "LoopFlow Box Projection"
-GROUP_VERSION = 5
+GROUP_VERSION = 6
 VERSION_KEY = "loopflow_box_proj_version"
 GROUP_FLAG = "loopflow_box_group"
 NODE_LABEL = GROUP_NAME
