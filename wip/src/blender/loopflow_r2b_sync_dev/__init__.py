@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""LoopFlow R2B Sync — 開發用 add-on（Models／Camera／Light／Open 已接）。
+"""LoopFlow R2B Sync — 開發用 add-on（Models／Camera／Light／Open／Box Projection 已接）。
 
 隔離 package：勿與 2.x `Import Rhinoceros 3D (R2B Pro)`／Toolkit 同 profile 混用正式專案。
 Models Update／Import 使用內嵌 `import_3dm` fork（含 rhino3dm wheels）。
@@ -8,10 +8,10 @@ Models Update／Import 使用內嵌 `import_3dm` fork（含 rhino3dm wheels）�
 bl_info = {
     "name": "LoopFlow R2B Sync (Dev Stub)",
     "author": "Chihyu Tsai",
-    "version": (0, 0, 9),
+    "version": (0, 0, 10),
     "blender": (5, 2, 1),
-    "location": "N-Panel > LoopFlow",
-    "description": "R2B 3.0 Sync: Models, Camera, Light, Open; embedded import_3dm",
+    "location": "N-Panel > LoopFlow; Shader Editor > LoopFlow > Box Projection",
+    "description": "R2B 3.0 Sync: Models, Camera, Light, Open; Shader Editor Box Projection; embedded import_3dm",
     "category": "Import-Export",
 }
 
@@ -22,6 +22,7 @@ import bpy
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
+from . import box_proj
 from . import camera_sync
 from . import health_sync
 from . import light_sync
@@ -320,7 +321,7 @@ _CLASSES = (
     LOOPFLOW_R2B_DEV_OT_open_health,
     LOOPFLOW_R2B_DEV_OT_open_docs,
     LOOPFLOW_R2B_DEV_PT_panel,
-)
+) + box_proj.CLASSES
 
 
 def register():
