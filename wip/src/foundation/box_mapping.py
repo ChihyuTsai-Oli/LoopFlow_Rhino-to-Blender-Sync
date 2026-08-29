@@ -3,16 +3,25 @@
 from __future__ import annotations
 
 GROUP_NAME = "LoopFlow Box Projection"
-SIZE_SOCKET = "Size"
+GROUP_VERSION = 2
+VERSION_KEY = "loopflow_box_proj_version"
+SCALE_SOCKET = "Scale"
 LOCATION_SOCKET = "Location"
 ROTATION_SOCKET = "Rotation"
-VECTOR_SOCKET = "Vector"
+BLEND_SOCKET = "Blend"
+COLOR_SOCKET = "Color"
+IMAGE_NODE_NAMES = (
+    "LoopFlow Box Image X",
+    "LoopFlow Box Image Y",
+    "LoopFlow Box Image Z",
+)
 DEFAULT_SIZE_M = 1.0
+DEFAULT_SCALE_XYZ = (1.0, 1.0, 1.0)
 MIN_SIZE_M = 0.001
 
 
 def scale_from_size_meters(size_m: float) -> float:
-    """貼圖實際尺寸（公尺）→ Mapping Scale。Blender 預設一張貼圖跨 1 個場景單位。"""
+    """貼圖實際尺寸（公尺）→ 座標除數的倒數。S＝公尺／張時 P'＝P／S。"""
     size = float(size_m)
     if size <= 0:
         raise ValueError("size_m must be > 0")

@@ -13,8 +13,12 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from foundation.box_mapping import (
+    COLOR_SOCKET,
+    DEFAULT_SCALE_XYZ,
     DEFAULT_SIZE_M,
     GROUP_NAME,
+    GROUP_VERSION,
+    SCALE_SOCKET,
     scale_from_size_meters,
 )
 
@@ -32,7 +36,11 @@ class BoxMappingTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             scale_from_size_meters(-1)
         self.assertEqual(DEFAULT_SIZE_M, 1.0)
+        self.assertEqual(DEFAULT_SCALE_XYZ, (1.0, 1.0, 1.0))
         self.assertEqual(GROUP_NAME, "LoopFlow Box Projection")
+        self.assertEqual(GROUP_VERSION, 2)
+        self.assertEqual(SCALE_SOCKET, "Scale")
+        self.assertEqual(COLOR_SOCKET, "Color")
 
     def test_box_proj_module_compiles(self):
         py_compile.compile(str(SRC / "foundation" / "box_mapping.py"), doraise=True)
@@ -72,11 +80,18 @@ class BoxMappingTests(unittest.TestCase):
         self.assertNotIn("Box Projection", sync_panel.split("_CLASSES")[0])
 
         src = BOX_PROJ.read_text(encoding="utf-8")
-        self.assertIn("projection = \"BOX\"", src)
-        self.assertIn('outputs["Object"]', src)
-        self.assertIn("ShaderNodeMapping", src)
+        self.assertIn("ShaderNodeNewGeometry", src)
+        self.assertIn("ShaderNodeVectorRotate", src)
+        self.assertIn("invert = True", src)
+        self.assertIn("IMAGE_NODE_NAMES", src)
+        self.assertIn("COLOR_SOCKET", src)
+        self.assertIn("SCALE_SOCKET", src)
+        self.assertNotIn("ShaderNodeMapping", src)
         self.assertNotIn("ShaderNodeUVMap", src)
         self.assertNotIn("uv.cube_project", src)
+        self.assertNotIn('projection = "BOX"', src)
+        mapping = (SRC / "foundation" / "box_mapping.py").read_text(encoding="utf-8")
+        self.assertIn("LoopFlow Box Image X", mapping)
 
 
 if __name__ == "__main__":
