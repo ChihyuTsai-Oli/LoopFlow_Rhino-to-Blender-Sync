@@ -16,14 +16,15 @@ from foundation.box_mapping import (
     COLOR_SOCKET,
     DEFAULT_SCALE_XYZ,
     DEFAULT_SIZE_M,
+    GROUP_VERSION,
+    IMAGE_NODE_NAMES,
     NODE_LABEL,
-    OSL_FILE_NAME,
     scale_from_size_meters,
 )
 
 ADDON = SRC / "blender" / "loopflow_r2b_sync_dev" / "__init__.py"
 BOX_PROJ = SRC / "blender" / "loopflow_r2b_sync_dev" / "box_proj.py"
-OSL = SRC / "blender" / "loopflow_r2b_sync_dev" / OSL_FILE_NAME
+OSL = SRC / "blender" / "loopflow_r2b_sync_dev" / "box_projection.osl"
 
 
 class BoxMappingTests(unittest.TestCase):
@@ -39,23 +40,18 @@ class BoxMappingTests(unittest.TestCase):
         self.assertEqual(DEFAULT_SCALE_XYZ, (1.0, 1.0, 1.0))
         self.assertEqual(NODE_LABEL, "LoopFlow Box Projection")
         self.assertEqual(COLOR_SOCKET, "Color")
+        self.assertEqual(GROUP_VERSION, 3)
+        self.assertEqual(len(IMAGE_NODE_NAMES), 3)
 
     def test_box_proj_module_compiles(self):
         py_compile.compile(str(SRC / "foundation" / "box_mapping.py"), doraise=True)
         py_compile.compile(str(BOX_PROJ), doraise=True)
 
-    def test_osl_shader_file(self):
+    def test_osl_kept_as_math_reference(self):
         self.assertTrue(OSL.is_file(), OSL)
         src = OSL.read_text(encoding="utf-8")
-        self.assertIn("shader LoopFlowBoxProjection", src)
         self.assertIn("loopflow_inv_euler_xyz", src)
-        self.assertIn("vector lp", src)
-        self.assertNotIn("vector v ", src)
-        self.assertIn("texture(", src)
-        self.assertIn("periodic", src)
-        self.assertIn("vector(P)", src)
-        self.assertIn("Ng", src)
-        self.assertNotIn("ShaderNodeMapping", src)
+        self.assertIn("loopflow_rot_z", src)
 
     def test_shader_editor_panel_not_on_view3d_sync_bar(self):
         tree = ast.parse(BOX_PROJ.read_text(encoding="utf-8"))
@@ -91,21 +87,22 @@ class BoxMappingTests(unittest.TestCase):
         self.assertNotIn("Box Projection", sync_panel.split("_CLASSES")[0])
 
         src = BOX_PROJ.read_text(encoding="utf-8")
-        self.assertIn("ShaderNodeScript", src)
-        self.assertIn("shading_system", src)
+        self.assertIn("ShaderNodeGroup", src)
+        self.assertIn("ShaderNodeVectorRotate", src)
+        self.assertIn("AXIS_ANGLE", src)
+        self.assertIn("IMAGE_NODE_NAMES", src)
         self.assertIn("r2b_box_image", src)
         self.assertIn("_draw_xyz", src)
         self.assertIn("SCALE_SOCKET", src)
         self.assertIn("LOCATION_SOCKET", src)
         self.assertIn("ROTATION_SOCKET", src)
         self.assertIn("BLEND_SOCKET", src)
-        self.assertIn("Rotation (degrees)", src)
-        self.assertIn('text="Blend"', src)
-        self.assertIn("sync_osl_node", src)
+        self.assertIn("_set_group_image", src)
+        self.assertIn("proto.copy", src)
+        self.assertNotIn("ShaderNodeScript", src)
+        self.assertNotIn("shading_system", src)
+        self.assertNotIn("sync_osl_node", src)
         self.assertNotIn("ShaderNodeMapping", src)
-        self.assertNotIn("ShaderNodeVectorRotate", src)
-        self.assertNotIn("ShaderNodeNewGeometry", src)
-        self.assertNotIn("IMAGE_NODE_NAMES", src)
         self.assertNotIn("ShaderNodeUVMap", src)
         self.assertNotIn("uv.cube_project", src)
 
