@@ -34,7 +34,9 @@ E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\
 | `RBLightPush` | Sync Lights | 手動推送燈光點位 JSON 一次 | **已接** |
 | `RBOpen` | Open / Health；Open Docs | 四顆等寬：Config／live／models／Docs | **已接** |
 
-## 按鈕巨集（可直接貼上）
+## 開發按鈕巨集（ScriptEditor，可直接貼上）
+
+**正式工具列不要用下面這段。** 正式左鍵請用下一節 `! _RBModels` 等。
 
 ```text
 RBModels
@@ -59,6 +61,20 @@ RBOpen
 _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\entrypoints\RBOpen.py"
 ```
 
+## 正式工具列巨集（yak 裝上之後）
+
+左鍵填這些；右鍵留空。指令尚未登錄前按了不會動。RUI 請 `ExportRuiFile` 存到 `wip/docs/toolbar/`。
+
+```text
+! _RBModels
+! _RBObjects
+! _RBCamera
+! _RBCameraPush
+! _RBLight
+! _RBLightPush
+! _RBOpen
+```
+
 ## 不經 Rhino 按鈕
 
 - Blender：Portable `E:\blender-5.2.1_wip`；跑 `wip/tools/link_dev_addon.ps1` 後啟用 Dev Stub（N-Panel 標籤 `LoopFlow`、bar `Rhino to Blender Sync`）。詳見 `系統設定.md`。
@@ -68,7 +84,7 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 | 日期 | 說明 |
 |---|---|
-| 2026-08-29 | Rhino 指令改連寫：`RBModels`／`RBObjects`／`RBCamera`／`RBCameraPush`／`RBLight`／`RBLightPush`／`RBOpen` |
+| 2026-08-30 | G02：正式工具列巨集 `! _RBModels` 等；開發 ScriptEditor 巨集分開寫 |
 | 2026-08-29 | Import Objects 檔案總管預設 `_LoopFlow_Config/loopflow_R2B/models/` |
 | 2026-08-29 | 入口隔離，避免與 R2O 同 Rhino 互踩 |
 | 2026-08-29 | `RBObjects`；時戳 3dm 不覆蓋；Import Objects 開檔案總管 |
