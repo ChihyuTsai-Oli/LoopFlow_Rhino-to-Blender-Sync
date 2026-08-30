@@ -64,7 +64,7 @@ class G02SpikeTests(unittest.TestCase):
     def test_manifest_spike_identity(self):
         text = MANIFEST.read_text(encoding="utf-8")
         self.assertIn("name: loopflow-rhino-to-blender-sync", text)
-        self.assertIn("version: 0.1.2", text)
+        self.assertIn("version: 0.1.3", text)
         self.assertIn("Chihyu Tsai", text)
         self.assertIn("github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync", text)
         self.assertIn("guid:860a0589-cda5-46a6-97ef-d538db8e0db3", text)
@@ -119,6 +119,19 @@ class G02SpikeTests(unittest.TestCase):
             self.assertIn("! _{}".format(cmd), text)
         self.assertTrue((WIP / "docs" / "toolbar" / "icon.png").is_file())
         self.assertTrue((SPIKE / "loopflow-rhino-to-blender-sync.rhproj").is_file())
+
+    def test_blender_addon_is_sync_not_nested_import_3dm(self):
+        addon = WIP / "src" / "blender" / "loopflow_r2b_sync_dev"
+        nested = addon / "import_3dm" / "blender_manifest.toml"
+        self.assertFalse(nested.is_file(), nested)
+        manifest = (addon / "blender_manifest.toml").read_text(encoding="utf-8")
+        self.assertIn('id = "loopflow_r2b_sync"', manifest)
+        self.assertIn('name = "LoopFlow Rhino to Blender Sync"', manifest)
+        self.assertNotIn('id = "import_3dm"', manifest)
+        init = (addon / "__init__.py").read_text(encoding="utf-8")
+        self.assertIn('"name": "LoopFlow Rhino to Blender Sync"', init)
+        self.assertIn("def register(", init)
+        self.assertNotIn("Dev Stub", init)
 
 
 if __name__ == "__main__":

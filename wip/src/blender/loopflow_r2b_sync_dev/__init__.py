@@ -6,7 +6,7 @@ Models Update／Import 使用內嵌 `import_3dm` fork（含 rhino3dm wheels）�
 """
 
 bl_info = {
-    "name": "LoopFlow R2B Sync (Dev Stub)",
+    "name": "LoopFlow Rhino to Blender Sync",
     "author": "Chihyu Tsai",
     "version": (0, 0, 19),
     "blender": (5, 2, 1),

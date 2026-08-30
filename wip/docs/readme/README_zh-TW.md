@@ -43,10 +43,11 @@ Rhino 對話框與 Blender 面板為英文；本說明為正體中文。
 
 **Blender**
 
-1. 跑一次任一 Rhino 指令，開啟「文件\LoopFlow\Rhino to Blender Sync」
-2. 在 Blender 用 **Install from Disk** 裝該資料夾裡的 zip（內含 3dm 匯入）
-3. 啟用後，3D 視窗 N 面板標籤 **LoopFlow**、bar **Rhino to Blender Sync**
-4. 不必再啟用獨立的「Import Rhinoceros 3D」
+1. 若先前裝過失敗的 **import_3dm**，先在 Blender 的 Extensions／Add-ons 裡移除
+2. 跑一次任一 Rhino 指令，開啟「文件\LoopFlow\Rhino to Blender Sync」
+3. 用 **Install from Disk** 裝該資料夾裡的 zip
+4. 列表名稱應為 **LoopFlow Rhino to Blender Sync**；啟用後 N 面板標籤 **LoopFlow**、bar **Rhino to Blender Sync**
+5. 不必再啟用獨立的「Import Rhinoceros 3D」
 
 完整步驟與按鈕說明見 [使用說明](./docs/README.md)。
 

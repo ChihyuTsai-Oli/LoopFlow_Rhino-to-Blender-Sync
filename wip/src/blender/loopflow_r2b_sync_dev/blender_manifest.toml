@@ -1,0 +1,12 @@
+schema_version = "1.0.0"
+
+id = "loopflow_r2b_sync"
+version = "0.0.19"
+name = "LoopFlow Rhino to Blender Sync"
+tagline = "Sync Rhino models, camera and lights into Blender"
+maintainer = "Chihyu Tsai"
+type = "add-on"
+tags = ["Import-Export"]
+blender_version_min = "5.2.0"
+license = ["MIT"]
+platforms = ["windows-x64"]

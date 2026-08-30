@@ -73,7 +73,7 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertIsNotNone(bl_info)
         self.assertEqual(bl_info["author"], "Chihyu Tsai")
         self.assertEqual(bl_info["blender"], (5, 2, 1))
-        self.assertIn("Dev Stub", bl_info["name"])
+        self.assertEqual(bl_info["name"], "LoopFlow Rhino to Blender Sync")
         self.assertEqual(bl_info["version"], (0, 0, 19))
 
     def test_addon_registers_expected_stub_idnames(self):
