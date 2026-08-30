@@ -19,17 +19,16 @@ AI 必須依序完整讀取：
 
 ## 分支與版本
 
-- `main` 在 3.0 正式發布前維持穩定 2.x。
-- `v3-development` 是 3.0 整合分支，不直接承接未分批的大型修改。
-- 每項工作從 `v3-development` 建立 `codex/v3-<scope>` 短期分支。
-- `main` 原則上凍結；僅在使用者明確要求維護 2.x 時，才建立獨立 hotfix，發布後再同步必要修正至 `v3-development`。
-- 既有 `v2.0.0` tag 與 Release 永不移動、覆寫或重用；本輪重構目標固定為 `v3.0.0`。
+- `main` 是已發布的 3.0（`v3.0.0`）。
+- `v3-development` 是整合分支；後續改動從它建立 `codex/v3-<scope>` 短期分支，合入後再依授權合入 `main`。
+- 既有 `v2.0.0`（2.x）與 `v3.0.0` tag／Release 永不移動、覆寫或重用。
+- 僅在使用者明確要求維護 2.x 時，才建立獨立 hotfix。
 - `1.x` 歷史維護分支保持不動，除非使用者明確要求修補。
 
 ## 重構模式
 
 - 3.0 採「新版乾淨重建、正式發布時一次切換」，不要求開發中的 v2／v3 指令互相相容。
-- `main`、v2 payload 與 fork 基準作為唯讀參考；3.0 在隔離 `wip/src/`、Rhino 安裝與 Blender profile 建立。
+- 2.x payload 與 fork 基準作為唯讀參考；後續改動仍在 `wip/src/`、同一套 yak 建置與測試資料上進行。
 - **功能切片**：Rhino producer 與 Blender consumer 同一功能同批交付，才能測試。
 - 新核心不長期保留 v2 alias、雙寫或 compatibility wrapper；升級集中於獨立 migration 工具。
 - 建造過程仍分批提交並做自動／fixture 測試；Rhino→Blender 端到端實機測試在主鏈串接完成後集中進行。
