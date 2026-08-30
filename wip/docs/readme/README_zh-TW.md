@@ -51,8 +51,8 @@ Rhino 對話框與 Blender 面板為英文；本說明為正體中文。
    - `portable\extensions\user_default\loopflow_r2b_sync`
    - `portable\extensions\user_default\loopflow_r2b_sync@`
    - `portable\scripts\addons\loopflow_r2b_sync`
-4. 在 Rhino 跑一次任一產品指令，讓新版 zip 拷到「文件\LoopFlow\Rhino to Blender Sync」
-5. 再開 Blender，**Install from Disk** 只選該資料夾裡的 **zip**（不要選資料夾）
+4. 在 Rhino 跑一次任一產品指令，讓新版 zip 拷到「文件\LoopFlow\Rhino to Blender Sync」（請用剛拷出來的 zip，不要用舊的）
+5. 再開 Blender，到 **Add-ons**（不要用 Get Extensions 那頁）按 **Install from Disk**，只選該資料夾裡的 **zip**
 6. 在 **Add-ons** 列表找到 **LoopFlow Rhino to Blender Sync** 並勾選啟用；N 面板標籤 **LoopFlow**、bar **Rhino to Blender Sync**
 7. 不必再啟用獨立的「Import Rhinoceros 3D」
 

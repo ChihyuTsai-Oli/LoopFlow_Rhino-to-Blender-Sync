@@ -10,9 +10,9 @@ import bpy
 from bpy.props import CollectionProperty, StringProperty
 from bpy_extras.io_utils import ImportHelper
 
-_SRC = Path(__file__).resolve().parents[2]
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
+from . import _srcpath
+
+_srcpath.ensure_src()
 
 from foundation.box_mapping import (
     BLEND_SOCKET,

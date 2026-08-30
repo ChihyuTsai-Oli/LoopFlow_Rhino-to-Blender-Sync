@@ -18,6 +18,10 @@ bl_info = {
 import os
 import sys
 
+from . import _srcpath
+
+_srcpath.ensure_src()
+
 import bpy
 from bpy.props import StringProperty
 from bpy_extras.io_utils import ImportHelper
@@ -106,9 +110,7 @@ class LOOPFLOW_R2B_DEV_OT_import_objects(bpy.types.Operator, ImportHelper):
     directory: StringProperty(subtype="DIR_PATH", options={"HIDDEN"})
 
     def invoke(self, context, event):
-        src = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-        if src not in sys.path:
-            sys.path.insert(0, src)
+        _srcpath.ensure_src()
         from foundation.paths import resolve_models_dir_from_work_folder
 
         folder = bpy.path.abspath(getattr(context.scene, "r2b_sync_folder", "") or "")

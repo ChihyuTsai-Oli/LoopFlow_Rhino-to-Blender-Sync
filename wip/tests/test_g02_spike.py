@@ -64,7 +64,7 @@ class G02SpikeTests(unittest.TestCase):
     def test_manifest_spike_identity(self):
         text = MANIFEST.read_text(encoding="utf-8")
         self.assertIn("name: loopflow-rhino-to-blender-sync", text)
-        self.assertIn("version: 0.1.5", text)
+        self.assertIn("version: 0.1.6", text)
         self.assertIn("Chihyu Tsai", text)
         self.assertIn("github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync", text)
         self.assertIn("guid:860a0589-cda5-46a6-97ef-d538db8e0db3", text)
@@ -134,8 +134,15 @@ class G02SpikeTests(unittest.TestCase):
         self.assertIn('"name": "LoopFlow Rhino to Blender Sync"', init)
         self.assertIn("def register(", init)
         self.assertNotIn("Dev Stub", init)
+        self.assertLess(
+            init.find("_srcpath.ensure_src()"),
+            init.find("from . import box_proj"),
+        )
         model = (addon / "model_sync.py").read_text(encoding="utf-8")
         self.assertIn("_srcpath.ensure_src()", model)
+        box = (addon / "box_proj.py").read_text(encoding="utf-8")
+        self.assertIn("_srcpath.ensure_src()", box)
+        self.assertNotIn("parents[2]", box)
 
     def test_srcpath_uses_bundled_foundation(self):
         import importlib.util
@@ -152,6 +159,56 @@ class G02SpikeTests(unittest.TestCase):
             mod = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(mod)
             self.assertEqual(Path(mod.ensure_src()).resolve(), addon.resolve())
+
+    def test_enable_can_import_foundation_from_bundled_dir(self):
+        """啟用時 box_proj 立刻 from foundation；必須先把 add-on 目錄放進 sys.path。"""
+        import importlib.util
+        import sys as py_sys
+
+        srcpath = (
+            WIP / "src" / "blender" / "loopflow_r2b_sync_dev" / "_srcpath.py"
+        ).read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as tmp:
+            addon = Path(tmp) / "loopflow_r2b_sync"
+            (addon / "foundation").mkdir(parents=True)
+            (addon / "foundation" / "__init__.py").write_text("", encoding="utf-8")
+            (addon / "foundation" / "box_mapping.py").write_text(
+                "MARKER = True\n", encoding="utf-8"
+            )
+            (addon / "_srcpath.py").write_text(srcpath, encoding="utf-8")
+            (addon / "box_proj.py").write_text(
+                "from . import _srcpath\n"
+                "_srcpath.ensure_src()\n"
+                "from foundation.box_mapping import MARKER\n",
+                encoding="utf-8",
+            )
+            (addon / "__init__.py").write_text(
+                "from . import _srcpath\n"
+                "_srcpath.ensure_src()\n"
+                "from . import box_proj\n",
+                encoding="utf-8",
+            )
+            py_sys.modules.pop("foundation", None)
+            py_sys.modules.pop("foundation.box_mapping", None)
+            spec = importlib.util.spec_from_file_location(
+                "loopflow_r2b_sync",
+                addon / "__init__.py",
+                submodule_search_locations=[str(addon)],
+            )
+            pkg = importlib.util.module_from_spec(spec)
+            pkg.__path__ = [str(addon)]
+            py_sys.modules["loopflow_r2b_sync"] = pkg
+            try:
+                spec.loader.exec_module(pkg)
+                self.assertTrue(pkg.box_proj.MARKER)
+            finally:
+                for key in list(py_sys.modules):
+                    if key == "loopflow_r2b_sync" or key.startswith(
+                        "loopflow_r2b_sync."
+                    ):
+                        py_sys.modules.pop(key, None)
+                py_sys.modules.pop("foundation", None)
+                py_sys.modules.pop("foundation.box_mapping", None)
 
 
 if __name__ == "__main__":

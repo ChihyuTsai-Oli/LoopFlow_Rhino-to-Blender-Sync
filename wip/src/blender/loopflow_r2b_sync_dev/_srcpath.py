@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
-"""開發期用 repo 的 wip/src；Install from Disk 後用 zip 內附的 foundation。"""
+"""讓 `from foundation...` 找得到模組。
+
+啟用 add-on 時必須在匯入 box_proj／camera_sync 之前呼叫：
+那些檔一載入就會 `from foundation...`。zip 內附的 foundation 在本資料夾；
+開發期則用 repo 的 wip/src。
+"""
 from __future__ import annotations
 
 import sys

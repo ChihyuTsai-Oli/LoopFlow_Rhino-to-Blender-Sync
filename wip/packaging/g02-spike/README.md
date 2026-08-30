@@ -1,6 +1,6 @@
 # R2B 3.0 G02 本機 yak spike
 
-本機封裝用，**不是** `v3.0.0` 上架包。版號 `0.1.5`。yak 含 Blender Sync zip（`templates/`）；第一次跑任一產品指令拷到「文件\LoopFlow\Rhino to Blender Sync」。zip 為傳統 Add-on（無 `blender_manifest.toml`），內附 `foundation`。工具列 RUI 進包時改成與 `.rhp` 同名，Rhino 才會自動載入。
+本機封裝用，**不是** `v3.0.0` 上架包。版號 `0.1.6`。yak 含 Blender Sync zip（`templates/`）；第一次跑任一產品指令拷到「文件\LoopFlow\Rhino to Blender Sync」。zip 為傳統 Add-on（無 `blender_manifest.toml`），內附 `foundation`；啟用前先把該目錄加入 `sys.path`。工具列 RUI 進包時改成與 `.rhp` 同名，Rhino 才會自動載入。
 
 畫面名（已凍）：`loopflow Rhino to Blender Sync`  
 機器名：`loopflow-rhino-to-blender-sync`

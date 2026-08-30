@@ -101,7 +101,7 @@ if (Test-Path -LiteralPath $ZipOut) {
     Remove-Item -LiteralPath $ZipOut -Force
 }
 [System.IO.Compression.ZipFile]::CreateFromDirectory($ZipTmp, $ZipOut)
-Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "0.1.5" -Encoding ascii -NoNewline
+Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "0.1.6" -Encoding ascii -NoNewline
 Write-Host "Staged Blender add-on zip"
 
 if (-not (Test-Path -LiteralPath $Yak)) {
