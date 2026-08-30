@@ -9,7 +9,6 @@ from typing import FrozenSet, Optional
 
 STAMP_NAME = ".loopflow_yak_version"
 PRODUCT_FOLDER = "Rhino to Blender Sync"
-PAYLOAD_DIR_NAME = "blender"
 KEEP_NAMES: FrozenSet[str] = frozenset()
 
 
@@ -56,15 +55,15 @@ def sync_user_assets(
 ) -> bool:
     """
     套件版號與戳記相同則不動。
-    換版或尚未拷過：拷 templates 官方檔；多出來的檔不刪。
-    這次有拷才開資料夾。沒有 templates（開發 repo）則略過。
+    換版或尚未拷過：拷 templates 裡的 zip；多出來的檔不刪。
+    這次有拷才開資料夾。沒有 templates／zip（開發 repo）則略過。
     """
     root = Path(src_root) if src_root is not None else Path(__file__).resolve().parents[1]
     templates = find_templates(root)
     if templates is None:
         return False
-    payload = templates / PAYLOAD_DIR_NAME
-    if not payload.is_dir():
+    zips = list(templates.glob("*.zip"))
+    if not zips:
         return False
     stamp_src = ""
     stamp_file = templates / STAMP_NAME
@@ -74,12 +73,11 @@ def sync_user_assets(
     stamp_dst = target / STAMP_NAME
     if stamp_src and stamp_dst.is_file() and stamp_dst.read_text(encoding="utf-8").strip() == stamp_src:
         return False
-    copied = copy_tree(payload, target, KEEP_NAMES)
-    for zip_path in templates.glob("*.zip"):
-        dest_zip = target / zip_path.name
-        shutil.copy2(zip_path, dest_zip)
-        copied = True
+    copied = False
     target.mkdir(parents=True, exist_ok=True)
+    for zip_path in zips:
+        shutil.copy2(zip_path, target / zip_path.name)
+        copied = True
     if stamp_src:
         stamp_dst.write_text(stamp_src + "\n", encoding="utf-8")
         copied = True

@@ -4,7 +4,7 @@
 
 > 把 Rhino 的模型、相機與燈光點位，單向同步到 Blender。
 
-Rhino 端裝一份 `.yak`（內含 Blender Sync add-on）。第一次跑任一 Rhino 指令後，add-on 會拷到「文件\LoopFlow\Rhino to Blender Sync」。
+Rhino 端裝一份 `.yak`（內含 Blender Sync zip）。第一次跑任一 Rhino 指令後，zip 會拷到「文件\LoopFlow\Rhino to Blender Sync」。
 
 [▶ 使用說明](./docs/README.md) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ 教學影片](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8)
 
@@ -43,11 +43,14 @@ Rhino 對話框與 Blender 面板為英文；本說明為正體中文。
 
 **Blender**
 
-1. 若先前裝過失敗的 **import_3dm**，先在 Blender 的 Extensions／Add-ons 裡移除
-2. 跑一次任一 Rhino 指令，開啟「文件\LoopFlow\Rhino to Blender Sync」
-3. 用 **Install from Disk** 裝該資料夾裡的 zip
-4. 列表名稱應為 **LoopFlow Rhino to Blender Sync**；啟用後 N 面板標籤 **LoopFlow**、bar **Rhino to Blender Sync**
-5. 不必再啟用獨立的「Import Rhinoceros 3D」
+1. 若先前裝過失敗的 **import_3dm** 或 **loopflow_r2b_sync**，先在 Blender 的 Extensions／Add-ons 裡移除
+2. **完全關掉 Blender**。若 `portable\extensions\user_default\` 裡還有 `loopflow_r2b_sync` 或 `loopflow_r2b_sync@`，刪掉這兩個資料夾
+3. 跑一次任一 Rhino 指令，開啟「文件\LoopFlow\Rhino to Blender Sync」
+4. 只用 **Install from Disk** 裝該資料夾裡的 **zip**（不要選資料夾）
+5. 列表名稱應為 **LoopFlow Rhino to Blender Sync**；啟用後 N 面板標籤 **LoopFlow**、bar **Rhino to Blender Sync**
+6. 不必再啟用獨立的「Import Rhinoceros 3D」
+
+若出現「存取被拒」改名失敗：先關 Blender、刪掉上面兩個資料夾再開。Portable 若放在 Dropbox 裡，可暫停同步再裝一次。
 
 完整步驟與按鈕說明見 [使用說明](./docs/README.md)。
 

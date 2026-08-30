@@ -145,7 +145,7 @@ Blender：Camera Auto On／Off／Push Once。自動開啟後會跟隨 Rhino 視�
 | **Open / Health** | 懸停＝摘要；左鍵開設定根 |
 | **Open Docs** | 開本文件入口 |
 
-Work Folder 指到與 `.3dm` 同一層。不必再啟用獨立的 Import Rhinoceros 3D。Sync add-on 在「文件\LoopFlow\Rhino to Blender Sync」，用 Install from Disk 安裝；列表名稱 **LoopFlow Rhino to Blender Sync**。若先前誤裝成 import_3dm，先移除再重裝。
+Work Folder 指到與 `.3dm` 同一層。不必再啟用獨立的 Import Rhinoceros 3D。Sync zip 在「文件\LoopFlow\Rhino to Blender Sync」，用 Install from Disk 安裝；列表名稱 **LoopFlow Rhino to Blender Sync**。若先前誤裝成 import_3dm，或出現改名「存取被拒」，先關 Blender 並刪掉 `loopflow_r2b_sync`／`loopflow_r2b_sync@` 再重裝 zip。
 
 LoopFlow Toolkit 不在本產品同步範圍。
 
