@@ -1,10 +1,10 @@
 name: loopflow-rhino-to-blender-sync
-version: 0.1.6
+version: 3.0.0
 authors:
   - Chihyu Tsai
 description: >
-  loopflow Rhino to Blender Sync (3.0 spike).
-  Rhino commands plus the Blender Sync add-on (copied to Documents\LoopFlow on first command).
+  loopflow Rhino to Blender Sync.
+  One-way model, camera, and light sync from Rhino 8 to Blender. Update models without breaking material links.
   https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync
 url: https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync
 keywords:

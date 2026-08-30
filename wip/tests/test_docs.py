@@ -18,6 +18,7 @@ from foundation.docs import DOCS_ENTRY_URL, open_docs_in_browser
 class DocsEntryTests(unittest.TestCase):
     def test_url_points_at_github_readme(self):
         self.assertIn("github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync", DOCS_ENTRY_URL)
+        self.assertIn("/blob/main/", DOCS_ENTRY_URL)
         self.assertTrue(DOCS_ENTRY_URL.endswith("/docs/README.md"))
 
     def test_entry_page_links_both_languages(self):

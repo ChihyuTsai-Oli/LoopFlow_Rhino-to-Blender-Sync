@@ -36,12 +36,12 @@ Rhino 對話框與 Blender 面板為英文；本說明為正體中文。
 **Rhino**
 
 1. 開啟 Rhino 8，命令列執行 `PackageManager`
-2. 正式上架後搜尋畫面名 **`loopflow Rhino to Blender Sync`**
-3. 或從 [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) 下載 `.yak`，在 Package Manager 選擇從檔案安裝
+2. 搜尋畫面名 **`loopflow Rhino to Blender Sync`** 並安裝
+3. 或從 [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) 下載 `loopflow-rhino-to-blender-sync-3.0.0-rh8_0-win.yak`，在 Package Manager 選擇從檔案安裝
 4. **完全關掉 Rhino 再開**
 5. 使用工具列 **Rhino to Blender Sync**。若沒出現：到 **Tools → Options → Plug-ins**（工具 → 選項 → 外掛程式）勾選 **LoopFlow R2B**。仍沒有時，命令列打一次 `RBOpen`
 
-尚未上架時，請用本機／GitHub 提供的 `.yak` 從檔案安裝。
+第一次跑產品指令會把 Blender zip 拷到「文件\LoopFlow\Rhino to Blender Sync」。裝新版後，下一次跑指令會先清空這個產品資料夾，再放入這版官方檔。同一版號則不動。
 
 **Blender**
 

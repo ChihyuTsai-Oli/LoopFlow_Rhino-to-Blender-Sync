@@ -5,10 +5,9 @@ from __future__ import annotations
 import os
 from typing import Callable, Optional
 
-# 3.0 開發期指向整合分支；正式發布改 main（與 LoopFlow 2.0 相同型式）
 DOCS_ENTRY_URL = (
     "https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/"
-    "blob/v3-development/docs/README.md"
+    "blob/main/docs/README.md"
 )
 
 Opener = Callable[[str], None]

@@ -55,7 +55,7 @@ def sync_user_assets(
 ) -> bool:
     """
     套件版號與戳記相同則不動。
-    換版或尚未拷過：拷 templates 裡的 zip；多出來的檔不刪。
+    換版或尚未拷過：清空產品資料夾再拷 templates 裡的 zip 與戳記。
     這次有拷才開資料夾。沒有 templates／zip（開發 repo）則略過。
     """
     root = Path(src_root) if src_root is not None else Path(__file__).resolve().parents[1]
@@ -73,8 +73,10 @@ def sync_user_assets(
     stamp_dst = target / STAMP_NAME
     if stamp_src and stamp_dst.is_file() and stamp_dst.read_text(encoding="utf-8").strip() == stamp_src:
         return False
-    copied = False
+    if target.exists():
+        shutil.rmtree(target)
     target.mkdir(parents=True, exist_ok=True)
+    copied = False
     for zip_path in zips:
         shutil.copy2(zip_path, target / zip_path.name)
         copied = True
