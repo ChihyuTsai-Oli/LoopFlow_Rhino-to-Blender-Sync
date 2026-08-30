@@ -1,6 +1,20 @@
-#! python 3
 # -*- coding: utf-8 -*-
-"""Yak 指令 RBLight。開發入口仍是 entrypoints/RBLight.py。"""
+"""Generate yak command wrappers with embedded package locate (not imported at runtime)."""
+from __future__ import annotations
+
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+COMMANDS = HERE / "commands"
+
+PLUGIN_ID = "860a0589-cda5-46a6-97ef-d538db8e0db3"
+PLUGIN_NAME = "LoopFlow R2B"
+YAK_NAME = "loopflow-rhino-to-blender-sync"
+MARKER = '("rhino", "entrypoints", "RBModels.py")'
+
+PREFIX = r'''#! python 3
+# -*- coding: utf-8 -*-
+"""Yak 指令 %(cmd)s。開發入口仍是 entrypoints/%(cmd)s.py。"""
 from __future__ import annotations
 
 import os
@@ -8,11 +22,11 @@ import sys
 import traceback
 from pathlib import Path
 
-PLUGIN_ID = "860a0589-cda5-46a6-97ef-d538db8e0db3"
-PLUGIN_NAME = "LoopFlow R2B"
-YAK_NAME = "loopflow-rhino-to-blender-sync"
-MARKER = ("rhino", "entrypoints", "RBModels.py")
-_CMD = "RBLight"
+PLUGIN_ID = "%(plugin_id)s"
+PLUGIN_NAME = "%(plugin_name)s"
+YAK_NAME = "%(yak_name)s"
+MARKER = %(marker)s
+_CMD = "%(cmd)s"
 _started = False
 
 
@@ -175,15 +189,7 @@ def _run():
     _started = True
     try:
         _prepare_src()
-        import rhinoscriptsyntax as rs  # type: ignore
-
-        from rhino.commands.light import light_toggle_auto
-
-        result = light_toggle_auto()
-        msg = "{} [{}] {}".format(_CMD, result.status, result.message)
-        print(msg)
-        if not result.ok and result.status == "blocked":
-            rs.MessageBox(result.message)
+%(body)s
     except Exception:
         err = traceback.format_exc()
         print(err)
@@ -200,3 +206,90 @@ def RunCommand(is_interactive):
 
 
 _run()
+'''
+
+BODIES = {
+    "RBModels": """        import rhinoscriptsyntax as rs  # type: ignore
+
+        from rhino.commands.models import publish_models_once
+
+        result = publish_models_once(interactive=True)
+        msg = "{} [{}] {}".format(_CMD, result.status, result.message)
+        print(msg)
+        if result.ok:
+            rs.MessageBox("Models export succeeded\\n\\n{}".format(result.message), title=_CMD)
+        elif result.status in ("blocked", "fail"):
+            rs.MessageBox(result.message, title=_CMD)""",
+    "RBObjects": """        import rhinoscriptsyntax as rs  # type: ignore
+
+        from rhino.commands.objects import publish_objects_once
+
+        result = publish_objects_once()
+        msg = "{} [{}] {}".format(_CMD, result.status, result.message)
+        print(msg)
+        if result.ok:
+            rs.MessageBox("Objects export succeeded\\n\\n{}".format(result.message), title=_CMD)
+        elif result.status in ("blocked", "fail"):
+            rs.MessageBox(result.message, title=_CMD)""",
+    "RBCamera": """        import rhinoscriptsyntax as rs  # type: ignore
+
+        from rhino.commands.camera import camera_toggle_auto
+
+        result = camera_toggle_auto()
+        msg = "{} [{}] {}".format(_CMD, result.status, result.message)
+        print(msg)
+        if not result.ok and result.status == "blocked":
+            rs.MessageBox(result.message)""",
+    "RBCameraPush": """        import rhinoscriptsyntax as rs  # type: ignore
+
+        from rhino.commands.camera import publish_camera_once
+
+        result = publish_camera_once()
+        msg = "{} [{}] {}".format(_CMD, result.status, result.message)
+        print(msg)
+        if not result.ok and result.status == "blocked":
+            rs.MessageBox(result.message)""",
+    "RBLight": """        import rhinoscriptsyntax as rs  # type: ignore
+
+        from rhino.commands.light import light_toggle_auto
+
+        result = light_toggle_auto()
+        msg = "{} [{}] {}".format(_CMD, result.status, result.message)
+        print(msg)
+        if not result.ok and result.status == "blocked":
+            rs.MessageBox(result.message)""",
+    "RBLightPush": """        import rhinoscriptsyntax as rs  # type: ignore
+
+        from rhino.commands.light import publish_light_once
+
+        result = publish_light_once()
+        msg = "{} [{}] {}".format(_CMD, result.status, result.message)
+        print(msg)
+        if not result.ok and result.status in ("blocked", "fail"):
+            rs.MessageBox(result.message)""",
+    "RBOpen": """        from rhino.commands.open import run_open
+
+        result = run_open()
+        print("{} [{}]".format(_CMD, result.status))
+        if result.message:
+            print(result.message)""",
+}
+
+
+def main():
+    for cmd, body in BODIES.items():
+        text = PREFIX % {
+            "cmd": cmd,
+            "plugin_id": PLUGIN_ID,
+            "plugin_name": PLUGIN_NAME,
+            "yak_name": YAK_NAME,
+            "marker": MARKER,
+            "body": body,
+        }
+        path = COMMANDS / "{}.py".format(cmd)
+        path.write_text(text, encoding="utf-8", newline="\n")
+        print(path)
+
+
+if __name__ == "__main__":
+    main()

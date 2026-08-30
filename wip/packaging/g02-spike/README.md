@@ -30,7 +30,7 @@ Rhino 8.11 以上：
 
 1. 完全關掉再打開 Rhino。
 2. Script Editor → 新增專案（Python）。
-3. 加入 `commands/` 底下 **只有** `指令名稱.txt` 列出的七支 `.py`（不要加 `_isolate.py`）。
+3. 加入 `commands/` 底下 **只有** `指令名稱.txt` 列出的七支 `.py`（不要加 `command_locate.py`、`_gen_commands.py`）。
 4. Libraries 加入 `wip/src`（讓 `rhino`／`foundation` 進套件）。
 5. 另存成這個檔（檔名請一致）：  
    `wip/packaging/g02-spike/loopflow-rhino-to-blender-sync.rhproj`

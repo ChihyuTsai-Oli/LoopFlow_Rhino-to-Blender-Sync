@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import py_compile
+import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -12,6 +14,10 @@ COMMANDS = SPIKE / "commands"
 NAMES = SPIKE / "指令名稱.txt"
 MANIFEST = SPIKE / "manifest.yml"
 ENTRYPOINTS = WIP / "src" / "rhino" / "entrypoints"
+if str(SPIKE) not in sys.path:
+    sys.path.insert(0, str(SPIKE))
+
+import command_locate  # noqa: E402
 
 EXPECTED = (
     "RBModels",
@@ -40,9 +46,12 @@ class G02SpikeTests(unittest.TestCase):
             text = path.read_text(encoding="utf-8")
             self.assertTrue(text.startswith("#! python 3"), name)
             self.assertIn("def RunCommand(", text)
-            self.assertIn("_isolate.py", text)
-            self.assertNotIn("blender", text.lower())
+            self.assertIn("_run()", text)
+            self.assertIn("PLUGIN_ID = \"{}\"".format(command_locate.PLUGIN_ID), text)
+            self.assertIn("_from_yak_install", text)
+            self.assertNotIn("_isolate.py", text)
             self.assertNotIn("import_3dm", text)
+            self.assertNotIn("loopflow_r2b_sync_dev", text)
             py_compile.compile(str(path), doraise=True)
         extras = {p.stem for p in COMMANDS.glob("*.py")} - set(EXPECTED)
         self.assertEqual(extras, set())
@@ -71,8 +80,30 @@ class G02SpikeTests(unittest.TestCase):
         self.assertIn("build\\rh8", build)
         self.assertIn("yak-stage", build)
 
-    def test_isolate_module_compiles(self):
-        py_compile.compile(str(SPIKE / "_isolate.py"), doraise=True)
+    def test_command_locate_compiles(self):
+        py_compile.compile(str(SPIKE / "command_locate.py"), doraise=True)
+
+    def test_command_locate_finds_libs_src(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            env = {"APPDATA": tmp, "LOCALAPPDATA": tmp}
+            src = (
+                Path(tmp)
+                / "McNeel"
+                / "Rhinoceros"
+                / "packages"
+                / "8.0"
+                / command_locate.YAK_NAME
+                / "0.1.0"
+                / "libs"
+                / "Abcd"
+                / "src"
+            )
+            (src / "foundation").mkdir(parents=True)
+            marker = src.joinpath(*command_locate.MARKER)
+            marker.parent.mkdir(parents=True)
+            marker.write_text("#", encoding="utf-8")
+            hit = command_locate.from_yak_install(env)
+            self.assertEqual(hit.resolve(), src.resolve())
 
     def test_product_rui_and_icon(self):
         rui = WIP / "docs" / "toolbar" / "LoopFlow_R2B.rui"
