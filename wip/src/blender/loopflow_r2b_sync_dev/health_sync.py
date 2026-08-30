@@ -8,9 +8,9 @@ from pathlib import Path
 
 import bpy
 
-_SRC = Path(__file__).resolve().parents[2]
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
+from . import _srcpath
+
+_srcpath.ensure_src()
 
 from foundation.docs import open_docs_in_browser
 from foundation.health import build_health_report

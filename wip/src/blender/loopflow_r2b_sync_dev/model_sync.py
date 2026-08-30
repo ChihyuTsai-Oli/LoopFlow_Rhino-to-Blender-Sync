@@ -12,9 +12,9 @@ from pathlib import Path
 import bpy
 from mathutils import Matrix
 
-_SRC = Path(__file__).resolve().parents[2]
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
+from . import _srcpath
+
+_srcpath.ensure_src()
 
 from foundation.block_payload import (
     USERSTRING_DEF_ID,

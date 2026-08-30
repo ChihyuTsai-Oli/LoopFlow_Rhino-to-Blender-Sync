@@ -11,10 +11,9 @@ from pathlib import Path
 import bpy
 import mathutils
 
-# junction 下 __file__ 指向 repo；parents[2] = wip/src
-_SRC = Path(__file__).resolve().parents[2]
-if str(_SRC) not in sys.path:
-    sys.path.insert(0, str(_SRC))
+from . import _srcpath
+
+_srcpath.ensure_src()
 
 from foundation.camera_payload import parse_camera_payload
 from foundation.paths import resolve_camera_json_from_work_folder

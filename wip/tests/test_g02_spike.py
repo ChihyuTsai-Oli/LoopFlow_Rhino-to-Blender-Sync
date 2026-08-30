@@ -64,7 +64,7 @@ class G02SpikeTests(unittest.TestCase):
     def test_manifest_spike_identity(self):
         text = MANIFEST.read_text(encoding="utf-8")
         self.assertIn("name: loopflow-rhino-to-blender-sync", text)
-        self.assertIn("version: 0.1.4", text)
+        self.assertIn("version: 0.1.5", text)
         self.assertIn("Chihyu Tsai", text)
         self.assertIn("github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync", text)
         self.assertIn("guid:860a0589-cda5-46a6-97ef-d538db8e0db3", text)
@@ -84,6 +84,8 @@ class G02SpikeTests(unittest.TestCase):
         self.assertIn("loopflow_r2b_sync_dev", build)
         self.assertIn("loopflow_r2b_sync.zip", build)
         self.assertIn("_vendor", build)
+        self.assertIn("foundation", build)
+        self.assertIn("blender_manifest.toml", build)
         self.assertIn("matches rhp", build)
 
     def test_command_locate_compiles(self):
@@ -126,14 +128,30 @@ class G02SpikeTests(unittest.TestCase):
         addon = WIP / "src" / "blender" / "loopflow_r2b_sync_dev"
         nested = addon / "import_3dm" / "blender_manifest.toml"
         self.assertFalse(nested.is_file(), nested)
-        manifest = (addon / "blender_manifest.toml").read_text(encoding="utf-8")
-        self.assertIn('id = "loopflow_r2b_sync"', manifest)
-        self.assertIn('name = "LoopFlow Rhino to Blender Sync"', manifest)
-        self.assertNotIn('id = "import_3dm"', manifest)
+        self.assertFalse((addon / "blender_manifest.toml").is_file())
+        self.assertTrue((addon / "_srcpath.py").is_file())
         init = (addon / "__init__.py").read_text(encoding="utf-8")
         self.assertIn('"name": "LoopFlow Rhino to Blender Sync"', init)
         self.assertIn("def register(", init)
         self.assertNotIn("Dev Stub", init)
+        model = (addon / "model_sync.py").read_text(encoding="utf-8")
+        self.assertIn("_srcpath.ensure_src()", model)
+
+    def test_srcpath_uses_bundled_foundation(self):
+        import importlib.util
+
+        srcpath = WIP / "src" / "blender" / "loopflow_r2b_sync_dev" / "_srcpath.py"
+        with tempfile.TemporaryDirectory() as tmp:
+            addon = Path(tmp) / "loopflow_r2b_sync"
+            (addon / "foundation").mkdir(parents=True)
+            (addon / "foundation" / "__init__.py").write_text("", encoding="utf-8")
+            (addon / "_srcpath.py").write_text(srcpath.read_text(encoding="utf-8"), encoding="utf-8")
+            spec = importlib.util.spec_from_file_location(
+                "r2b_bundled_srcpath", addon / "_srcpath.py"
+            )
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            self.assertEqual(Path(mod.ensure_src()).resolve(), addon.resolve())
 
 
 if __name__ == "__main__":

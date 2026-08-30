@@ -43,14 +43,20 @@ Rhino 對話框與 Blender 面板為英文；本說明為正體中文。
 
 **Blender**
 
-1. 若先前裝過失敗的 **import_3dm** 或 **loopflow_r2b_sync**，先在 Blender 的 Extensions／Add-ons 裡移除
-2. **完全關掉 Blender**。若 `portable\extensions\user_default\` 裡還有 `loopflow_r2b_sync` 或 `loopflow_r2b_sync@`，刪掉這兩個資料夾
-3. 跑一次任一 Rhino 指令，開啟「文件\LoopFlow\Rhino to Blender Sync」
-4. 只用 **Install from Disk** 裝該資料夾裡的 **zip**（不要選資料夾）
-5. 列表名稱應為 **LoopFlow Rhino to Blender Sync**；啟用後 N 面板標籤 **LoopFlow**、bar **Rhino to Blender Sync**
-6. 不必再啟用獨立的「Import Rhinoceros 3D」
+請走 **Edit → Preferences → Add-ons → Install from Disk**（傳統 Add-ons），不要用 Extensions。
 
-若出現「存取被拒」改名失敗：先關 Blender、刪掉上面兩個資料夾再開。Portable 若放在 Dropbox 裡，可暫停同步再裝一次。
+1. 若列表裡已有 **import_3dm** 或 **LoopFlow Rhino to Blender Sync**／**loopflow_r2b_sync**，先移除或停用
+2. **完全關掉 Blender**。若 Portable 裝在 Dropbox 上，先暫停 Dropbox
+3. 刪掉殘留資料夾（有哪個刪哪個）：
+   - `portable\extensions\user_default\loopflow_r2b_sync`
+   - `portable\extensions\user_default\loopflow_r2b_sync@`
+   - `portable\scripts\addons\loopflow_r2b_sync`
+4. 在 Rhino 跑一次任一產品指令，讓新版 zip 拷到「文件\LoopFlow\Rhino to Blender Sync」
+5. 再開 Blender，**Install from Disk** 只選該資料夾裡的 **zip**（不要選資料夾）
+6. 在 **Add-ons** 列表找到 **LoopFlow Rhino to Blender Sync** 並勾選啟用；N 面板標籤 **LoopFlow**、bar **Rhino to Blender Sync**
+7. 不必再啟用獨立的「Import Rhinoceros 3D」
+
+若仍出現「檔案正由另一個程序使用」：確認 Blender 已關、Dropbox 已暫停，再刪殘留資料夾後重裝。
 
 完整步驟與按鈕說明見 [使用說明](./docs/README.md)。
 

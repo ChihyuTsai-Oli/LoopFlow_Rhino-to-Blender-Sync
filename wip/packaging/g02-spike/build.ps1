@@ -74,16 +74,25 @@ $AddonSrc = Join-Path $RepoRoot "wip\src\blender\loopflow_r2b_sync_dev"
 if (-not (Test-Path -LiteralPath $AddonSrc)) {
     throw "Missing Blender add-on: $AddonSrc"
 }
-# zip 內層必須與 blender_manifest.toml 的 id 相同；不打 _vendor（.pyd 會讓 Windows／Dropbox 改名失敗）
+# zip 內層 loopflow_r2b_sync；附 foundation；不打 _vendor 與 blender_manifest（Extensions @ 改名在 Dropbox 會鎖檔）
 $ZipTmp = Join-Path $env:TEMP "r2b-yak-addon-zip"
 if (Test-Path -LiteralPath $ZipTmp) {
     Remove-Item -LiteralPath $ZipTmp -Recurse -Force
 }
 $ZipInner = Join-Path $ZipTmp "loopflow_r2b_sync"
 New-Item -ItemType Directory -Path $ZipInner | Out-Null
-& robocopy $AddonSrc $ZipInner /E /XD __pycache__ _vendor /XF *.pyc /NFL /NDL /NJH /NJS /nc /ns | Out-Null
+& robocopy $AddonSrc $ZipInner /E /XD __pycache__ _vendor /XF *.pyc blender_manifest.toml /NFL /NDL /NJH /NJS /nc /ns | Out-Null
 if ($LASTEXITCODE -ge 8) {
     throw "robocopy zip staging failed: $LASTEXITCODE"
+}
+$LASTEXITCODE = 0
+$FoundationSrc = Join-Path $RepoRoot "wip\src\foundation"
+if (-not (Test-Path -LiteralPath $FoundationSrc)) {
+    throw "Missing foundation: $FoundationSrc"
+}
+& robocopy $FoundationSrc (Join-Path $ZipInner "foundation") /E /XD __pycache__ /XF *.pyc /NFL /NDL /NJH /NJS /nc /ns | Out-Null
+if ($LASTEXITCODE -ge 8) {
+    throw "robocopy foundation failed: $LASTEXITCODE"
 }
 $LASTEXITCODE = 0
 $ZipOut = Join-Path $Templates "loopflow_r2b_sync.zip"
@@ -92,7 +101,7 @@ if (Test-Path -LiteralPath $ZipOut) {
     Remove-Item -LiteralPath $ZipOut -Force
 }
 [System.IO.Compression.ZipFile]::CreateFromDirectory($ZipTmp, $ZipOut)
-Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "0.1.4" -Encoding ascii -NoNewline
+Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "0.1.5" -Encoding ascii -NoNewline
 Write-Host "Staged Blender add-on zip"
 
 if (-not (Test-Path -LiteralPath $Yak)) {
