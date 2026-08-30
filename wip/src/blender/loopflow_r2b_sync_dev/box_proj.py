@@ -723,10 +723,10 @@ class LOOPFLOW_R2B_DEV_PT_box_projection(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         layout.operator(
-            "loopflow_r2b_dev.load_pbr_maps", text="Load PBR Maps"
+            "loopflow_r2b_dev.load_pbr_maps", text="Load PBR Maps", icon="IMAGE"
         )
         layout.operator(
-            "loopflow_r2b_dev.add_box_projection", text="Add Box Projection"
+            "loopflow_r2b_dev.add_box_projection", text="Add Box Projection", icon="NODE_MATERIAL"
         )
 
         col = layout.column(align=True)
@@ -762,11 +762,11 @@ class LOOPFLOW_R2B_DEV_PT_box_projection(bpy.types.Panel):
         row.label(text="Space")
         is_obj = space.default_value > 0.5
         op_w = row.operator(
-            "loopflow_r2b_dev.box_space", text="World", depress=not is_obj
+            "loopflow_r2b_dev.box_space", text="World", icon="WORLD", depress=not is_obj
         )
         op_w.mode = "WORLD"
         op_o = row.operator(
-            "loopflow_r2b_dev.box_space", text="Object", depress=is_obj
+            "loopflow_r2b_dev.box_space", text="Object", icon="OBJECT_DATA", depress=is_obj
         )
         op_o.mode = "OBJECT"
         loc_label = "Location (object)" if is_obj else "Location (world)"

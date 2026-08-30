@@ -109,6 +109,14 @@ class SourceSkeletonTests(unittest.TestCase):
         ):
             self.assertIn(label, text)
         self.assertNotIn('text="Import Models"', text)
+        self.assertIn('icon="IMPORT"', text)
+        self.assertIn('icon="ADD"', text)
+        self.assertIn('icon="PLAY"', text)
+        self.assertIn('icon="PAUSE"', text)
+        self.assertIn('icon="CAMERA_DATA"', text)
+        self.assertIn('icon="LIGHT"', text)
+        self.assertIn('icon="FILE_FOLDER"', text)
+        self.assertIn('icon="HELP"', text)
 
     def test_addon_operator_hover_docstrings(self):
         tree = ast.parse(ADDON.read_text(encoding="utf-8"))

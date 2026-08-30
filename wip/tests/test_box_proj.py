@@ -126,6 +126,10 @@ class BoxMappingTests(unittest.TestCase):
         self.assertNotIn("Box Projection", sync_panel.split("_CLASSES")[0])
 
         src = BOX_PROJ.read_text(encoding="utf-8")
+        self.assertIn('icon="IMAGE"', src)
+        self.assertIn('icon="NODE_MATERIAL"', src)
+        self.assertIn('icon="WORLD"', src)
+        self.assertIn('icon="OBJECT_DATA"', src)
         self.assertIn("load_pbr_maps", src)
         self.assertIn("box_space", src)
         self.assertIn("ShaderNodeTexCoord", src)

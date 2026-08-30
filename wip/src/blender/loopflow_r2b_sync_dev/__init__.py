@@ -286,26 +286,26 @@ class LOOPFLOW_R2B_DEV_PT_panel(bpy.types.Panel):
 
         layout.separator()
         col = layout.column(align=True)
-        col.operator("loopflow_r2b_dev.import_models", text="Sync Models")
-        col.operator("loopflow_r2b_dev.update_models", text="Update Models")
-        col.operator("loopflow_r2b_dev.import_objects", text="Import Objects")
+        col.operator("loopflow_r2b_dev.import_models", text="Sync Models", icon="IMPORT")
+        col.operator("loopflow_r2b_dev.update_models", text="Update Models", icon="FILE_REFRESH")
+        col.operator("loopflow_r2b_dev.import_objects", text="Import Objects", icon="ADD")
 
         layout.separator()
         col = layout.column(align=True)
-        col.operator("loopflow_r2b_dev.camera_auto_on", text="Camera Auto On")
-        col.operator("loopflow_r2b_dev.camera_auto_off", text="Camera Auto Off")
-        col.operator("loopflow_r2b_dev.camera_push", text="Camera Push Once")
+        col.operator("loopflow_r2b_dev.camera_auto_on", text="Camera Auto On", icon="PLAY")
+        col.operator("loopflow_r2b_dev.camera_auto_off", text="Camera Auto Off", icon="PAUSE")
+        col.operator("loopflow_r2b_dev.camera_push", text="Camera Push Once", icon="CAMERA_DATA")
 
         layout.separator()
         col = layout.column(align=True)
-        col.operator("loopflow_r2b_dev.light_auto_on", text="Light Auto On")
-        col.operator("loopflow_r2b_dev.light_auto_off", text="Light Auto Off")
-        col.operator("loopflow_r2b_dev.sync_lights", text="Sync Lights")
+        col.operator("loopflow_r2b_dev.light_auto_on", text="Light Auto On", icon="PLAY")
+        col.operator("loopflow_r2b_dev.light_auto_off", text="Light Auto Off", icon="PAUSE")
+        col.operator("loopflow_r2b_dev.sync_lights", text="Sync Lights", icon="LIGHT")
 
         layout.separator()
         col = layout.column(align=True)
-        col.operator("loopflow_r2b_dev.open_health", text="Open / Health")
-        col.operator("loopflow_r2b_dev.open_docs", text="Open Docs")
+        col.operator("loopflow_r2b_dev.open_health", text="Open / Health", icon="FILE_FOLDER")
+        col.operator("loopflow_r2b_dev.open_docs", text="Open Docs", icon="HELP")
 
 
 _CLASSES = (
