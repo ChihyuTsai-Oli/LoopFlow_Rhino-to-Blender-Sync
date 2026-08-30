@@ -57,6 +57,8 @@ class G02SpikeTests(unittest.TestCase):
         self.assertIn("version: 0.1.0", text)
         self.assertIn("Chihyu Tsai", text)
         self.assertIn("github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync", text)
+        self.assertIn("guid:860a0589-cda5-46a6-97ef-d538db8e0db3", text)
+        self.assertIn("platform: win", text)
         self.assertNotIn("3.0.0", text)
         self.assertNotIn("import_3dm", text)
 
