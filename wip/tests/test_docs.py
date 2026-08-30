@@ -55,10 +55,10 @@ class DocsEntryTests(unittest.TestCase):
             self.assertIn("1.0.0", text)
             self.assertIn("releases/tag/toolbox-1.0.0", text)
             self.assertIn("Install from Disk", text)
-        self.assertIn("尚未發布", zh)
-        self.assertIn("not published yet", en)
         self.assertIn("不要", zh)
         self.assertIn("Do **not** use", en)
+        self.assertNotIn("尚未發布", zh)
+        self.assertNotIn("not published yet", en)
 
 
 if __name__ == "__main__":

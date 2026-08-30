@@ -10,12 +10,10 @@ Rhino to Blender Sync docs: [documentation entry](./README.md).
 
 ## Download and install
 
-When the zip is published, download it from a **fixed tag**. Do **not** use this repo’s [latest Release](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/latest) (that is the R2B sync product):
+Download the zip from a **fixed tag**. Do **not** use this repo’s [latest Release](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/latest) (that is the R2B sync product):
 
 - Tag: [`toolbox-1.0.0`](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/toolbox-1.0.0)
 - File: `loopflow_toolbox-1.0.0.zip`
-
-**That tag is not published yet.** Until then, pack with `wip/tools/pack_toolbox.ps1`.
 
 1. Edit → Preferences → Add-ons → **Install from Disk** (not Get Extensions)
 2. Choose the zip only

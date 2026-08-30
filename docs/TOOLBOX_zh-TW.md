@@ -10,12 +10,10 @@ Rhino to Blender Sync 的說明見 [使用說明入口](./README.md)。
 
 ## 下載與安裝
 
-zip 上架後請從固定 tag 下載，**不要**用這個 repo 的 [latest Release](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/latest)（那是 R2B 同步產品）：
+請從固定 tag 下載 zip，**不要**用這個 repo 的 [latest Release](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/latest)（那是 R2B 同步產品）：
 
 - Tag：[`toolbox-1.0.0`](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/toolbox-1.0.0)
 - 檔名：`loopflow_toolbox-1.0.0.zip`
-
-**目前此 tag 尚未發布。** 上架前請用開發打包：`wip/tools/pack_toolbox.ps1`。
 
 1. Edit → Preferences → Add-ons → **Install from Disk**（不要用 Get Extensions）
 2. 只選上述 zip
