@@ -29,6 +29,7 @@ class DocsEntryTests(unittest.TestCase):
         self.assertIn("./TOOLBOX_zh-TW.md", text)
         self.assertIn("documentation entry", text)
         self.assertIn("文件入口", text)
+        self.assertNotIn("CREDITS.md", text)
 
     def test_open_docs_uses_opener(self):
         seen = []
