@@ -175,6 +175,9 @@ def _run():
     _started = True
     try:
         _prepare_src()
+        from foundation.user_assets import sync_user_assets
+
+        sync_user_assets()
         import rhinoscriptsyntax as rs  # type: ignore
 
         from rhino.commands.models import publish_models_once

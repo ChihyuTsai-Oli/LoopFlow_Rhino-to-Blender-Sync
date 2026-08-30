@@ -84,6 +84,7 @@ _-ScriptEditor _Run "E:\_GitHub\LoopFlow_Rhino-to-Blender-Sync\wip\src\rhino\ent
 
 | 日期 | 說明 |
 |---|---|
+| 2026-08-30 | G02 `0.1.1`：yak 含 Sync add-on；第一次跑指令拷到「文件\LoopFlow」 |
 | 2026-08-30 | G02：正式工具列巨集 `! _RBModels` 等；開發 ScriptEditor 巨集分開寫 |
 | 2026-08-29 | Import Objects 檔案總管預設 `_LoopFlow_Config/loopflow_R2B/models/` |
 | 2026-08-29 | 入口隔離，避免與 R2O 同 Rhino 互踩 |

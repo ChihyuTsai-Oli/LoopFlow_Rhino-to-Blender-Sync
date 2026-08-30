@@ -1,6 +1,6 @@
 # R2B 3.0 G02 本機 yak spike
 
-本機封裝用，**不是** `v3.0.0` 上架包。版號 `0.1.0`。Blender add-on 不進 yak。
+本機封裝用，**不是** `v3.0.0` 上架包。版號 `0.1.1`。yak 含 Blender Sync add-on（`templates/`）；第一次跑任一產品指令拷到「文件\LoopFlow\Rhino to Blender Sync」。
 
 畫面名（已凍）：`loopflow Rhino to Blender Sync`  
 機器名：`loopflow-rhino-to-blender-sync`

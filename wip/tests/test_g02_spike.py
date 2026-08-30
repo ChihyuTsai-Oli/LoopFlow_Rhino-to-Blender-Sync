@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""G02 yak spike：manifest、指令檔、不得包進 Blender（不依賴 Rhino GUI）。"""
+"""G02 yak spike：manifest、指令檔、含 Blender add-on templates（不依賴 Rhino GUI）。"""
 from __future__ import annotations
 
 import py_compile
@@ -49,6 +49,7 @@ class G02SpikeTests(unittest.TestCase):
             self.assertIn("_run()", text)
             self.assertIn("PLUGIN_ID = \"{}\"".format(command_locate.PLUGIN_ID), text)
             self.assertIn("_from_yak_install", text)
+            self.assertIn("sync_user_assets", text)
             self.assertNotIn("_isolate.py", text)
             self.assertNotIn("import_3dm", text)
             self.assertNotIn("loopflow_r2b_sync_dev", text)
@@ -63,7 +64,7 @@ class G02SpikeTests(unittest.TestCase):
     def test_manifest_spike_identity(self):
         text = MANIFEST.read_text(encoding="utf-8")
         self.assertIn("name: loopflow-rhino-to-blender-sync", text)
-        self.assertIn("version: 0.1.0", text)
+        self.assertIn("version: 0.1.1", text)
         self.assertIn("Chihyu Tsai", text)
         self.assertIn("github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync", text)
         self.assertIn("guid:860a0589-cda5-46a6-97ef-d538db8e0db3", text)
@@ -79,6 +80,8 @@ class G02SpikeTests(unittest.TestCase):
         self.assertIn("docs\\toolbar", build)
         self.assertIn("build\\rh8", build)
         self.assertIn("yak-stage", build)
+        self.assertIn("templates", build)
+        self.assertIn("loopflow_r2b_sync_dev", build)
 
     def test_command_locate_compiles(self):
         py_compile.compile(str(SPIKE / "command_locate.py"), doraise=True)

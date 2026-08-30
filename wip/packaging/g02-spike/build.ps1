@@ -64,6 +64,38 @@ Get-ChildItem -LiteralPath (Join-Path $Spike "build\rh8") -Filter "*.rhp" -File 
     Write-Host "Staged $($_.Name)"
 }
 
+$Templates = Join-Path $Stage "templates"
+New-Item -ItemType Directory -Force -Path $Templates | Out-Null
+$AddonSrc = Join-Path $RepoRoot "wip\src\blender\loopflow_r2b_sync_dev"
+if (-not (Test-Path -LiteralPath $AddonSrc)) {
+    throw "Missing Blender add-on: $AddonSrc"
+}
+$AddonDest = Join-Path $Templates "blender\loopflow_r2b_sync_dev"
+New-Item -ItemType Directory -Force -Path $AddonDest | Out-Null
+& robocopy $AddonSrc $AddonDest /E /XD __pycache__ /XF *.pyc /NFL /NDL /NJH /NJS /nc /ns | Out-Null
+if ($LASTEXITCODE -ge 8) {
+    throw "robocopy add-on failed: $LASTEXITCODE"
+}
+$LASTEXITCODE = 0
+$ZipTmp = Join-Path $env:TEMP "r2b-yak-addon-zip"
+if (Test-Path -LiteralPath $ZipTmp) {
+    Remove-Item -LiteralPath $ZipTmp -Recurse -Force
+}
+New-Item -ItemType Directory -Path (Join-Path $ZipTmp "loopflow_r2b_sync_dev") | Out-Null
+& robocopy $AddonDest (Join-Path $ZipTmp "loopflow_r2b_sync_dev") /E /NFL /NDL /NJH /NJS /nc /ns | Out-Null
+if ($LASTEXITCODE -ge 8) {
+    throw "robocopy zip staging failed: $LASTEXITCODE"
+}
+$LASTEXITCODE = 0
+$ZipOut = Join-Path $Templates "loopflow_r2b_sync.zip"
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+if (Test-Path -LiteralPath $ZipOut) {
+    Remove-Item -LiteralPath $ZipOut -Force
+}
+[System.IO.Compression.ZipFile]::CreateFromDirectory($ZipTmp, $ZipOut)
+Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "0.1.1" -Encoding ascii -NoNewline
+Write-Host "Staged Blender add-on templates"
+
 if (-not (Test-Path -LiteralPath $Yak)) {
     Write-Host "yak.exe not found: $Yak"
     exit 1

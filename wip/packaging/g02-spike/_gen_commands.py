@@ -189,6 +189,9 @@ def _run():
     _started = True
     try:
         _prepare_src()
+        from foundation.user_assets import sync_user_assets
+
+        sync_user_assets()
 %(body)s
     except Exception:
         err = traceback.format_exc()

@@ -4,7 +4,7 @@
 
 > 把 Rhino 的模型、相機與燈光點位，單向同步到 Blender。
 
-Rhino 端裝一份 `.yak`；Blender 端另裝 Sync add-on（內含 3dm 匯入）。
+Rhino 端裝一份 `.yak`（內含 Blender Sync add-on）。第一次跑任一 Rhino 指令後，add-on 會拷到「文件\LoopFlow\Rhino to Blender Sync」。
 
 [▶ 使用說明](./docs/README.md) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ 教學影片](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8)
 
@@ -21,7 +21,7 @@ Rhino 端裝一份 `.yak`；Blender 端另裝 Sync add-on（內含 3dm 匯入）
 ## 系統需求
 
 - **Rhino 8**（Windows）
-- **Blender 5.2.1**
+- **Blender 5.2.1**（開發環境）
 
 Rhino 對話框與 Blender 面板為英文；本說明為正體中文。
 
@@ -43,9 +43,10 @@ Rhino 對話框與 Blender 面板為英文；本說明為正體中文。
 
 **Blender**
 
-1. 安裝本 repo 的 Sync add-on（內含 3dm 匯入）
-2. 啟用後，3D 視窗 N 面板標籤 **LoopFlow**、bar **Rhino to Blender Sync**
-3. 不必再啟用獨立的「Import Rhinoceros 3D」
+1. 跑一次任一 Rhino 指令，開啟「文件\LoopFlow\Rhino to Blender Sync」
+2. 在 Blender 用 **Install from Disk** 裝該資料夾裡的 zip（內含 3dm 匯入）
+3. 啟用後，3D 視窗 N 面板標籤 **LoopFlow**、bar **Rhino to Blender Sync**
+4. 不必再啟用獨立的「Import Rhinoceros 3D」
 
 完整步驟與按鈕說明見 [使用說明](./docs/README.md)。
 

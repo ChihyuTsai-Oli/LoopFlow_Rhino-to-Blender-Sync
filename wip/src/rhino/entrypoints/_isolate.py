@@ -28,4 +28,11 @@ def isolate_src(src: str) -> str:
 def isolate_from_entrypoint(entrypoint_file: str) -> str:
     here = os.path.dirname(os.path.abspath(entrypoint_file))
     src = os.path.abspath(os.path.join(here, "..", ".."))
-    return isolate_src(src)
+    isolate_src(src)
+    try:
+        from foundation.user_assets import sync_user_assets
+
+        sync_user_assets()
+    except Exception:
+        pass
+    return src

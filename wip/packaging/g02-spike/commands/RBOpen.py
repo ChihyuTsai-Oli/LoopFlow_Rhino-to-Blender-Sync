@@ -175,6 +175,9 @@ def _run():
     _started = True
     try:
         _prepare_src()
+        from foundation.user_assets import sync_user_assets
+
+        sync_user_assets()
         from rhino.commands.open import run_open
 
         result = run_open()
