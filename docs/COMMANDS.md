@@ -147,7 +147,7 @@ Edit the template fixture and instances follow. For a one-off intensity or color
 
 Work Folder is the same folder as the `.3dm`. You do not need a separate Import Rhinoceros 3D add-on. The Sync zip is in `Documents\LoopFlow\Rhino to Blender Sync`. Install with **Add-ons → Install from Disk** (not Extensions). The list name is **LoopFlow Rhino to Blender Sync**. If you previously installed import_3dm, hit a rename error, or saw `No module named 'foundation'`: quit Blender, delete `loopflow_r2b_sync` / `loopflow_r2b_sync@` under both `extensions\user_default` and `scripts\addons`, then install the zip only. If Portable Blender is on Dropbox, pause sync before installing.
 
-LoopFlow Toolkit is not part of this product.
+LoopFlow [ToolBox](./TOOLBOX.md) is not part of this product (separate Blender add-on; not in the yak).
 
 ---
 

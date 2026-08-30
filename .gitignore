@@ -61,6 +61,7 @@ wip/packaging/**/*.rhp
 wip/packaging/g02-spike/*.rui
 wip/packaging/g02-spike/icon.png
 wip/packaging/g02-spike/build/
+wip/packaging/toolbox/build/
 
 # 原始檔名圖示只留本機；追蹤 icon.png
 wip/docs/toolbar/LoopFlow_R2G-R2B.png

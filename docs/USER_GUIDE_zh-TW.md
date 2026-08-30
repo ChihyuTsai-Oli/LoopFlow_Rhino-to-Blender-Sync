@@ -38,7 +38,7 @@ Blender 的 Work Folder 請指到**與 `.3dm` 同一層**（不是指進 `_LoopF
 
 Rhino 工具列 **Rhino to Blender Sync** 有四顆鈕：左鍵是上表主功能，右鍵是 Objects／Camera Push／Light Push。
 
-Blender 3D 視窗 N 面板：標籤 **LoopFlow**，bar **Rhino to Blender Sync**。著色輔助在 Shader Editor 同一個標籤、bar **Box Projection**，不進同步。
+Blender 3D 視窗 N 面板：標籤 **LoopFlow**，bar **Rhino to Blender Sync**。著色輔助在 Shader Editor 同一個標籤、bar **Box Projection**，不進同步。選配的 [LoopFlow ToolBox](./TOOLBOX_zh-TW.md) 是另一個 add-on，同一標籤、bar **ToolBox**。
 
 ## 幾個要先懂的名詞
 

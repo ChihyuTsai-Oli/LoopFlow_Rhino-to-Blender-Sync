@@ -25,6 +25,8 @@ class DocsEntryTests(unittest.TestCase):
         text = (REPO / "docs" / "README.md").read_text(encoding="utf-8")
         self.assertIn("./USER_GUIDE.md", text)
         self.assertIn("./USER_GUIDE_zh-TW.md", text)
+        self.assertIn("./TOOLBOX.md", text)
+        self.assertIn("./TOOLBOX_zh-TW.md", text)
         self.assertIn("documentation entry", text)
         self.assertIn("文件入口", text)
 
@@ -45,6 +47,18 @@ class DocsEntryTests(unittest.TestCase):
         err = open_docs_in_browser(opener=boom)
         self.assertIn("Could not open documentation", err)
         self.assertIn("blocked", err)
+
+    def test_public_toolbox_page_version_and_fixed_tag(self):
+        zh = (REPO / "docs" / "TOOLBOX_zh-TW.md").read_text(encoding="utf-8")
+        en = (REPO / "docs" / "TOOLBOX.md").read_text(encoding="utf-8")
+        for text in (zh, en):
+            self.assertIn("1.0.0", text)
+            self.assertIn("releases/tag/toolbox-1.0.0", text)
+            self.assertIn("Install from Disk", text)
+        self.assertIn("尚未發布", zh)
+        self.assertIn("not published yet", en)
+        self.assertIn("不要", zh)
+        self.assertIn("Do **not** use", en)
 
 
 if __name__ == "__main__":
