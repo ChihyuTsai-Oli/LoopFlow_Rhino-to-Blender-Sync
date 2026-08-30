@@ -45,23 +45,27 @@ if (Test-Path -LiteralPath $Stage) {
 New-Item -ItemType Directory -Path $Stage | Out-Null
 Copy-Item -LiteralPath (Join-Path $Spike "manifest.yml") -Destination (Join-Path $Stage "manifest.yml")
 
-$ProductRui = Get-ChildItem -LiteralPath $Toolbar -Filter "*.rui" -File -ErrorAction SilentlyContinue | Select-Object -First 1
-if ($null -ne $ProductRui) {
-    Copy-Item -LiteralPath $ProductRui.FullName -Destination (Join-Path $Stage $ProductRui.Name) -Force
-    Write-Host "Staged product RUI $($ProductRui.Name)"
-} else {
-    Write-Host "No product RUI in wip/docs/toolbar yet; yak will have commands only."
-}
-
 $Icon = Join-Path $Toolbar "icon.png"
 if (Test-Path -LiteralPath $Icon) {
     Copy-Item -LiteralPath $Icon -Destination (Join-Path $Stage "icon.png") -Force
     Write-Host "Staged icon.png"
 }
 
-Get-ChildItem -LiteralPath (Join-Path $Spike "build\rh8") -Filter "*.rhp" -File -ErrorAction SilentlyContinue | ForEach-Object {
-    Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $Stage $_.Name) -Force
-    Write-Host "Staged $($_.Name)"
+$StagedRhp = Get-ChildItem -LiteralPath (Join-Path $Spike "build\rh8") -Filter "*.rhp" -File -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($null -eq $StagedRhp) {
+    throw "RhinoCode did not produce an .rhp"
+}
+Copy-Item -LiteralPath $StagedRhp.FullName -Destination (Join-Path $Stage $StagedRhp.Name) -Force
+Write-Host "Staged $($StagedRhp.Name)"
+
+$ProductRui = Get-ChildItem -LiteralPath $Toolbar -Filter "*.rui" -File -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($null -ne $ProductRui) {
+    # Rhino 只自動載入與 .rhp 同名的 .rui（出圖 LoopFlow.rhp／LoopFlow.rui）
+    $RuiName = $StagedRhp.BaseName + ".rui"
+    Copy-Item -LiteralPath $ProductRui.FullName -Destination (Join-Path $Stage $RuiName) -Force
+    Write-Host "Staged product RUI $RuiName (matches rhp)"
+} else {
+    Write-Host "No product RUI in wip/docs/toolbar yet; yak will have commands only."
 }
 
 $Templates = Join-Path $Stage "templates"
@@ -93,7 +97,7 @@ if (Test-Path -LiteralPath $ZipOut) {
     Remove-Item -LiteralPath $ZipOut -Force
 }
 [System.IO.Compression.ZipFile]::CreateFromDirectory($ZipTmp, $ZipOut)
-Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "0.1.1" -Encoding ascii -NoNewline
+Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "0.1.2" -Encoding ascii -NoNewline
 Write-Host "Staged Blender add-on templates"
 
 if (-not (Test-Path -LiteralPath $Yak)) {
