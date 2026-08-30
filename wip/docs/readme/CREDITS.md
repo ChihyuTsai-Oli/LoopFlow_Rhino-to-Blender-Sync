@@ -4,7 +4,7 @@
 
 LoopFlow_import_3dm is a fork of [import_3dm](https://github.com/jesterKing/import_3dm) by [Nathan Letwory (jesterKing)](https://github.com/jesterKing), licensed under MIT.
 
-In 3.0 the fork is embedded in the Blender Sync add-on. You do not need a separate Import Rhinoceros 3D add-on.
+The fork is embedded in the Blender Sync add-on. You do not need a separate Import Rhinoceros 3D add-on.
 
 ## Toolbar Icons
 

@@ -1,6 +1,8 @@
-# LoopFlow R2B 3.0 使用說明總覽
+# LoopFlow R2B 使用說明總覽
 
-> 一分鐘理解 3.0 怎麼運作。按鈕與逐步操作見 [指令逐項說明](./COMMANDS_zh-TW.md)。產品介紹與安裝見 [專案主頁初稿](./README_zh-TW.md)。
+> 同一專案不要混用舊版的工具列、套件或 Blender add-on。
+>
+> 一分鐘理解怎麼運作。按鈕與逐步操作見 [指令逐項說明](./COMMANDS_zh-TW.md)。產品介紹與安裝見 [專案主頁](../README_zh-TW.md)。
 
 ## 核心邏輯：單向、分通道
 
@@ -23,8 +25,6 @@ _LoopFlow_Config/loopflow_R2B/
 ```
 
 Blender 的 Work Folder 請指到**與 `.3dm` 同一層**（不是指進 `_LoopFlow_Config` 裡面）。換電腦時把整個專案資料夾一起搬即可。
-
-2.x 把路徑記在 AppData 的 `R2B_Path.txt`。3.0 不再用那份檔。
 
 ## 兩端怎麼對
 

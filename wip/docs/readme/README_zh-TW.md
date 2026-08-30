@@ -1,14 +1,12 @@
 # LoopFlow｜Rhino to Blender Sync
 
-> 3.0 公開說明初稿（`wip/docs/readme/`）。尚未取代 repo 根目錄的 2.x 文件。英文尚未撰寫。
-
-[2.x English homepage](../../../README.md)
+> 同一專案不要混用舊版的工具列、套件或 Blender add-on。
 
 > 把 Rhino 的模型、相機與燈光點位，單向同步到 Blender。
 
-3.0 是重建，不是 2.x 的修補版。Rhino 端裝一份 `.yak`；Blender 端另裝 Sync add-on（內含 3dm 匯入）。同一專案不要混用 2.x 與 3.0。
+Rhino 端裝一份 `.yak`；Blender 端另裝 Sync add-on（內含 3dm 匯入）。
 
-[▶ 使用說明](./README.md) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ 教學影片](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8)
+[▶ 使用說明](./docs/README.md) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ 教學影片](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8)
 
 ## 主要功能
 
@@ -20,28 +18,18 @@
 
 各通道彼此獨立，不必照固定順序一次做完。
 
-## 與 2.x 的差異
-
-- 3.0 是重建；指令改為 `RBModels`、`RBOpen` 等連寫名稱，不是舊的 `R2B_Models`
-- 設定改放在已存檔 `.3dm` 旁的 `_LoopFlow_Config/loopflow_R2B/`，不再用 AppData 的 `R2B_Path.txt`
-- Blender 只要裝 Sync add-on；**不必**再裝獨立的 Import Rhinoceros 3D 或 2.x 的 `LoopFlow_import_3dm`
-- Rhino 套件只含 Rhino；Blender 不進 `.yak`
-- 同一專案、同一套按鈕不要混用 2.x 與 3.0
-
 ## 系統需求
 
 - **Rhino 8**（Windows）
-- **Blender 5.2.1**（3.0 目標版本）
+- **Blender 5.2.1**
 
 Rhino 對話框與 Blender 面板為英文；本說明為正體中文。
 
 ## 快速開始
 
-教學影片尚未全部改為 3.0。
+教學影片尚未全部更新。
 
 ### 安裝
-
-不要用 2.x 的解壓腳本或舊工具列。
 
 **Rhino**
 
@@ -49,17 +37,17 @@ Rhino 對話框與 Blender 面板為英文；本說明為正體中文。
 2. 正式上架後搜尋畫面名 **`loopflow Rhino to Blender Sync`**
 3. 或從 [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) 下載 `.yak`，在 Package Manager 選擇從檔案安裝
 4. **完全關掉 Rhino 再開**
-5. 使用工具列 **Rhino to Blender Sync**；不要按 2.x 按鈕
+5. 使用工具列 **Rhino to Blender Sync**
 
-3.0 正式上架前，請用本機／GitHub 提供的 `.yak` 從檔案安裝，不要搜尋到 2.x 就裝上去混用。
+尚未上架時，請用本機／GitHub 提供的 `.yak` 從檔案安裝。
 
 **Blender**
 
 1. 安裝本 repo 的 Sync add-on（內含 3dm 匯入）
 2. 啟用後，3D 視窗 N 面板標籤 **LoopFlow**、bar **Rhino to Blender Sync**
-3. 不要再啟用獨立的「Import Rhinoceros 3D」
+3. 不必再啟用獨立的「Import Rhinoceros 3D」
 
-完整步驟與按鈕說明見 [使用說明](./README.md)。
+完整步驟與按鈕說明見 [使用說明](./docs/README.md)。
 
 ## 基本工作流程
 
@@ -88,4 +76,4 @@ LoopFlow 是由建築及室內設計師從實際工作中發展的單人專案�
 
 ## 授權與致謝
 
-本專案採用 [MIT License](../../../LICENSE) 發布。開發背景與致謝請參考 [CREDITS](./CREDITS.md)。
+本專案採用 [MIT License](./LICENSE) 發布。開發背景與致謝請參考 [CREDITS](./CREDITS.md)。

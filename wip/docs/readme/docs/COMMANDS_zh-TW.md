@@ -1,5 +1,7 @@
-# LoopFlow R2B 3.0 指令逐項說明
+# LoopFlow R2B 指令逐項說明
 
+> 同一專案不要混用舊版的工具列、套件或 Blender add-on。
+>
 > 整體流程見 [使用說明總覽](./USER_GUIDE_zh-TW.md)。指令名稱是 Rhino 命令列裡的正式名稱（連寫，例如 `RBModels`）。
 >
 > Rhino 對話框與 Blender 面板為英文。
@@ -145,7 +147,7 @@ Blender：Camera Auto On／Off／Push Once。自動開啟後會跟隨 Rhino 視�
 
 Work Folder 指到與 `.3dm` 同一層。不必再啟用獨立的 Import Rhinoceros 3D。
 
-2.x 的 LoopFlow Toolkit 是選擇性工具，**不參與同步**。3.0 核心不重建 Toolkit。
+LoopFlow Toolkit 不在本產品同步範圍。
 
 ---
 
@@ -163,8 +165,7 @@ Work Folder 指到與 `.3dm` 同一層。不必再啟用獨立的 Import Rhinoce
 
 ## 08　不要做的事
 
-- 同一專案混用 2.x 與 3.0 工具列或 add-on
 - 未存檔就按發布
 - 把 `R2B.3dm` 與 `R2B_Objects_時戳.3dm` 交叉拿去對方的 Blender 按鈕
 - 在 Octane 或別的軟體流程裡期待這套 Blender 按鈕
-- 為了同步去改來源 `.3dm` 的檔名或把作業檔存成中間檔（3.0 不會幫你切走）
+- 為了同步去改來源 `.3dm` 的檔名或把作業檔存成中間檔
