@@ -1,45 +1,92 @@
 # LoopFlow｜Rhino to Blender Sync
 
-[▶ How it works（YouTube）](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ User Guide](./docs/README.md)
+[繁體中文](./README_zh-TW.md)
 
-## Version Downloads
+> Do not mix old toolbars, packages, or the Blender add-on in the same project.
 
-| Blender Version | Release | Python |
-|---|---|---|
-| **5.1.x** (Recommended) | [v2.0.0](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/v2.0.0) | 3.13 |
-| 4.5.x | [v1.0.0](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/v1.0.0) | 3.11 |
+Push Rhino models, cameras, and light points one way into Blender. You stay in control of every step; LoopFlow only writes what you ask for.
 
-## Key Features
+Rhino installs as a single `.yak`. The first product command copies the Blender Sync zip to `Documents\LoopFlow\Rhino to Blender Sync`.
 
-- **Model Sync** — One-click 3DM export; update geometry in Blender at any time while preserving all materials
-- **Camera Sync** — Mirrors the active Rhino viewport to the Blender camera
-- **Light Alignment** — Rhino Points sync; lights and fixtures auto-align to point positions in Blender
+[▶ Documentation](./docs/README.md) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ Tutorials](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8)
 
-## How Material Sync Works
+## Features
 
-The core feature is model sync — no matter how many times you sync, materials stay connected. Using the import_3dm addon, I built an export mechanism that generates a clean, Blender-ready model from any state of your Rhino file with one click. One click to export from Rhino, one click to import in Blender. That's it.
+- **Model sync** — Export a clean 3dm from the working Rhino file. Blender can rebuild geometry and keep materials you already tuned.
+- **Selected objects** — Export the current selection as a separate untextured 3dm and add it to the scene like an FBX.
+- **Camera sync** — Mirror the active Rhino viewport to Blender.
+- **Light alignment** — Rhino Points on the lighting layers align lights and fixtures you prepared in Blender.
+- **Box Projection** — Load PBR maps in the Shader Editor with world or object space. No UVs.
 
-## Modular by Design
+Each channel is independent. You do not have to run them in a fixed order.
 
-Every sync function is independent. Use model sync only, light sync only, or any combination — there's no fixed sequence. Pick what you need, skip what you don't.
+## System requirements
 
-## Why Blender?
+- **Rhino 8** (Windows)
+- **Blender 5.2.1** (development target)
 
-It's open source — meaning it's free. It's also genuinely enjoyable to work with, the native Cycles render engine is more than capable, and it has an enormous library of resources and community support.
+Rhino dialogs and the Blender panel are English. This page is English; a Traditional Chinese edition is linked above.
 
-## Installation
+## Quick start
 
-See **[releases/README.md](releases/README.md)** for step-by-step setup instructions.
+Not every tutorial video is updated yet.
 
-## You Might Also Like
+### Installation
+
+**Rhino**
+
+1. Open Rhino 8 and run `PackageManager`.
+2. After publication, search for **`loopflow Rhino to Blender Sync`**.
+3. Or download the `.yak` from [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) and install from file.
+4. **Quit Rhino completely and reopen it.**
+5. Use the **Rhino to Blender Sync** toolbar. If it does not appear: **Tools → Options → Plug-ins**, enable **LoopFlow R2B**. If it still does not show, type `RBOpen` once.
+
+Until it is listed in Package Manager, install the `.yak` from this repo or GitHub.
+
+**Blender**
+
+Use **Edit → Preferences → Add-ons → Install from Disk** (legacy Add-ons). Do not use Get Extensions.
+
+1. Remove or disable any leftover **import_3dm** or **LoopFlow Rhino to Blender Sync** / **loopflow_r2b_sync**.
+2. **Quit Blender completely.** If Portable Blender lives on Dropbox, pause Dropbox first.
+3. Delete leftover folders if they exist:
+   - `portable\extensions\user_default\loopflow_r2b_sync`
+   - `portable\extensions\user_default\loopflow_r2b_sync@`
+   - `portable\scripts\addons\loopflow_r2b_sync`
+4. Run any Rhino product command so the zip is copied to `Documents\LoopFlow\Rhino to Blender Sync`. Use that new zip, not an old one.
+5. In Blender, open **Add-ons** (not Get Extensions) and **Install from Disk**. Pick the **zip** only.
+6. Enable **LoopFlow Rhino to Blender Sync**. N-panel tab **LoopFlow**, bar **Rhino to Blender Sync**.
+7. You do not need a separate Import Rhinoceros 3D add-on.
+
+If Windows says the file is in use: quit Blender, pause Dropbox, delete the leftover folders, and install again.
+
+Full command notes: [documentation](./docs/README.md).
+
+## Basic workflow
+
+1. Save the `.3dm` (unpublished files cannot publish).
+2. Run `RBOpen` to check the config folder and last-good times.
+3. For models, run `RBModels` (with materials) or `RBObjects` (selection, no materials).
+4. For camera or lights, turn auto-sync on, or push once.
+5. In Blender, point Work Folder at the same folder as the `.3dm`, then Sync / Update / Import.
+
+Every step is started by you. If one channel fails, rerun that channel. You do not have to rebuild the whole scene.
+
+## Support
+
+- [Discussions](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/discussions)
+- [Issues](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/issues)
+- [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases)
+
+LoopFlow is a solo project by an architect and interior designer. AI assists with code and documentation; workflow, design decisions, and production checks stay with the author.
+
+Response times vary with project workload.
+
+## Related projects
 
 - [LoopFlow｜Half-automatic 2D/3D Sync](https://github.com/ChihyuTsai-Oli/LoopFlow)
 - [LoopFlow｜Rhino to Octane Sync](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Octane-Sync)
 
-## Credits
+## License and credits
 
-- **LoopFlow_import_3dm** is a fork of [import_3dm](https://github.com/jesterKing/import_3dm) by [Nathan Letwory (jesterKing)](https://github.com/jesterKing), licensed under MIT
-
----
-
-*Last updated: June 2026*
+Released under the [MIT License](./LICENSE). See [CREDITS](./CREDITS.md).
