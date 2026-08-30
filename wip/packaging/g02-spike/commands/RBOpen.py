@@ -170,14 +170,14 @@ def _prepare_src():
 
 def _run():
     global _started
-    if _started:
-        return
-    _started = True
     try:
         _prepare_src()
         from foundation.user_assets import sync_user_assets
 
         sync_user_assets()
+        if _started:
+            return
+        _started = True
         from rhino.commands.open import run_open
 
         result = run_open()

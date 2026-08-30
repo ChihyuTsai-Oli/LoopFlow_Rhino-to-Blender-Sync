@@ -48,6 +48,14 @@ def copy_tree(src: Path, dest: Path, keep_names: FrozenSet[str]) -> bool:
     return copied
 
 
+def _fill_product_dir(dest: Path, zips, stamp_src: str) -> None:
+    dest.mkdir(parents=True, exist_ok=True)
+    for zip_path in zips:
+        shutil.copy2(zip_path, dest / zip_path.name)
+    if stamp_src:
+        (dest / STAMP_NAME).write_text(stamp_src + "\n", encoding="utf-8")
+
+
 def sync_user_assets(
     src_root: Optional[Path] = None,
     dest: Optional[Path] = None,
@@ -55,8 +63,8 @@ def sync_user_assets(
 ) -> bool:
     """
     套件版號與戳記相同則不動。
-    換版或尚未拷過：清空產品資料夾再拷 templates 裡的 zip 與戳記。
-    這次有拷才開資料夾。沒有 templates／zip（開發 repo）則略過。
+    換版或尚未拷過：先填好暫存資料夾，成功後才換成產品資料夾。
+    拷失敗時留下舊檔，下次指令會再試。沒有 templates／zip（開發 repo）則略過。
     """
     root = Path(src_root) if src_root is not None else Path(__file__).resolve().parents[1]
     templates = find_templates(root)
@@ -73,19 +81,17 @@ def sync_user_assets(
     stamp_dst = target / STAMP_NAME
     if stamp_src and stamp_dst.is_file() and stamp_dst.read_text(encoding="utf-8").strip() == stamp_src:
         return False
+    pending = target.with_name(target.name + ".pending")
+    if pending.exists():
+        shutil.rmtree(pending)
+    _fill_product_dir(pending, zips, stamp_src)
     if target.exists():
         shutil.rmtree(target)
-    target.mkdir(parents=True, exist_ok=True)
-    copied = False
-    for zip_path in zips:
-        shutil.copy2(zip_path, target / zip_path.name)
-        copied = True
-    if stamp_src:
-        stamp_dst.write_text(stamp_src + "\n", encoding="utf-8")
-        copied = True
-    if copied and open_folder:
+    pending.rename(target)
+    print("LoopFlow: copied Blender zip to {}".format(target))
+    if open_folder:
         try:
             os.startfile(str(target))  # noqa: S606
         except OSError:
             pass
-    return copied
+    return True

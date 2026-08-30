@@ -85,6 +85,38 @@ class UserAssetsTests(unittest.TestCase):
                 self.assertEqual(zf.read("loopflow_r2b_sync/__init__.py"), b"2")
             self.assertEqual((dest / STAMP_NAME).read_text(encoding="utf-8").strip(), "3.0.1")
 
+    def test_sync_keeps_old_folder_if_copy_fails(self):
+        import foundation.user_assets as ua
+
+        with tempfile.TemporaryDirectory() as tmp:
+            src_root = Path(tmp) / "pkg" / "libs" / "x" / "src"
+            src_root.mkdir(parents=True)
+            templates = Path(tmp) / "pkg" / "templates"
+            templates.mkdir(parents=True)
+            zip_path = templates / "loopflow_r2b_sync.zip"
+            with zipfile.ZipFile(zip_path, "w") as zf:
+                zf.writestr("loopflow_r2b_sync/__init__.py", "1")
+            (templates / STAMP_NAME).write_text("3.0.1\n", encoding="utf-8")
+            dest = Path(tmp) / "out"
+            dest.mkdir()
+            leftover = dest / "leftover.txt"
+            leftover.write_text("keep", encoding="utf-8")
+            (templates / STAMP_NAME).write_text("3.0.2\n", encoding="utf-8")
+            original = ua.shutil.copy2
+
+            def boom(_src, _dst):
+                raise OSError("locked")
+
+            ua.shutil.copy2 = boom
+            try:
+                with self.assertRaises(OSError):
+                    sync_user_assets(src_root=src_root, dest=dest, open_folder=False)
+            finally:
+                ua.shutil.copy2 = original
+            self.assertTrue(leftover.is_file())
+            self.assertEqual(leftover.read_text(encoding="utf-8"), "keep")
+            self.assertFalse((dest / "loopflow_r2b_sync.zip").exists())
+
     def test_sync_noop_without_templates(self):
         with tempfile.TemporaryDirectory() as tmp:
             src_root = Path(tmp) / "src"
