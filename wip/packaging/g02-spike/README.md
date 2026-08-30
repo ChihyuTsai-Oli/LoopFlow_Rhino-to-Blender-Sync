@@ -1,6 +1,6 @@
 # R2B 3.0 yak 建置
 
-正式版號 **`3.0.0`**。yak 含 Blender Sync zip（`templates/`）；第一次跑任一產品指令拷到「文件\LoopFlow\Rhino to Blender Sync」。換版時清空該產品資料夾再拷官方檔。zip 為傳統 Add-on（無 `blender_manifest.toml`），內附 `foundation`；啟用前先把該目錄加入 `sys.path`。工具列 RUI 進包時改成與 `.rhp` 同名，Rhino 才會自動載入。
+正式版號 **`3.0.1`**（`v3.0.0` 永不移動）。yak 含 Blender Sync zip（`templates/`）；第一次跑任一產品指令拷到「文件\LoopFlow\Rhino to Blender Sync」。換版時清空該產品資料夾再拷官方檔。zip 為傳統 Add-on（無 `blender_manifest.toml`），內附 `foundation`；啟用前先把該目錄加入 `sys.path`。工具列 RUI 進包時改成與 `.rhp` 同名，Rhino 才會自動載入。
 
 畫面名（已凍）：`loopflow Rhino to Blender Sync`  
 機器名：`loopflow-rhino-to-blender-sync`
@@ -47,4 +47,4 @@ cd wip/packaging/g02-spike
 
 腳本會刪掉 RhinoCode 自動產生的 `.rui`，若 `wip/docs/toolbar/` 有產品 RUI／`icon.png` 再複製進去。產出 `.yak` 不進 Git。
 
-裝完須**完全關 Rhino 再開**。不要跟 2.x 開發按鈕混測。不上 Package Manager、不打 `v3.0.0`。
+裝完須**完全關 Rhino 再開**。不要跟 2.x 開發按鈕混測。正式上架打新 tag（現行 `v3.0.1`）；永不覆寫 `v3.0.0`／`v2.0.0`。

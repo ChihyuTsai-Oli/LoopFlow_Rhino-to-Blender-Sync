@@ -37,7 +37,7 @@ Not every tutorial video is updated yet.
 
 1. Open Rhino 8 and run `PackageManager`.
 2. Search for **`loopflow Rhino to Blender Sync`** and install.
-3. Or download `loopflow-rhino-to-blender-sync-3.0.0-rh8_0-win.yak` from [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) and install from file.
+3. Or download `loopflow-rhino-to-blender-sync-3.0.1-rh8_0-win.yak` from [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) and install from file.
 4. **Quit Rhino completely and reopen it.**
 5. Use the **Rhino to Blender Sync** toolbar. If it does not appear: **Tools → Options → Plug-ins**, enable **LoopFlow R2B**. If it still does not show, type `RBOpen` once.
 
