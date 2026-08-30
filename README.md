@@ -1,9 +1,5 @@
 # LoopFlow｜Rhino to Blender Sync
 
-[正體中文（3.0 初稿）](./README_zh-TW.md)
-
-The English page below still describes **2.x**. The 3.0 draft is Chinese-only until you confirm it.
-
 [▶ How it works（YouTube）](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ User Guide](./docs/README.md)
 
 ## Version Downloads

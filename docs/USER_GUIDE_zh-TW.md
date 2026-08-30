@@ -1,63 +1,208 @@
-# LoopFlow R2B 3.0 使用說明總覽
+# LoopFlow R2B 使用說明
 
-> 一分鐘理解 3.0 怎麼運作。按鈕與逐步操作見 [指令逐項說明](./COMMANDS_zh-TW.md)。產品介紹與安裝見 [專案主頁](../README_zh-TW.md)。
+> 所有 Rhino 端指令皆在 Rhino 8 (CPython 3.9) 環境中執行。
+> Blender 端必須安裝 `LoopFlow_import_3dm` Addon（模型匯入核心）。
+> `LoopFlow_Toolkit` 為選擇性安裝的實用工具包，不參與同步流程。
+> 開發環境為 Blender 5.1.2（Python 3.13）。
 
-## 核心邏輯：單向、分通道
+最後更新：2026-06-28
 
-**Rhino 產出，Blender 讀取。** 不會從 Blender 改回 Rhino。
+---
 
-1. **先把 `.3dm` 存檔。** 未存檔就不能發布。設定與交換檔都放在這份檔案旁邊，不寫死某台電腦的路徑。
-2. **各通道獨立。** 模型、選取物件、相機、燈光可以分開跑，沒有必須一次做完的固定流水線。
-3. **成對使用。** Rhino 的 `RBModels` 對 Blender 的 Sync／Update Models；`RBObjects` 對 Import Objects。不要交叉拿檔。
+## 目錄
 
-模型同步的重點是：不管更新幾次，Blender 裡已經調好的同名材質可以留下。選取物件則像 FBX，不帶材質、可累加。
+1. [Rhino 端指令](#rhino-端指令)
+2. [Blender 端 — LoopFlow_import_3dm（必須）](#blender-端--loopflow_import_3dm必須)
+3. [Blender 端 — LoopFlow Toolkit（選擇性）](#blender-端--loopflow-toolkit選擇性)
+4. [設定檔](#設定檔)
 
-## 專案以資料夾為單位
+---
 
-已存檔的 `.3dm` 所在資料夾就是作業資料夾。LoopFlow 會在同一層建立：
+## Rhino 端指令
 
-```text
-_LoopFlow_Config/loopflow_R2B/
-  live/      ← 相機、燈光
-  models/    ← R2B.3dm、選取物件的時戳 3dm
+---
+
+### R2B_Models（模型同步）
+
+一鍵匯出乾淨的 Rhino 模型供 Blender 使用。
+
+**執行流程：**
+
+1. 儲存目前的 Rhino 檔案（腳本會檢查是否已存檔）
+2. 跳出圖層選擇視窗，選取要匯出的父圖層（記住上次選取）
+3. 自動開啟中間檔進行清理：
+  - 刪除 Layouts、點物件、曲線、文字點、標注、Hatch
+  - 刪除圖層名稱包含 `//` 的輔助圖層及其物件
+  - 炸開所有 Block
+  - 將所有圖層顏色轉為 Blender 可識別的材質結構
+  - 全部物件套用統一 Box Mapping（尺寸由 `BoxMapSize` 設定）
+4. 儲存中間檔，自動切回原始工作檔
+
+> **注意**：腳本執行期間會暫時切換至中間檔案；過程全自動，勿手動操作。
+>
+> 匯出完成後，Blender 端使用 `LoopFlow_import_3dm` addon 一鍵匯入即可，完整流程只需一鍵。
+
+---
+
+### R2B_Camera（相機即時同步）
+
+Toggle 設計：執行一次開始同步，再次執行停止。
+
+- 開啟後，偵測 Rhino 視窗旋轉或縮放事件即即時寫出相機資料
+- 輸出 `R2B_Camera_Sync.json`，由 Blender 端的 Camera 監聽器讀取
+- 不需要儲存檔案，未儲存的新檔案亦可即時同步
+
+> **停止方式**：再次執行 R2B_Camera 指令即可停止背景監聽。
+
+---
+
+### R2B_Light（燈光位置同步）
+
+掃描場景中的 Point 物件，輸出燈光位置資料供 Blender 端自動對齊燈具。
+
+- 讀取設定中 `LightLayer` 指定的圖層前綴（預設：`R2B_LT_Points`）
+- 子圖層名稱作為燈具類型（Template 名稱），Blender 端依此對應燈具模型
+- 輸出 `R2B_Light_Sync.json`
+
+**圖層命名範例：**
+
+```
+R2B_LT_Points/
+  Downlight        ← layer_short = "Downlight"
+  WallLight
+  SpotLight
 ```
 
-Blender 的 Work Folder 請指到**與 `.3dm` 同一層**（不是指進 `_LoopFlow_Config` 裡面）。換電腦時把整個專案資料夾一起搬即可。
+> 在 Blender 端執行燈光對齊後，燈具會依 type 名稱對應至預先準備好的燈具 Collection。
 
-2.x 把路徑記在 AppData 的 `R2B_Path.txt`。3.0 不再用那份檔。
+---
 
-## 兩端怎麼對
+### R2B_Open（快速開啟工具）
 
-| 你要做的事 | Rhino | Blender |
-|---|---|---|
-| 主模型（有材質） | `RBModels` | **Sync Models**（刷新基本材質）或 **Update Models**（幾何更新、不覆寫已有材質） |
-| 選取物件（無材質） | `RBObjects` | **Import Objects**（自己選時戳 3dm） |
-| 相機 | `RBCamera` 開／關；右鍵 `RBCameraPush` 推一次 | Camera Auto On／Off／Push Once |
-| 燈光位置 | `RBLight` 開／關；右鍵 `RBLightPush` 推一次 | Light Auto On／Off／Sync Lights |
-| 看設定與說明 | `RBOpen` | Open / Health；Open Docs |
+從 Rhino 指令列快速開啟相關檔案。
 
-Rhino 工具列 **Rhino to Blender Sync** 有四顆鈕：左鍵是上表主功能，右鍵是 Objects／Camera Push／Light Push。
 
-Blender 3D 視窗 N 面板：標籤 **LoopFlow**，bar **Rhino to Blender Sync**。著色輔助在 Shader Editor 同一個標籤、bar **Box Projection**，不進同步。
+| 選項             | 說明                                 |
+| -------------- | ---------------------------------- |
+| **Config**     | 開啟 `R2B_Path.txt` 設定檔              |
+| **DataFolder** | 開啟資料目錄                             |
+| **DebugLog**   | 開啟 `cursor_R2B_debug_log.txt` 除錯記錄 |
 
-## 幾個要先懂的名詞
 
-| 名詞 | 意思 |
-|---|---|
-| **作業資料夾** | 已存檔 `.3dm` 所在層；Blender Work Folder 也指這裡。 |
-| **Sync Models** | 重建 `R2B` 集合的幾何，並掛／更新基本 Principled 材質槽。 |
-| **Update Models** | 幾何同樣重建，但**不覆寫**你已經調過的同名材質。日常多用這個。 |
-| **Import Objects** | 選一份 `R2B_Objects_時戳.3dm` 累加進場景，無材質、不進 `R2B` 集合。 |
-| **Health** | 設定根路徑，以及 Camera／Light／Models／Objects 上次成功寫出的時間。 |
+---
 
-## 失敗時會停在哪
+## Blender 端 — LoopFlow_import_3dm（必須）
 
-- 未存檔：發布停止，並用英文說明。
-- 匯出取消、失敗或中斷：仍在原來的工作檔；上次成功的輸出不會被半套檔蓋掉。
-- 燈光圖層沒有符合的 Point：不寫檔，也不會把 Blender 裡的燈清掉。
+所有操作位於 **N Panel > LoopFlow 3dm > Rhino Live Link**，分為兩個區塊。
 
-系統不會自己往下一通道繼續跑。
+---
 
-## 想知道怎麼按
+### Model Sync（模型同步）
 
-這一頁只講邏輯。指令列名稱、工具列左／右鍵、Blender 按鈕與燈光圖層怎麼擺，見 [指令逐項說明](./COMMANDS_zh-TW.md)。
+
+| 按鈕                | 說明                                        |
+| ----------------- | ----------------------------------------- |
+| **Import Models** | 首次匯入，同時更新材質                               |
+| **Update Models** | 後續更新，完整保留 Blender 中已設定的材質、隱藏、排除、Bounds 狀態 |
+
+
+- 路徑欄位預設 `//R2B.3dm`（與 Blender 檔案同目錄）
+- 按路徑欄位旁的 **🔍** 按鈕（Auto-Detect）可自動填入模型路徑與 Sync Folder
+
+> 一般作業時用 **Update Models**，材質不受影響。需要全面刷新材質時才用 **Import Models**。
+
+---
+
+### Camera & Light Sync（相機與燈光同步）
+
+
+| 按鈕 / 欄位                      | 說明                                                          |
+| ---------------------------- | ----------------------------------------------------------- |
+| **Start / Stop Camera Sync** | Toggle，開啟後背景輪詢 `R2B_Camera_Sync.json`，即時更新 Viewport 視角      |
+| **Scale**                    | 單位換算比例（預設 `0.01`，對應 Rhino 公分）                               |
+| **Lens**                     | 鏡頭焦距倍率（預設 `1.80`；視角偏廣時調高）                                   |
+| **Sync Rhino Lights**        | 一鍵讀取 `R2B_Light_Sync.json`，依 Rhino Points 位置對齊燈具並清除已刪除的孤立燈具 |
+| **Sync Folder**              | JSON 同步檔目錄，點 Auto-Detect 自動填入                               |
+
+
+**燈光同步前置設定：**
+
+1. 建立 `Lighting Fixtures` Collection，放入燈具模型（名稱對應 Rhino 子圖層名稱）
+2. 建立 `Lighting` Collection，放入燈光物件（同上）
+3. 設定 Sync Folder 後，點 **Sync Rhino Lights** 即自動對齊
+
+---
+
+## Blender 端 — LoopFlow Toolkit（實用工具包，選擇安裝）
+
+實用工具包，**不參與同步流程**，可按需求獨立使用。
+所有工具位於 **View3D > N Panel > LoopFlow Toolkit**，分為三個面板。
+
+---
+
+### Export Tools（匯出工具）
+
+
+| 功能                         | 說明                            |
+| -------------------------- | ----------------------------- |
+| **Export All to USD**      | 批次匯出場景中所有頂層 Collection 為 USDZ |
+| **Export Selected to USD** | 勾選特定 Collection 後選擇性匯出        |
+
+
+- 匯出前，根物件 Origin 自動移至 `(0,0,0)`；匯出後自動復原位置
+- 選擇性匯出：在清單中勾選目標 Collection，搭配 **All / None** 快速全選
+
+---
+
+### Rename Tools（命名工具）
+
+
+| 功能                                | 說明                                          |
+| --------------------------------- | ------------------------------------------- |
+| **Rename Collections**            | 批次依序命名在 Outliner 中選取的 Collection，並啟用 Render |
+| **Rename Objects by Collections** | 以 Collection 名稱為基底，自動編號內部物件；支援 Alt+D 實例雙重計數 |
+| **Rename Objects**                | 純序號命名，以 XY 空間位置排序（左下角優先，沿 +Y 推進）            |
+
+
+> **Rename Objects by Collections**：偵測 `obj.data.users > 1` 的共享 Mesh，附加 `_Ins` 後綴並同步 Mesh Data 名稱。
+
+---
+
+### Selection Tools（選取工具）
+
+
+| 功能                            | 說明                                                     |
+| ----------------------------- | ------------------------------------------------------ |
+| **Group**                     | 選取多個子 Mesh，最後選取的作為 Active（父物件），一鍵建立群組並同步至同名 Collection |
+| **Un-Group**                  | 選取群組內任一成員，解散整個群組，還原世界座標                                |
+| **Re-Group**                  | 拍平複雜階層，套用 Armature modifier，將所有 Mesh 整合至 Active 物件下    |
+| **Select All in Group**       | 選取群組內任一物件，自動往上找根節點並選取整個階層                              |
+| **Delete Objects From Group** | 刪除父物件，子物件解除父子關係並保留世界座標                                 |
+| **Material Isolator**         | 選取物件後，將材質 Link 切換為 Object 模式，複製獨立材質（附加 `_Unique` 後綴）   |
+
+
+> **Material Isolator 後續操作**：Properties 面板（右下）→ Material 分頁 → 將 Link 下拉改為 "Object"。
+
+---
+
+## 設定檔
+
+### `R2B_Path.txt`（位於 `%APPDATA%\McNeel\Rhinoceros\8.0\scripts\LoopFlow_R2B\Data\`）
+
+首次執行時自動建立，欄位缺失時自動補全。
+
+
+| 欄位               | 預設值                    | 說明                       |
+| ---------------- | ---------------------- | ------------------------ |
+| `DataPath`       | （自動）                   | 資料輸出根目錄                  |
+| `ModelDir`       | （空白）                   | 模型輸出目錄；空白時退回至 Rhino 工作目錄 |
+| `LightLayer`     | `R2B_LT_Points`        | 燈光 Points 圖層前綴           |
+| `CameraFile`     | `R2B_Camera_Sync.json` | 相機同步檔名稱                  |
+| `LightFile`      | `R2B_Light_Sync.json`  | 燈光同步檔名稱                  |
+| `ModelFile`      | `R2B.3dm`              | 模型輸出檔名稱                  |
+| `BoxMapSize`     | `500`                  | 模型同步 Box Mapping 尺寸（mm）  |
+| `LastModelLayer` | （自動）                   | 記住上次模型匯出選取的圖層            |
+
+
+> 使用 `R2B_Open > Config` 可直接從 Rhino 指令列開啟此檔案。
+
