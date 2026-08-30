@@ -60,6 +60,11 @@ wip/packaging/**/*.yak
 wip/packaging/**/*.rhp
 wip/packaging/g02-spike/*.rui
 wip/packaging/g02-spike/icon.png
+wip/packaging/g02-spike/build/
+
+# 原始檔名圖示只留本機；追蹤 icon.png
+wip/docs/toolbar/LoopFlow_R2G-R2B.png
+
 
 
 # 本機開發檔案（不發布）

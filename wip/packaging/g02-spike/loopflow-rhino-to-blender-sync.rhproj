@@ -1,0 +1,110 @@
+{
+  "host": {
+    "name": "Rhino3D",
+    "version": "8.34.26223\u002B11001",
+    "os": "windows",
+    "arch": "x64"
+  },
+  "id": "860a0589-cda5-46a6-97ef-d538db8e0db3",
+  "identity": {
+    "name": "LoopFlow R2B",
+    "version": "0.1",
+    "publisher": {
+      "email": "chihyu@proton.me",
+      "name": "Chihyu Tsai",
+      "url": "https://chihyu-tsai.com/"
+    },
+    "url": "https://github.com/ChihyuTsai-Oli"
+  },
+  "settings": {
+    "buildPath": "build/",
+    "buildTarget": {
+      "host": {
+        "name": "Rhino3D",
+        "version": "8"
+      },
+      "title": "Rhino3D (8.*)",
+      "slug": "rh8"
+    },
+    "publishTarget": {
+      "title": "McNeel Yak Server"
+    }
+  },
+  "codes": [
+    {
+      "id": "54b8cf4b-fb7e-40aa-98f0-db6d162b5ad1",
+      "language": {
+        "id": "mcneel.pythonnet.python",
+        "version": "3.9.10"
+      },
+      "title": "RBCamera",
+      "uri": "file:///E:/_GitHub/LoopFlow_Rhino-to-Blender-Sync/wip/packaging/g02-spike/commands/RBCamera.py"
+    },
+    {
+      "id": "6f9935d1-c305-4e0d-8e2c-b7871afc90c7",
+      "language": {
+        "id": "mcneel.pythonnet.python",
+        "version": "3.9.10"
+      },
+      "title": "RBCameraPush",
+      "uri": "file:///E:/_GitHub/LoopFlow_Rhino-to-Blender-Sync/wip/packaging/g02-spike/commands/RBCameraPush.py"
+    },
+    {
+      "id": "60bb5daf-51f8-46d7-b471-6cb99f329110",
+      "language": {
+        "id": "mcneel.pythonnet.python",
+        "version": "3.9.10"
+      },
+      "title": "RBLight",
+      "uri": "file:///E:/_GitHub/LoopFlow_Rhino-to-Blender-Sync/wip/packaging/g02-spike/commands/RBLight.py"
+    },
+    {
+      "id": "aa691895-108d-4216-80e6-3b7b46253c74",
+      "language": {
+        "id": "mcneel.pythonnet.python",
+        "version": "3.9.10"
+      },
+      "title": "RBLightPush",
+      "uri": "file:///E:/_GitHub/LoopFlow_Rhino-to-Blender-Sync/wip/packaging/g02-spike/commands/RBLightPush.py"
+    },
+    {
+      "id": "82e3e6a4-189a-4ae4-b98b-451b4d8b74bf",
+      "language": {
+        "id": "mcneel.pythonnet.python",
+        "version": "3.9.10"
+      },
+      "title": "RBModels",
+      "uri": "file:///E:/_GitHub/LoopFlow_Rhino-to-Blender-Sync/wip/packaging/g02-spike/commands/RBModels.py"
+    },
+    {
+      "id": "956c55e2-c608-4ff7-88ef-c075189ac957",
+      "language": {
+        "id": "mcneel.pythonnet.python",
+        "version": "3.9.10"
+      },
+      "title": "RBObjects",
+      "uri": "file:///E:/_GitHub/LoopFlow_Rhino-to-Blender-Sync/wip/packaging/g02-spike/commands/RBObjects.py"
+    },
+    {
+      "id": "2475af31-4b82-431d-b13d-ada2f0ea9ac9",
+      "language": {
+        "id": "mcneel.pythonnet.python",
+        "version": "3.9.10"
+      },
+      "title": "RBOpen",
+      "uri": "file:///E:/_GitHub/LoopFlow_Rhino-to-Blender-Sync/wip/packaging/g02-spike/commands/RBOpen.py"
+    }
+  ],
+  "libraries": [
+    {
+      "type": "uri",
+      "library": {
+        "base": "file:///E:/_GitHub/LoopFlow_Rhino-to-Blender-Sync/wip/src/",
+        "language": {
+          "id": "*.*.python",
+          "version": "3.*.*"
+        }
+      }
+    }
+  ]
+}

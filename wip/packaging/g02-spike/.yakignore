@@ -1,0 +1,8 @@
+__pycache__/
+**/*.pyc
+build.ps1
+README.md
+build/rh8/src/
+build/rh8/*.rui
+build/rh8/manifest.yml
+*.rhproj
