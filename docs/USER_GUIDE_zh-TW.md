@@ -24,7 +24,7 @@ _LoopFlow_Config/loopflow_R2B/
   models/    ← R2B.3dm、選取物件的時戳 3dm
 ```
 
-Blender 的 Work Folder 請指到**與 `.3dm` 同一層**（不是指進 `_LoopFlow_Config` 裡面）。換電腦時把整個專案資料夾一起搬即可。
+Blender 的 Work Folder 請指到**與 `.3dm` 同一層**（不是指進 `_LoopFlow_Config` 裡面）。Sync zip 預設在「文件\LoopFlow\Rhino to Blender Sync」；這個資料夾不見時，跑任一正式指令會再拷一份。換電腦時把整個專案資料夾一起搬即可。
 
 ## 兩端怎麼對
 

@@ -145,7 +145,7 @@ Blender：Camera Auto On／Off／Push Once。自動開啟後會跟隨 Rhino 視�
 | **Open / Health** | 懸停＝摘要；左鍵開設定根 |
 | **Open Docs** | 開本文件入口 |
 
-Work Folder 指到與 `.3dm` 同一層。不必再啟用獨立的 Import Rhinoceros 3D。Sync zip 在「文件\LoopFlow\Rhino to Blender Sync」，用 **Add-ons → Install from Disk** 安裝（不要走 Extensions）；列表名稱 **LoopFlow Rhino to Blender Sync**。若先前誤裝成 import_3dm、改名失敗，或啟用時出現 `No module named 'foundation'`：完全關掉 Blender，刪掉 `extensions\user_default` 與 `scripts\addons` 裡的 `loopflow_r2b_sync`／`loopflow_r2b_sync@`，再只裝 zip。Portable 若在 Dropbox 上，安裝前先暫停同步。
+Work Folder 指到與 `.3dm` 同一層。不必再啟用獨立的 Import Rhinoceros 3D。Sync zip 在「文件\LoopFlow\Rhino to Blender Sync」；預設資料夾不見時，再跑正式指令會拷回來。用 **Add-ons → Install from Disk** 安裝（不要走 Extensions）；列表名稱 **LoopFlow Rhino to Blender Sync**。若先前誤裝成 import_3dm、改名失敗，或啟用時出現 `No module named 'foundation'`：完全關掉 Blender，刪掉 `extensions\user_default` 與 `scripts\addons` 裡的 `loopflow_r2b_sync`／`loopflow_r2b_sync@`，再只裝 zip。Portable 若在 Dropbox 上，安裝前先暫停同步。
 
 LoopFlow [ToolBox](./TOOLBOX_zh-TW.md) 不在本產品同步範圍（獨立 Blender add-on，不進 yak）。
 

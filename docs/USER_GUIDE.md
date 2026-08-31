@@ -24,7 +24,7 @@ _LoopFlow_Config/loopflow_R2B/
   models/    ← R2B.3dm, stamped selection 3dms
 ```
 
-Point Blender’s Work Folder at the **same folder as the `.3dm`** (not inside `_LoopFlow_Config`). Move the whole project folder when you change computers.
+Point Blender’s Work Folder at the **same folder as the `.3dm`** (not inside `_LoopFlow_Config`). The Sync zip defaults to `Documents\LoopFlow\Rhino to Blender Sync`; if that folder is missing, any formal Rhino command copies it there again. Move the whole project folder when you change computers.
 
 ## How the two sides meet
 

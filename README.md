@@ -6,7 +6,7 @@
 
 Push Rhino models, cameras, and light points one way into Blender. You stay in control of every step; LoopFlow only writes what you ask for.
 
-Rhino installs as a single `.yak`. The first product command copies the Blender Sync zip to `Documents\LoopFlow\Rhino to Blender Sync`.
+Rhino installs as a single `.yak`. A formal product command copies the Blender Sync zip to `Documents\LoopFlow\Rhino to Blender Sync`.
 
 [▶ Documentation](./docs/README.md) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ Tutorials](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8)
 
@@ -41,7 +41,7 @@ Not every tutorial video is updated yet.
 4. **Quit Rhino completely and reopen it.**
 5. Use the **Rhino to Blender Sync** toolbar. If it does not appear: **Tools → Options → Plug-ins**, enable **LoopFlow R2B**. If it still does not show, type `RBOpen` once.
 
-The first product command copies the Blender zip to `Documents\LoopFlow\Rhino to Blender Sync`. After you install a new version, that command empties this product folder and copies the official files from the package. The same version does nothing.
+Any formal command (toolbar or `RBOpen`) copies the Blender zip to `Documents\LoopFlow\Rhino to Blender Sync`. If that default folder is missing (for example you moved it), the command copies it again. After you install a new version, that command empties this product folder and copies the official files from the package. The same version does nothing while the folder is still there.
 
 **Blender**
 

@@ -6,7 +6,7 @@
 
 > 把 Rhino 的模型、相機與燈光點位，單向同步到 Blender。
 
-Rhino 端裝一份 `.yak`（內含 Blender Sync zip）。第一次跑任一 Rhino 指令後，zip 會拷到「文件\LoopFlow\Rhino to Blender Sync」。
+Rhino 端裝一份 `.yak`（內含 Blender Sync zip）。跑正式指令後，zip 會拷到「文件\LoopFlow\Rhino to Blender Sync」。
 
 [▶ 使用說明](./docs/README.md) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ 教學影片](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8)
 
@@ -41,7 +41,7 @@ Rhino 對話框與 Blender 面板為英文；本說明為正體中文。
 4. **完全關掉 Rhino 再開**
 5. 使用工具列 **Rhino to Blender Sync**。若沒出現：到 **Tools → Options → Plug-ins**（工具 → 選項 → 外掛程式）勾選 **LoopFlow R2B**。仍沒有時，命令列打一次 `RBOpen`
 
-第一次跑產品指令會把 Blender zip 拷到「文件\LoopFlow\Rhino to Blender Sync」。裝新版後，下一次跑指令會先清空這個產品資料夾，再放入這版官方檔。同一版號則不動。
+跑任一正式指令（工具列或 `RBOpen`）會把 Blender zip 拷到「文件\LoopFlow\Rhino to Blender Sync」。這個預設資料夾不見時（例如被移走）也會再拷一份。裝新版後，下一次跑指令會先清空這個產品資料夾，再放入這版官方檔。同一版號且資料夾還在，則不動。
 
 **Blender**
 
