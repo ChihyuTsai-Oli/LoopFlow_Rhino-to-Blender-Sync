@@ -75,6 +75,9 @@ def _from_script(script_file):
     except Exception:
         return None
     for parent in here.parents:
+        # 略過 RhinoCode 快取；否則會抓到舊版 .rhinocode/libs
+        if any(part.lower() == ".rhinocode" for part in parent.parts):
+            continue
         found = _from_package_dir(parent)
         if found:
             return found
@@ -137,6 +140,10 @@ def _plugin_rhps():
 
 
 def _product_src():
+    # Package Manager 安裝路徑優先，避免 .rhinocode/libs 舊快取
+    hit = _from_yak_install()
+    if hit:
+        return hit
     hit = _from_script(__file__)
     if hit:
         return hit
@@ -144,9 +151,6 @@ def _product_src():
         hit = _from_rhp(rhp)
         if hit:
             return hit
-    hit = _from_yak_install()
-    if hit:
-        return hit
     raise RuntimeError("Cannot find {} package src.".format(YAK_NAME))
 
 
@@ -172,9 +176,10 @@ def _run():
     global _started
     try:
         src = Path(_prepare_src())
-        from foundation.user_assets import can_sync_user_assets, sync_user_assets
+        from foundation.user_assets import find_templates, sync_user_assets
 
-        if not can_sync_user_assets(src):
+        templates = find_templates(src)
+        if templates is None or not any(templates.glob("*.zip")):
             import rhinoscriptsyntax as rs  # type: ignore
 
             rs.MessageBox(
