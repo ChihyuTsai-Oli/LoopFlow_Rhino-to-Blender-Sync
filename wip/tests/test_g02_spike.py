@@ -50,8 +50,10 @@ class G02SpikeTests(unittest.TestCase):
             self.assertIn("PLUGIN_ID = \"{}\"".format(command_locate.PLUGIN_ID), text)
             self.assertIn("_from_yak_install", text)
             self.assertIn("sync_user_assets", text)
+            self.assertIn("can_sync_user_assets", text)
+            self.assertIn("src_root=src", text)
             self.assertLess(
-                text.index("sync_user_assets()"),
+                text.index("sync_user_assets(src_root=src)"),
                 text.index("if _started:"),
             )
             self.assertNotIn("_isolate.py", text)
@@ -68,7 +70,7 @@ class G02SpikeTests(unittest.TestCase):
     def test_manifest_spike_identity(self):
         text = MANIFEST.read_text(encoding="utf-8")
         self.assertIn("name: loopflow-rhino-to-blender-sync", text)
-        self.assertIn("version: 3.0.2", text)
+        self.assertIn("version: 3.0.3", text)
         self.assertIn("Chihyu Tsai", text)
         self.assertIn("github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync", text)
         self.assertIn("guid:860a0589-cda5-46a6-97ef-d538db8e0db3", text)

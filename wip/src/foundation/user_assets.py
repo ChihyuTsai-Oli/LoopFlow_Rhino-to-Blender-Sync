@@ -24,6 +24,15 @@ def find_templates(src_root: Path) -> Optional[Path]:
     return None
 
 
+def can_sync_user_assets(src_root: Optional[Path] = None) -> bool:
+    """套件 templates/*.zip 是否存在（Package Manager 安裝才會有）。"""
+    root = Path(src_root) if src_root is not None else Path(__file__).resolve().parents[1]
+    templates = find_templates(root)
+    if templates is None:
+        return False
+    return any(templates.glob("*.zip"))
+
+
 def _skip_file(name: str) -> bool:
     return name.endswith(".pyc") or name == STAMP_NAME
 

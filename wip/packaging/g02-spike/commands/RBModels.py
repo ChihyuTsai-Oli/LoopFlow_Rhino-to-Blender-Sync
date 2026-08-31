@@ -171,10 +171,21 @@ def _prepare_src():
 def _run():
     global _started
     try:
-        _prepare_src()
-        from foundation.user_assets import sync_user_assets
+        src = Path(_prepare_src())
+        from foundation.user_assets import can_sync_user_assets, sync_user_assets
 
-        sync_user_assets()
+        if not can_sync_user_assets(src):
+            import rhinoscriptsyntax as rs  # type: ignore
+
+            rs.MessageBox(
+                "Could not copy LoopFlow files to Documents\\\\LoopFlow\\\\Rhino to Blender Sync.\\n\\n"
+                "Use the Package Manager toolbar (! _RBOpen / ! _RBModels / …), "
+                "not a Script Editor or Git button.\\n"
+                "Confirm the package is installed, quit Rhino fully, and reopen.",
+                title=_CMD,
+            )
+        else:
+            sync_user_assets(src_root=src)
         if _started:
             return
         _started = True

@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.3] - 2026-08-31
+
+Patch release.
+
+- Formal Rhino commands pass package `src_root` into Documents sync and show a MessageBox when yak `templates` are missing (e.g. Script Editor / Git button instead of Package Manager toolbar).
+
 ## [1.0.0] - 2026-04-28
 
 First public release.

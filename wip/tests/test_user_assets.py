@@ -122,6 +122,9 @@ class UserAssetsTests(unittest.TestCase):
             src_root = Path(tmp) / "src"
             src_root.mkdir()
             dest = Path(tmp) / "out"
+            from foundation.user_assets import can_sync_user_assets
+
+            self.assertFalse(can_sync_user_assets(src_root))
             self.assertFalse(sync_user_assets(src_root=src_root, dest=dest, open_folder=False))
 
 
