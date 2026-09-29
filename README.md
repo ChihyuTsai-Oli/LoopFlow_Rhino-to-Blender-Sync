@@ -91,3 +91,8 @@ Response times vary with project workload.
 ## License and credits
 
 Released under the [MIT License](./LICENSE). See [CREDITS](./CREDITS.md).
+
+## Author
+
+蔡智聿, Chihyu Tsai
+https://chihyu-tsai.com/

@@ -91,3 +91,8 @@ LoopFlow 是由建築及室內設計師從實際工作中發展的單人專案�
 ## 授權與致謝
 
 本專案採用 [MIT License](./LICENSE) 發布。開發背景與致謝請參考 [CREDITS](./CREDITS.md)。
+
+## 作者
+
+蔡智聿, Chihyu Tsai
+https://chihyu-tsai.com/
