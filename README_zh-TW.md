@@ -1,10 +1,10 @@
-# LoopFlow｜Rhino to Blender Sync
+[English Version](./README.md)
 
-[English](./README.md)
-
-> An open-source workflow automation tool developed by **蔡智聿 (Chihyu Tsai)**. [https://chihyu-tsai.com](https://chihyu-tsai.com)
+An open-source workflow automation tool developed by **蔡智聿 (Chihyu Tsai)**. [https://chihyu-tsai.com](https://chihyu-tsai.com)
 
 ---
+
+# LoopFlow｜Rhino to Blender Sync
 
 > 同一專案不要混用舊版的工具列、套件或 Blender add-on。
 
