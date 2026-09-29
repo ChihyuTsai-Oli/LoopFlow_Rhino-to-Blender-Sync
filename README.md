@@ -2,6 +2,10 @@
 
 [繁體中文](./README_zh-TW.md)
 
+> An open-source workflow automation tool developed by **蔡智聿 (Chihyu Tsai)**. [https://chihyu-tsai.com](https://chihyu-tsai.com)
+
+---
+
 > Do not mix old toolbars, packages, or the Blender add-on in the same project.
 
 Push Rhino models, cameras, and light points one way into Blender. You stay in control of every step; LoopFlow only writes what you ask for.
@@ -91,8 +95,3 @@ Response times vary with project workload.
 ## License and credits
 
 Released under the [MIT License](./LICENSE). See [CREDITS](./CREDITS.md).
-
-## Author
-
-蔡智聿, Chihyu Tsai
-https://chihyu-tsai.com/

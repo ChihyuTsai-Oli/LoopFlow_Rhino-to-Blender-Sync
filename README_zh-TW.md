@@ -2,6 +2,10 @@
 
 [English](./README.md)
 
+> An open-source workflow automation tool developed by **蔡智聿 (Chihyu Tsai)**. [https://chihyu-tsai.com](https://chihyu-tsai.com)
+
+---
+
 > 同一專案不要混用舊版的工具列、套件或 Blender add-on。
 
 > 把 Rhino 的模型、相機與燈光點位，單向同步到 Blender。
@@ -91,8 +95,3 @@ LoopFlow 是由建築及室內設計師從實際工作中發展的單人專案�
 ## 授權與致謝
 
 本專案採用 [MIT License](./LICENSE) 發布。開發背景與致謝請參考 [CREDITS](./CREDITS.md)。
-
-## 作者
-
-蔡智聿, Chihyu Tsai
-https://chihyu-tsai.com/
