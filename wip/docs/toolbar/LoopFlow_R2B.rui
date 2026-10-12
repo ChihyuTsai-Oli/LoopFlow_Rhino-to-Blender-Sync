@@ -3,7 +3,7 @@
   <tool_bar_groups>
     <tool_bar_group guid="b7e4c91a-2f5d-4a8e-9b16-3c7d8e0a1f22" dock="top" visable="true" active_tool_bar="a6161fd2-c6e5-4967-9959-ab51f2a2a516" hide_single_tab="False">
       <text>
-        <locale_1033>Rhino to Blender Sync</locale_1033>
+        <locale_1033>LoopFlow R2B</locale_1033>
       </text>
       <tool_bar_group_item guid="a6161fd2-c6e5-4967-9959-ab51f2a2a516" major_version="1" minor_version="1">
         <text>

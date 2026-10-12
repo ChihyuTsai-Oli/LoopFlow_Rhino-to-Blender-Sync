@@ -1,6 +1,6 @@
 # R2B 3.0 yak 建置
 
-正式版號 **`3.0.8`**（`v3.0.0`～`v3.0.7` 永不移動）。分頁名是 **LoopFlow R2B**。yak 含 Blender Sync zip（`templates/`）；第一次跑任一產品指令拷到「文件\LoopFlow\Rhino to Blender Sync」。換版時先填暫存資料夾，成功後才換成產品資料夾。zip 為傳統 Add-on（無 `blender_manifest.toml`），內附 `foundation`；啟用前先把該目錄加入 `sys.path`。工具列 RUI 進包時改成與 `.rhp` 同名，Rhino 才會自動載入。
+正式版號 **`3.0.9`**（`v3.0.0`～`v3.0.8` 永不移動）。分頁與工具列群組都是 **LoopFlow R2B**。yak 含 Blender Sync zip（`templates/`）；第一次跑任一產品指令拷到「文件\LoopFlow\Rhino to Blender Sync」。換版時先填暫存資料夾，成功後才換成產品資料夾。zip 為傳統 Add-on（無 `blender_manifest.toml`），內附 `foundation`；啟用前先把該目錄加入 `sys.path`。工具列 RUI 進包時改成與 `.rhp` 同名（`LoopFlow R2B.rui`），Rhino 才會自動載入，工具列清單也才會顯示這個名稱。
 
 畫面名（已凍）：`loopflow Rhino to Blender Sync`  
 機器名：`loopflow-rhino-to-blender-sync`

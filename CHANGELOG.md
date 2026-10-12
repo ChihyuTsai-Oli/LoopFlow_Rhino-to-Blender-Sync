@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.9] - 2026-10-12
+
+The toolbar group in Rhino's toolbar list is **LoopFlow R2B**, the same name as the tab. The plug-in checkbox uses that name too. Blender's list name stays **Rhino to Blender Sync**. Do not overwrite `v3.0.8`.
+
 ## [3.0.8] - 2026-10-12
 
 The Rhino tab **LoopFlow R2B** is included again and opens on install. **LoopFlow R2X** stays an optional extra toolbar. Do not overwrite `v3.0.7`.

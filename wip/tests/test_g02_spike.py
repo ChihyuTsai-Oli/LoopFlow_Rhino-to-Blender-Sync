@@ -76,7 +76,7 @@ class G02SpikeTests(unittest.TestCase):
     def test_manifest_spike_identity(self):
         text = MANIFEST.read_text(encoding="utf-8")
         self.assertIn("name: loopflow-rhino-to-blender-sync", text)
-        self.assertIn("version: 3.0.8", text)
+        self.assertIn("version: 3.0.9", text)
         self.assertIn("Chihyu Tsai", text)
         self.assertIn("github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync", text)
         self.assertIn("guid:860a0589-cda5-46a6-97ef-d538db8e0db3", text)
@@ -130,8 +130,8 @@ class G02SpikeTests(unittest.TestCase):
         rui = WIP / "docs" / "toolbar" / "LoopFlow_R2B.rui"
         text = rui.read_text(encoding="utf-8")
         self.assertIn("<tool_bar_group ", text)
-        self.assertIn("Rhino to Blender Sync", text)
-        self.assertIn("LoopFlow R2B", text)
+        self.assertIn("<locale_1033>LoopFlow R2B</locale_1033>", text)
+        self.assertNotIn("Rhino to Blender Sync", text)
         self.assertNotIn("SelectedToolbarSet", text)
         for cmd in EXPECTED:
             self.assertIn("! _{}".format(cmd), text)

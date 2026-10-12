@@ -62,7 +62,7 @@ $ProductRui = Get-ChildItem -LiteralPath $Toolbar -Filter "*.rui" -File -ErrorAc
 if ($null -ne $ProductRui) {
     # Rhino loads only the .rui whose name matches the .rhp.
     $RuiName = "$($StagedRhp.Name)".Replace(".rhp", ".rui")
-    if ($RuiName -ne "Rhino to Blender Sync.rui") {
+    if ($RuiName -ne "LoopFlow R2B.rui") {
         throw "product RUI name is [$RuiName]"
     }
     $RuiDest = Join-Path $Stage $RuiName
@@ -108,7 +108,7 @@ if (Test-Path -LiteralPath $ZipOut) {
     Remove-Item -LiteralPath $ZipOut -Force
 }
 [System.IO.Compression.ZipFile]::CreateFromDirectory($ZipTmp, $ZipOut)
-Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "3.0.8" -Encoding ascii -NoNewline
+Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "3.0.9" -Encoding ascii -NoNewline
 Write-Host "Staged Blender add-on zip"
 
 if (-not (Test-Path -LiteralPath $Yak)) {

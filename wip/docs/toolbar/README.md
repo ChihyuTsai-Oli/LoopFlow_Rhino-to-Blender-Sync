@@ -4,4 +4,4 @@
 
 正式工具列四顆鈕（左鍵／右鍵）：Open／Models+Objects／Camera+CameraPush／Light+LightPush。
 
-RUI 需要一個 `tool_bar_group`（顯示名 `Rhino to Blender Sync`）。不要寫入 `SelectedToolbarSet`。不要改 GUID。Package Manager 圖示檔名 `icon.png`。
+RUI 需要一個 `tool_bar_group`（顯示名 `LoopFlow R2B`，與分頁相同）。不要寫入 `SelectedToolbarSet`。不要改 GUID。Package Manager 圖示檔名 `icon.png`。
