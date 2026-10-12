@@ -7,7 +7,7 @@
       </text>
       <tool_bar_group_item guid="a6161fd2-c6e5-4967-9959-ab51f2a2a516" major_version="1" minor_version="1">
         <text>
-          <locale_1033>Rhino to Blender Sync</locale_1033>
+          <locale_1033>LoopFlow R2B</locale_1033>
         </text>
         <tool_bar_id>a6161fd2-c6e5-4967-9959-ab51f2a2a516</tool_bar_id>
       </tool_bar_group_item>
@@ -16,7 +16,7 @@
   <tool_bars>
     <tool_bar guid="a6161fd2-c6e5-4967-9959-ab51f2a2a516" bitmap_id="6f55373f-5351-433b-bb57-c1d970918fc1">
       <text>
-        <locale_1033>Rhino to Blender Sync</locale_1033>
+        <locale_1033>LoopFlow R2B</locale_1033>
       </text>
       <tool_bar_item guid="6cce5fd6-30c6-49c5-af23-dfeac336cec0">
         <left_macro_id>6c102d5c-3605-42e6-966d-b8fc0bdb55a4</left_macro_id>
