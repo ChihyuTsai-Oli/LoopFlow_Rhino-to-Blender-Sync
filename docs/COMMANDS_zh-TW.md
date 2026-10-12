@@ -25,12 +25,12 @@ Blender Work Folder 指到與 `.3dm` **同一層**。
 
 工具列四顆鈕，左鍵／右鍵：
 
-| 鈕 | 左鍵 | 右鍵 |
-|---|---|---|
-| 1 | `RBOpen` | — |
-| 2 | `RBModels` | `RBObjects` |
-| 3 | `RBCamera` | `RBCameraPush` |
-| 4 | `RBLight` | `RBLightPush` |
+| 鈕 | 左鍵懸停 | 左鍵指令 | 右鍵懸停 | 右鍵指令 |
+|---|---|---|---|---|
+| 1 | R2B Config | `RBOpen` | — | — |
+| 2 | R2B Model（按鈕面 R2B Models） | `RBModels` | R2B Objects | `RBObjects` |
+| 3 | R2B Camera | `RBCamera` | R2B Camera Push | `RBCameraPush` |
+| 4 | R2B Light | `RBLight` | R2B Light Push | `RBLightPush` |
 
 ## 目錄
 

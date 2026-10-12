@@ -36,7 +36,7 @@ Point Blender’s Work Folder at the **same folder as the `.3dm`** (not inside `
 | Light positions | `RBLight` on/off; right-click `RBLightPush` | Light Auto On / Off / Sync Lights |
 | Settings and docs | `RBOpen` | Open / Health; Open Docs |
 
-The Rhino tab **LoopFlow R2B** has four buttons: left-click is the main action above; right-click is Objects / Camera Push / Light Push.
+The Rhino tab **LoopFlow R2B** has four buttons. Left-click hover names are **R2B Config**, **R2B Model** (the button face says **R2B Models**), **R2B Camera**, and **R2B Light**. Right-click hover names are **R2B Objects**, **R2B Camera Push**, and **R2B Light Push**.
 
 Blender 3D View N-panel: tab **LoopFlow**, bar **Rhino to Blender Sync**. Shading help lives in the Shader Editor under the same tab, bar **Box Projection**. It is not part of sync. Optional [R2B ToolBox](./TOOLBOX.md) is a separate add-on: same tab, bar **ToolBox**.
 

@@ -25,12 +25,12 @@ Point Blender Work Folder at the **same folder as the `.3dm`**.
 
 Toolbar, four buttons, left / right click:
 
-| Button | Left | Right |
-|---|---|---|
-| 1 | `RBOpen` | — |
-| 2 | `RBModels` | `RBObjects` |
-| 3 | `RBCamera` | `RBCameraPush` |
-| 4 | `RBLight` | `RBLightPush` |
+| Button | Left hover | Left command | Right hover | Right command |
+|---|---|---|---|---|
+| 1 | R2B Config | `RBOpen` | — | — |
+| 2 | R2B Model (button face: R2B Models) | `RBModels` | R2B Objects | `RBObjects` |
+| 3 | R2B Camera | `RBCamera` | R2B Camera Push | `RBCameraPush` |
+| 4 | R2B Light | `RBLight` | R2B Light Push | `RBLightPush` |
 
 ## Contents
 
