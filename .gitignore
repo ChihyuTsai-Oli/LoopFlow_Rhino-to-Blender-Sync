@@ -53,7 +53,7 @@
 **/Thumbs.db
 
 # import_3dm 執行時解壓的 rhino3dm（可由 wheels/ 重建）
-wip/src/blender/loopflow_r2b_sync_dev/import_3dm/_vendor/
+wip/src/blender/r2b_sync/import_3dm/_vendor/
 
 # G02 本機建置產物（來源在 packaging／toolbar）
 wip/packaging/**/*.yak

@@ -1,4 +1,4 @@
-# LoopFlow R2B user guide
+# Rhino to Blender Sync user guide
 
 > Do not mix old toolbars, packages, or the Blender add-on in the same project.
 >

@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Mapping, Optional
 
 PLUGIN_ID = "860a0589-cda5-46a6-97ef-d538db8e0db3"
-PLUGIN_NAME = "LoopFlow R2B"
+PLUGIN_NAME = "Rhino to Blender Sync"
 YAK_NAME = "loopflow-rhino-to-blender-sync"
 MARKER = ("rhino", "entrypoints", "RBModels.py")
 

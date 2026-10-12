@@ -1,4 +1,4 @@
-# LoopFlow R2B WIP
+# Rhino to Blender Sync WIP
 
 此資料夾是 R2B 3.0 的 Git 追蹤工作區；穩定 2.x 與 release payload 仍留在原位置。
 

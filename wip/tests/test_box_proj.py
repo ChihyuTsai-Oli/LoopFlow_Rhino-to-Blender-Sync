@@ -26,9 +26,9 @@ from foundation.box_mapping import (
     scale_from_size_meters,
 )
 
-ADDON = SRC / "blender" / "loopflow_r2b_sync_dev" / "__init__.py"
-BOX_PROJ = SRC / "blender" / "loopflow_r2b_sync_dev" / "box_proj.py"
-OSL = SRC / "blender" / "loopflow_r2b_sync_dev" / "box_projection.osl"
+ADDON = SRC / "blender" / "r2b_sync" / "__init__.py"
+BOX_PROJ = SRC / "blender" / "r2b_sync" / "box_proj.py"
+OSL = SRC / "blender" / "r2b_sync" / "box_projection.osl"
 
 
 class BoxMappingTests(unittest.TestCase):

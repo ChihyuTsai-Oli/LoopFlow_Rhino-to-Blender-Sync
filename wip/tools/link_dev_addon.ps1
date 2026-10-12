@@ -60,9 +60,9 @@ function Set-AddonJunction {
     Write-Host "  Enable: $EnableHint"
 }
 
-$SyncName = "loopflow_r2b_sync_dev"
+$SyncName = "r2b_sync"
 $SyncTarget = Join-Path $RepoRoot "wip\src\blender\$SyncName"
-Set-AddonJunction -LinkName $SyncName -TargetPath $SyncTarget -EnableHint "LoopFlow Rhino to Blender Sync"
+Set-AddonJunction -LinkName $SyncName -TargetPath $SyncTarget -EnableHint "Rhino to Blender Sync"
 
 # Remove legacy standalone import_3dm junction (embedded in Sync now)
 $LegacyImport = Join-Path $AddonsDir "import_3dm"
@@ -83,5 +83,5 @@ if (Test-Path -LiteralPath $LegacyImport) {
 
 Write-Host ""
 Write-Host "Open $BlenderExe"
-Write-Host "Preferences > Add-ons: enable LoopFlow Rhino to Blender Sync only."
+Write-Host "Preferences > Add-ons: enable Rhino to Blender Sync only."
 Write-Host "Models Import/Update embeds import_3dm + rhino3dm; no separate Import Rhinoceros 3D needed."

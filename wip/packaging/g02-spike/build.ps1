@@ -60,9 +60,16 @@ Write-Host "Staged $($StagedRhp.Name)"
 
 $ProductRui = Get-ChildItem -LiteralPath $Toolbar -Filter "*.rui" -File -ErrorAction SilentlyContinue | Select-Object -First 1
 if ($null -ne $ProductRui) {
-    # Rhino 只自動載入與 .rhp 同名的 .rui（出圖 LoopFlow.rhp／LoopFlow.rui）
-    $RuiName = $StagedRhp.BaseName + ".rui"
-    Copy-Item -LiteralPath $ProductRui.FullName -Destination (Join-Path $Stage $RuiName) -Force
+    # Rhino loads only the .rui whose name matches the .rhp.
+    $RuiName = "$($StagedRhp.Name)".Replace(".rhp", ".rui")
+    if ($RuiName -ne "Rhino to Blender Sync.rui") {
+        throw "product RUI name is [$RuiName]"
+    }
+    $RuiDest = Join-Path $Stage $RuiName
+    Copy-Item -LiteralPath $ProductRui.FullName -Destination $RuiDest -Force
+    if (-not (Test-Path -LiteralPath $RuiDest)) {
+        throw "product RUI was not staged as $RuiName"
+    }
     Write-Host "Staged product RUI $RuiName (matches rhp)"
 } else {
     Write-Host "No product RUI in wip/docs/toolbar yet; yak will have commands only."
@@ -70,16 +77,16 @@ if ($null -ne $ProductRui) {
 
 $Templates = Join-Path $Stage "templates"
 New-Item -ItemType Directory -Force -Path $Templates | Out-Null
-$AddonSrc = Join-Path $RepoRoot "wip\src\blender\loopflow_r2b_sync_dev"
+$AddonSrc = Join-Path $RepoRoot "wip\src\blender\r2b_sync"
 if (-not (Test-Path -LiteralPath $AddonSrc)) {
     throw "Missing Blender add-on: $AddonSrc"
 }
-# zip 內層 loopflow_r2b_sync；附 foundation；不打 _vendor 與 blender_manifest（Extensions @ 改名在 Dropbox 會鎖檔）
+# zip 內層 r2b_sync；附 foundation；不打 _vendor 與 blender_manifest（Extensions @ 改名在 Dropbox 會鎖檔）
 $ZipTmp = Join-Path $env:TEMP "r2b-yak-addon-zip"
 if (Test-Path -LiteralPath $ZipTmp) {
     Remove-Item -LiteralPath $ZipTmp -Recurse -Force
 }
-$ZipInner = Join-Path $ZipTmp "loopflow_r2b_sync"
+$ZipInner = Join-Path $ZipTmp "r2b_sync"
 New-Item -ItemType Directory -Path $ZipInner | Out-Null
 & robocopy $AddonSrc $ZipInner /E /XD __pycache__ _vendor /XF *.pyc blender_manifest.toml /NFL /NDL /NJH /NJS /nc /ns | Out-Null
 if ($LASTEXITCODE -ge 8) {
@@ -95,13 +102,13 @@ if ($LASTEXITCODE -ge 8) {
     throw "robocopy foundation failed: $LASTEXITCODE"
 }
 $LASTEXITCODE = 0
-$ZipOut = Join-Path $Templates "loopflow_r2b_sync.zip"
+$ZipOut = Join-Path $Templates "r2b_sync.zip"
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 if (Test-Path -LiteralPath $ZipOut) {
     Remove-Item -LiteralPath $ZipOut -Force
 }
 [System.IO.Compression.ZipFile]::CreateFromDirectory($ZipTmp, $ZipOut)
-Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "3.0.4" -Encoding ascii -NoNewline
+Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "3.0.5" -Encoding ascii -NoNewline
 Write-Host "Staged Blender add-on zip"
 
 if (-not (Test-Path -LiteralPath $Yak)) {

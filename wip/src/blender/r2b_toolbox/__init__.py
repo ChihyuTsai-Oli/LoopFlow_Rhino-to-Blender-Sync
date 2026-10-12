@@ -4,7 +4,7 @@
 bl_info = {
     "name": "R2B ToolBox",
     "author": "Chihyu Tsai",
-    "version": (1, 0, 0),
+    "version": (1, 1, 0),
     "blender": (5, 2, 1),
     "location": "N-Panel > LoopFlow > ToolBox",
     "description": "Export, Rename, and Selection tools",

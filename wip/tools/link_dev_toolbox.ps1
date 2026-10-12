@@ -60,7 +60,7 @@ function Set-AddonJunction {
     Write-Host "  Enable: $EnableHint"
 }
 
-$Name = "loopflow_toolbox"
+$Name = "r2b_toolbox"
 $Target = Join-Path $RepoRoot "wip\src\blender\$Name"
 Set-AddonJunction -LinkName $Name -TargetPath $Target -EnableHint "R2B ToolBox"
 

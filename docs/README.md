@@ -1,4 +1,4 @@
-# LoopFlow R2B Documentation
+# Rhino to Blender Sync Documentation
 
 > Do not mix old toolbars, packages, or the Blender add-on in the same project.
 
@@ -13,7 +13,7 @@ This page is the **documentation entry** opened from Rhino `RBOpen` and Blender 
 
 ---
 
-# LoopFlow R2B 使用說明
+# Rhino to Blender Sync 使用說明
 
 > 同一專案不要混用舊版的工具列、套件或 Blender add-on。
 

@@ -41,9 +41,9 @@ Not every tutorial video is updated yet.
 
 1. Open Rhino 8 and run `PackageManager`.
 2. Search for **`loopflow Rhino to Blender Sync`** and install.
-3. Or download `loopflow-rhino-to-blender-sync-3.0.4-rh8_0-win.yak` from [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) and install from file.
+3. Or download `loopflow-rhino-to-blender-sync-3.0.5-rh8_0-win.yak` from [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) and install from file.
 4. **Quit Rhino completely and reopen it.**
-5. Use the **Rhino to Blender Sync** toolbar. If it does not appear: **Tools → Options → Plug-ins**, enable **LoopFlow R2B**. If it still does not show, type `RBOpen` once.
+5. Use the **Rhino to Blender Sync** toolbar. If it does not appear: **Tools → Options → Plug-ins**, enable **Rhino to Blender Sync**. If it still does not show, type `RBOpen` once.
 
 Any formal command (toolbar or `RBOpen`) copies the Blender zip to `Documents\LoopFlow\Rhino to Blender Sync`. If that default folder is missing (for example you moved it), the command copies it again. After you install a new version, that command empties this product folder and copies the official files from the package. The same version does nothing while the folder is still there.
 
@@ -51,15 +51,20 @@ Any formal command (toolbar or `RBOpen`) copies the Blender zip to `Documents\Lo
 
 Use **Edit → Preferences → Add-ons → Install from Disk** (legacy Add-ons). Do not use Get Extensions.
 
-1. Remove or disable any leftover **import_3dm** or **LoopFlow Rhino to Blender Sync** / **loopflow_r2b_sync**.
+1. Remove or disable any leftover **import_3dm**, **LoopFlow Rhino to Blender Sync**, or **Rhino to Blender Sync**.
 2. **Quit Blender completely.** If Portable Blender lives on Dropbox, pause Dropbox first.
-3. Delete leftover folders if they exist:
+3. Delete leftover folders if they exist (old names and the new ones):
    - `portable\extensions\user_default\loopflow_r2b_sync`
    - `portable\extensions\user_default\loopflow_r2b_sync@`
    - `portable\scripts\addons\loopflow_r2b_sync`
+   - `portable\scripts\addons\loopflow_toolbox`
+   - `portable\extensions\user_default\r2b_sync`
+   - `portable\extensions\user_default\r2b_sync@`
+   - `portable\scripts\addons\r2b_sync`
+   - `portable\scripts\addons\r2b_toolbox`
 4. Run any Rhino product command so the zip is copied to `Documents\LoopFlow\Rhino to Blender Sync`. Use that new zip, not an old one.
 5. In Blender, open **Add-ons** (not Get Extensions) and **Install from Disk**. Pick the **zip** only.
-6. Enable **LoopFlow Rhino to Blender Sync**. N-panel tab **LoopFlow**, bar **Rhino to Blender Sync**.
+6. Enable **Rhino to Blender Sync**. N-panel tab **LoopFlow**, bar **Rhino to Blender Sync**.
 7. You do not need a separate Import Rhinoceros 3D add-on.
 
 If Windows says the file is in use: quit Blender, pause Dropbox, delete the leftover folders, and install again.

@@ -64,7 +64,7 @@ class G02SpikeTests(unittest.TestCase):
             self.assertNotIn("can_sync_user_assets", text)
             self.assertNotIn("_isolate.py", text)
             self.assertNotIn("import_3dm", text)
-            self.assertNotIn("loopflow_r2b_sync_dev", text)
+            self.assertNotIn("r2b_sync", text)
             py_compile.compile(str(path), doraise=True)
         extras = {p.stem for p in COMMANDS.glob("*.py")} - set(EXPECTED)
         self.assertEqual(extras, set())
@@ -76,7 +76,7 @@ class G02SpikeTests(unittest.TestCase):
     def test_manifest_spike_identity(self):
         text = MANIFEST.read_text(encoding="utf-8")
         self.assertIn("name: loopflow-rhino-to-blender-sync", text)
-        self.assertIn("version: 3.0.4", text)
+        self.assertIn("version: 3.0.5", text)
         self.assertIn("Chihyu Tsai", text)
         self.assertIn("github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync", text)
         self.assertIn("guid:860a0589-cda5-46a6-97ef-d538db8e0db3", text)
@@ -94,8 +94,8 @@ class G02SpikeTests(unittest.TestCase):
         self.assertIn("build\\rh8", build)
         self.assertIn("yak-stage", build)
         self.assertIn("templates", build)
-        self.assertIn("loopflow_r2b_sync_dev", build)
-        self.assertIn("loopflow_r2b_sync.zip", build)
+        self.assertIn("r2b_sync", build)
+        self.assertIn("r2b_sync.zip", build)
         self.assertIn("_vendor", build)
         self.assertIn("foundation", build)
         self.assertIn("blender_manifest.toml", build)
@@ -138,13 +138,13 @@ class G02SpikeTests(unittest.TestCase):
         self.assertTrue((SPIKE / "loopflow-rhino-to-blender-sync.rhproj").is_file())
 
     def test_blender_addon_is_sync_not_nested_import_3dm(self):
-        addon = WIP / "src" / "blender" / "loopflow_r2b_sync_dev"
+        addon = WIP / "src" / "blender" / "r2b_sync"
         nested = addon / "import_3dm" / "blender_manifest.toml"
         self.assertFalse(nested.is_file(), nested)
         self.assertFalse((addon / "blender_manifest.toml").is_file())
         self.assertTrue((addon / "_srcpath.py").is_file())
         init = (addon / "__init__.py").read_text(encoding="utf-8")
-        self.assertIn('"name": "LoopFlow Rhino to Blender Sync"', init)
+        self.assertIn('"name": "Rhino to Blender Sync"', init)
         self.assertIn("def register(", init)
         self.assertNotIn("Dev Stub", init)
         self.assertLess(
@@ -160,9 +160,9 @@ class G02SpikeTests(unittest.TestCase):
     def test_srcpath_uses_bundled_foundation(self):
         import importlib.util
 
-        srcpath = WIP / "src" / "blender" / "loopflow_r2b_sync_dev" / "_srcpath.py"
+        srcpath = WIP / "src" / "blender" / "r2b_sync" / "_srcpath.py"
         with tempfile.TemporaryDirectory() as tmp:
-            addon = Path(tmp) / "loopflow_r2b_sync"
+            addon = Path(tmp) / "r2b_sync"
             (addon / "foundation").mkdir(parents=True)
             (addon / "foundation" / "__init__.py").write_text("", encoding="utf-8")
             (addon / "_srcpath.py").write_text(srcpath.read_text(encoding="utf-8"), encoding="utf-8")
@@ -179,10 +179,10 @@ class G02SpikeTests(unittest.TestCase):
         import sys as py_sys
 
         srcpath = (
-            WIP / "src" / "blender" / "loopflow_r2b_sync_dev" / "_srcpath.py"
+            WIP / "src" / "blender" / "r2b_sync" / "_srcpath.py"
         ).read_text(encoding="utf-8")
         with tempfile.TemporaryDirectory() as tmp:
-            addon = Path(tmp) / "loopflow_r2b_sync"
+            addon = Path(tmp) / "r2b_sync"
             (addon / "foundation").mkdir(parents=True)
             (addon / "foundation" / "__init__.py").write_text("", encoding="utf-8")
             (addon / "foundation" / "box_mapping.py").write_text(
@@ -204,20 +204,20 @@ class G02SpikeTests(unittest.TestCase):
             py_sys.modules.pop("foundation", None)
             py_sys.modules.pop("foundation.box_mapping", None)
             spec = importlib.util.spec_from_file_location(
-                "loopflow_r2b_sync",
+                "r2b_sync",
                 addon / "__init__.py",
                 submodule_search_locations=[str(addon)],
             )
             pkg = importlib.util.module_from_spec(spec)
             pkg.__path__ = [str(addon)]
-            py_sys.modules["loopflow_r2b_sync"] = pkg
+            py_sys.modules["r2b_sync"] = pkg
             try:
                 spec.loader.exec_module(pkg)
                 self.assertTrue(pkg.box_proj.MARKER)
             finally:
                 for key in list(py_sys.modules):
-                    if key == "loopflow_r2b_sync" or key.startswith(
-                        "loopflow_r2b_sync."
+                    if key == "r2b_sync" or key.startswith(
+                        "r2b_sync."
                     ):
                         py_sys.modules.pop(key, None)
                 py_sys.modules.pop("foundation", None)

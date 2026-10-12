@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""LoopFlow R2B Sync — 開發用 add-on（Models／Camera／Light／Open／Box Projection 已接）。
+"""Rhino to Blender Sync — 開發用 add-on（Models／Camera／Light／Open／Box Projection 已接）。
 
 隔離 package：勿與 2.x `Import Rhinoceros 3D (R2B Pro)`／Toolkit 同 profile 混用正式專案。
 Models Update／Import 使用內嵌 `import_3dm` fork（含 rhino3dm wheels）。
 """
 
 bl_info = {
-    "name": "LoopFlow Rhino to Blender Sync",
+    "name": "Rhino to Blender Sync",
     "author": "Chihyu Tsai",
     "version": (0, 0, 19),
     "blender": (5, 2, 1),

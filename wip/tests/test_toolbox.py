@@ -9,7 +9,7 @@ from pathlib import Path
 
 WIP = Path(__file__).resolve().parents[1]
 SRC = WIP / "src"
-ADDON = SRC / "blender" / "loopflow_toolbox"
+ADDON = SRC / "blender" / "r2b_toolbox"
 FEATURES_PY = ADDON / "features" / "__init__.py"
 DOCS = WIP / "docs" / "toolbox"
 YAK_BUILD = WIP / "packaging" / "g02-spike" / "build.ps1"
@@ -66,7 +66,7 @@ class ToolboxAddonTests(unittest.TestCase):
         self.assertEqual(bl_info["name"], "R2B ToolBox")
         self.assertEqual(bl_info["author"], "Chihyu Tsai")
         self.assertEqual(bl_info["blender"], (5, 2, 1))
-        self.assertEqual(bl_info["version"], (1, 0, 0))
+        self.assertEqual(bl_info["version"], (1, 1, 0))
         self.assertIn("ToolBox", bl_info["location"])
 
     def test_parent_panel_and_operator_prefix(self):
@@ -84,7 +84,7 @@ class ToolboxAddonTests(unittest.TestCase):
         self.assertIn("loopflow_toolbox_export_selected", blob)
         for op in EXPECTED_OPS:
             self.assertIn('bl_idname = "{0}"'.format(op), blob)
-        self.assertNotIn("loopflow_r2b_sync_dev", blob)
+        self.assertNotIn("r2b_sync", blob)
         self.assertNotIn("from foundation", blob)
         self.assertNotIn("import_3dm", blob)
         self.assertFalse((ADDON / "blender_manifest.toml").is_file())
@@ -94,18 +94,18 @@ class ToolboxAddonTests(unittest.TestCase):
 
     def test_not_in_yak_build(self):
         text = YAK_BUILD.read_text(encoding="utf-8")
-        self.assertNotIn("loopflow_toolbox", text)
+        self.assertNotIn("r2b_toolbox", text)
         self.assertNotIn("ToolBox", text)
-        self.assertIn("loopflow_r2b_sync.zip", text)
+        self.assertIn("r2b_sync.zip", text)
 
     def test_pack_and_link_scripts(self):
         pack = (WIP / "tools" / "pack_toolbox.ps1").read_text(encoding="utf-8")
-        self.assertIn("loopflow_toolbox-1.0.0.zip", pack)
+        self.assertIn("r2b_toolbox-1.1.0.zip", pack)
         self.assertIn("Install from Disk", pack)
         self.assertNotIn("yak.exe", pack)
         self.assertNotIn("templates", pack)
         link = (WIP / "tools" / "link_dev_toolbox.ps1").read_text(encoding="utf-8")
-        self.assertIn("loopflow_toolbox", link)
+        self.assertIn("r2b_toolbox", link)
         self.assertIn("R2B ToolBox", link)
 
 

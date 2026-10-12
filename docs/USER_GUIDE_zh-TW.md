@@ -1,4 +1,4 @@
-# LoopFlow R2B 使用說明總覽
+# Rhino to Blender Sync 使用說明總覽
 
 > 同一專案不要混用舊版的工具列、套件或 Blender add-on。
 >

@@ -1,4 +1,4 @@
-# LoopFlow R2B 3.0 — 邏輯架構
+# Rhino to Blender Sync 3.0 — 邏輯架構
 
 > 用 ASCII 圖說明 R2B 整體是怎麼組成的，輔助閱讀，**不是規格**。
 > 內容整理自 `實作總覽.md`、`工作流程.md` 與實際程式目錄；若與六份實作文件不同，以六份為準。
@@ -125,14 +125,14 @@ Open      RBOpen                    （不寫交換檔）                       
 +--------------------------------------------------------------------------+
 | Blender 端  src/blender/
 |
-|   loopflow_r2b_sync_dev/   Sync add-on
+|   r2b_sync/   Sync add-on
 |       model_sync    主模型與選取物件匯入
 |       camera_sync   相機        light_sync   燈光
 |       health_sync   Open / Health
 |       box_proj      Box Projection 節點
 |       import_3dm/   內嵌的轉換器 fork（只做 3DM --> Blender）
 |
-|   loopflow_toolbox/        ToolBox 獨立 add-on
+|   r2b_toolbox/             ToolBox 獨立 add-on
 |       features/     Export、Rename、Selection
 +--------------------------------------------------------------------------+
 ```

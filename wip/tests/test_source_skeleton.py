@@ -12,7 +12,7 @@ from pathlib import Path
 WIP = Path(__file__).resolve().parents[1]
 SRC = WIP / "src"
 ENTRYPOINTS = SRC / "rhino" / "entrypoints"
-ADDON = SRC / "blender" / "loopflow_r2b_sync_dev" / "__init__.py"
+ADDON = SRC / "blender" / "r2b_sync" / "__init__.py"
 
 REQUIRED_ENTRYPOINTS = (
     "RBModels.py",
@@ -52,7 +52,7 @@ class SourceSkeletonTests(unittest.TestCase):
         py_compile.compile(str(SRC / "foundation" / "health.py"), doraise=True)
         py_compile.compile(str(SRC / "rhino" / "commands" / "open.py"), doraise=True)
         py_compile.compile(
-            str(SRC / "blender" / "loopflow_r2b_sync_dev" / "health_sync.py"),
+            str(SRC / "blender" / "r2b_sync" / "health_sync.py"),
             doraise=True,
         )
         open_py = (SRC / "rhino" / "commands" / "open.py").read_text(encoding="utf-8")
@@ -73,7 +73,7 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertIsNotNone(bl_info)
         self.assertEqual(bl_info["author"], "Chihyu Tsai")
         self.assertEqual(bl_info["blender"], (5, 2, 1))
-        self.assertEqual(bl_info["name"], "LoopFlow Rhino to Blender Sync")
+        self.assertEqual(bl_info["name"], "Rhino to Blender Sync")
         self.assertEqual(bl_info["version"], (0, 0, 19))
 
     def test_addon_registers_expected_stub_idnames(self):
@@ -93,7 +93,7 @@ class SourceSkeletonTests(unittest.TestCase):
         self.assertIn('bl_idname = "loopflow_r2b_dev.open_docs"', text)
         self.assertIn('bl_category = "LoopFlow"', text)
         self.assertIn('bl_label = "Rhino to Blender Sync"', text)
-        self.assertNotIn("LoopFlow R2B Dev", text)
+        self.assertNotIn("Rhino to Blender Sync Dev", text)
         self.assertIn("Work Folder", text)
         self.assertNotIn("作業資料夾", text)
         for label in (

@@ -3,10 +3,10 @@
 $ErrorActionPreference = "Stop"
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$AddonSrc = Join-Path $RepoRoot "wip\src\blender\loopflow_toolbox"
+$AddonSrc = Join-Path $RepoRoot "wip\src\blender\r2b_toolbox"
 $OutDir = Join-Path $RepoRoot "wip\packaging\toolbox\build"
-$ZipName = "loopflow_toolbox-1.0.0.zip"
-$InnerName = "loopflow_toolbox"
+$ZipName = "r2b_toolbox-1.1.0.zip"
+$InnerName = "r2b_toolbox"
 
 if (-not (Test-Path -LiteralPath $AddonSrc)) {
     throw "Missing ToolBox add-on: $AddonSrc"

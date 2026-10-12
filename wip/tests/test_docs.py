@@ -53,8 +53,8 @@ class DocsEntryTests(unittest.TestCase):
         zh = (REPO / "docs" / "TOOLBOX_zh-TW.md").read_text(encoding="utf-8")
         en = (REPO / "docs" / "TOOLBOX.md").read_text(encoding="utf-8")
         for text in (zh, en):
-            self.assertIn("1.0.0", text)
-            self.assertIn("releases/tag/toolbox-1.0.0", text)
+            self.assertIn("1.1.0", text)
+            self.assertIn("releases/tag/toolbox-1.1.0", text)
             self.assertIn("Install from Disk", text)
         self.assertIn("不要", zh)
         self.assertIn("Do **not** use", en)

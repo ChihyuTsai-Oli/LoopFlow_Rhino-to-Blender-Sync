@@ -1,6 +1,6 @@
 # Food4Rhino listing（已送審，待審核通過後再補頁面網址）
 
-LoopFlow Rhino to Blender Sync pushes models, cameras, and light points one way from Rhino 8 into Blender. It exports a clean model, writes the view and point positions, and updates on the Blender side.
+Rhino to Blender Sync pushes models, cameras, and light points one way from Rhino 8 into Blender. It exports a clean model, writes the view and point positions, and updates on the Blender side.
 
 Typical flow: model in Rhino as you already do, then publish the model, a selection, the camera, or lights when you need them. Blender reads the exchange files from the same project folder. When the model updates, materials you already tuned under the same names can stay. Each channel is independent; you do not have to run them all at once.
 

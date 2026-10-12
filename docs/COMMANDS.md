@@ -1,4 +1,4 @@
-# LoopFlow R2B commands
+# Rhino to Blender Sync commands
 
 > Do not mix old toolbars, packages, or the Blender add-on in the same project.
 >
@@ -145,7 +145,7 @@ Edit the template fixture and instances follow. For a one-off intensity or color
 | **Open / Health** | Hover = summary; left-click opens the config root |
 | **Open Docs** | This documentation entry |
 
-Work Folder is the same folder as the `.3dm`. You do not need a separate Import Rhinoceros 3D add-on. The Sync zip is in `Documents\LoopFlow\Rhino to Blender Sync`. If that default folder is missing, the next formal command copies it back. Install with **Add-ons → Install from Disk** (not Extensions). The list name is **LoopFlow Rhino to Blender Sync**. If you previously installed import_3dm, hit a rename error, or saw `No module named 'foundation'`: quit Blender, delete `loopflow_r2b_sync` / `loopflow_r2b_sync@` under both `extensions\user_default` and `scripts\addons`, then install the zip only. If Portable Blender is on Dropbox, pause sync before installing.
+Work Folder is the same folder as the `.3dm`. You do not need a separate Import Rhinoceros 3D add-on. The Sync zip is in `Documents\LoopFlow\Rhino to Blender Sync`. If that default folder is missing, the next formal command copies it back. Install with **Add-ons → Install from Disk** (not Extensions). The list name is **Rhino to Blender Sync**. If you previously installed import_3dm, hit a rename error, or saw `No module named 'foundation'`: quit Blender, delete old `loopflow_r2b_sync` / `loopflow_r2b_sync@` / `loopflow_toolbox` and current `r2b_sync` / `r2b_sync@` / `r2b_toolbox` under both `extensions\user_default` and `scripts\addons`, then install the zip only. If Portable Blender is on Dropbox, pause sync before installing.
 
 [R2B ToolBox](./TOOLBOX.md) is not part of this product (separate Blender add-on; not in the yak).
 

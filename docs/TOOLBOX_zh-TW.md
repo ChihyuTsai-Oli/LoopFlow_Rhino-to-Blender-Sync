@@ -2,7 +2,7 @@
 
 [English](./TOOLBOX.md)
 
-獨立的 Blender add-on（**1.0.0**）。不是 Rhino 同步，**不**含在 R2B 的 `.yak` 裡。
+獨立的 Blender add-on（**1.1.0**）。不是 Rhino 同步，**不**含在 R2B 的 `.yak` 裡。
 
 N 面板：標籤 **LoopFlow**，bar **ToolBox**。畫面按鈕為英文；本頁為正體中文。
 
@@ -12,13 +12,14 @@ Rhino to Blender Sync 的說明見 [使用說明入口](./README.md)。
 
 請從固定 tag 下載 zip，**不要**用這個 repo 的 [latest Release](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/latest)（那是 R2B 同步產品）：
 
-- Tag：[`toolbox-1.0.0`](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/toolbox-1.0.0)
-- 檔名：`loopflow_toolbox-1.0.0.zip`
+- Tag：[`toolbox-1.1.0`](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/toolbox-1.1.0)
+- 檔名：`r2b_toolbox-1.1.0.zip`
 
-1. Edit → Preferences → Add-ons → **Install from Disk**（不要用 Get Extensions）
-2. 只選上述 zip
-3. 列表勾選 **R2B ToolBox**
-4. 不要與舊版 **LoopFlow Toolkit** 同時當正式專案使用
+1. 先關掉 Blender，刪掉 `scripts\addons` 裡的舊資料夾 `loopflow_toolbox`
+2. Edit → Preferences → Add-ons → **Install from Disk**（不要用 Get Extensions）
+3. 只選上述 zip
+4. 列表勾選 **R2B ToolBox**
+5. 不要與舊版 **LoopFlow Toolkit** 同時當正式專案使用
 
 與 Sync 可同時啟用：同一個 LoopFlow 標籤會看到 **Rhino to Blender Sync** 和 **ToolBox**。請在 **OBJECT** 模式操作。
 

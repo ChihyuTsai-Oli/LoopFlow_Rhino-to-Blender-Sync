@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.5] - 2026-10-12
+
+The main add-on is named Rhino to Blender Sync. Its Blender folder is `r2b_sync`. The optional add-on stays R2B ToolBox, in folder `r2b_toolbox` (zip 1.1.0). Remove the old `loopflow_r2b_sync` and `loopflow_toolbox` folders before installing. Do not overwrite `v3.0.4` or `toolbox-1.0.0`.
+
 ## [3.0.4] - 2026-08-31
 
 Patch release.

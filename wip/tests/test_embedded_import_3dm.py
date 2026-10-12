@@ -11,7 +11,7 @@ IMPORT_3DM = (
     Path(__file__).resolve().parents[1]
     / "src"
     / "blender"
-    / "loopflow_r2b_sync_dev"
+    / "r2b_sync"
     / "import_3dm"
 )
 

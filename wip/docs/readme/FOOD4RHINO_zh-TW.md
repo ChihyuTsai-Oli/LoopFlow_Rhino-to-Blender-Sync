@@ -1,6 +1,6 @@
 # Food4Rhino 中文（已送審，待審核通過後再補頁面網址）
 
-LoopFlow Rhino to Blender Sync 把 Rhino 8 的模型、相機與燈光點位，單向同步到 Blender。匯出乾淨模型、寫出視角與點位，以及 Blender 端的更新。
+Rhino to Blender Sync 把 Rhino 8 的模型、相機與燈光點位，單向同步到 Blender。匯出乾淨模型、寫出視角與點位，以及 Blender 端的更新。
 
 主要流程：在 Rhino 裡照原本方式建模，按需要發布模型、選取物件、相機或燈光；Blender 讀取同一專案資料夾裡的交換檔。模型更新時，已調好的同名材質可以留下。各通道彼此獨立，不必一次做完。
 

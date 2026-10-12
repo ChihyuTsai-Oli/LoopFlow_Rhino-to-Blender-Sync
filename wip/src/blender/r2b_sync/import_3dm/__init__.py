@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-LoopFlow R2B 內嵌 import_3dm fork（上游 0.0.18）。
+Rhino to Blender Sync 內嵌 import_3dm fork（上游 0.0.18）。
 
 - 上游唯讀參考：repo `import_3dm/import_3dm-0.0.18-windows_x64/`
 - 本目錄為工作複本；以 Sync add-on 子套件載入，不需另啟用「Import Rhinoceros 3D」
