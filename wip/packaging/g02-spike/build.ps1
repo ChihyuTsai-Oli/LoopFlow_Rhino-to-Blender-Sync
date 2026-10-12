@@ -58,22 +58,14 @@ if ($null -eq $StagedRhp) {
 Copy-Item -LiteralPath $StagedRhp.FullName -Destination (Join-Path $Stage $StagedRhp.Name) -Force
 Write-Host "Staged $($StagedRhp.Name)"
 
-$ProductRui = Get-ChildItem -LiteralPath $Toolbar -Filter "*.rui" -File -ErrorAction SilentlyContinue | Select-Object -First 1
-if ($null -ne $ProductRui) {
-    # Rhino loads only the .rui whose name matches the .rhp.
-    $RuiName = "$($StagedRhp.Name)".Replace(".rhp", ".rui")
-    if ($RuiName -ne "Rhino to Blender Sync.rui") {
-        throw "product RUI name is [$RuiName]"
-    }
-    $RuiDest = Join-Path $Stage $RuiName
-    Copy-Item -LiteralPath $ProductRui.FullName -Destination $RuiDest -Force
-    if (-not (Test-Path -LiteralPath $RuiDest)) {
-        throw "product RUI was not staged as $RuiName"
-    }
-    Write-Host "Staged product RUI $RuiName (matches rhp)"
-} else {
-    Write-Host "No product RUI in wip/docs/toolbar yet; yak will have commands only."
+# Shared tab is package loopflow-R2X-Toolbar. A .rui with the same
+# name as the .rhp would open a second tab, so this package does not ship one.
+$RuiName = "$($StagedRhp.Name)".Replace(".rhp", ".rui")
+$RuiDest = Join-Path $Stage $RuiName
+if (Test-Path -LiteralPath $RuiDest) {
+    throw "refusing to ship an auto-loaded toolbar: $RuiName"
 }
+Write-Host "No auto-loaded toolbar in this package"
 
 $Templates = Join-Path $Stage "templates"
 New-Item -ItemType Directory -Force -Path $Templates | Out-Null
@@ -108,7 +100,7 @@ if (Test-Path -LiteralPath $ZipOut) {
     Remove-Item -LiteralPath $ZipOut -Force
 }
 [System.IO.Compression.ZipFile]::CreateFromDirectory($ZipTmp, $ZipOut)
-Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "3.0.6" -Encoding ascii -NoNewline
+Set-Content -LiteralPath (Join-Path $Templates ".loopflow_yak_version") -Value "3.0.7" -Encoding ascii -NoNewline
 Write-Host "Staged Blender add-on zip"
 
 if (-not (Test-Path -LiteralPath $Yak)) {

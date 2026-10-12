@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.7] - 2026-10-12
+
+This package no longer opens its own Rhino tab. Use the shared **LoopFlow R2X** tab from `loopflow-R2X-Toolbar`. A tab already loaded in Rhino stays until you close it. Do not overwrite `v3.0.6`.
+
 ## [3.0.6] - 2026-10-12
 
 The Rhino toolbar tab is LoopFlow R2B again. The plug-in checkbox stays Rhino to Blender Sync. Do not overwrite `v3.0.5`.
