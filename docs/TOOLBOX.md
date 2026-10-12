@@ -1,4 +1,4 @@
-# LoopFlow ToolBox
+# R2B ToolBox
 
 [繁體中文](./TOOLBOX_zh-TW.md)
 
@@ -17,7 +17,7 @@ Download the zip from a **fixed tag**. Do **not** use this repo’s [latest Rele
 
 1. Edit → Preferences → Add-ons → **Install from Disk** (not Get Extensions)
 2. Choose the zip only
-3. Enable **LoopFlow ToolBox**
+3. Enable **R2B ToolBox**
 4. Do not use this with the old **LoopFlow Toolkit** add-on on a real project at the same time
 
 It can run next to Sync: the same LoopFlow tab shows **Rhino to Blender Sync** and **ToolBox**. Use **OBJECT** mode.

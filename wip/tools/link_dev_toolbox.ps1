@@ -62,9 +62,9 @@ function Set-AddonJunction {
 
 $Name = "loopflow_toolbox"
 $Target = Join-Path $RepoRoot "wip\src\blender\$Name"
-Set-AddonJunction -LinkName $Name -TargetPath $Target -EnableHint "LoopFlow ToolBox"
+Set-AddonJunction -LinkName $Name -TargetPath $Target -EnableHint "R2B ToolBox"
 
 Write-Host ""
 Write-Host "Open $BlenderExe"
-Write-Host "Preferences > Add-ons: enable LoopFlow ToolBox."
+Write-Host "Preferences > Add-ons: enable R2B ToolBox."
 Write-Host "N-panel: LoopFlow > ToolBox. This add-on is not in the Rhino yak."

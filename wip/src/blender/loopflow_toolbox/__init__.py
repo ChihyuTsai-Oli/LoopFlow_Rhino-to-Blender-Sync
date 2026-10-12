@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""LoopFlow ToolBox — 獨立 add-on（Export／Rename／Selection）。不進 yak、不參與同步。"""
+"""R2B ToolBox — 獨立 add-on（Export／Rename／Selection）。不進 yak、不參與同步。"""
 
 bl_info = {
-    "name": "LoopFlow ToolBox",
+    "name": "R2B ToolBox",
     "author": "Chihyu Tsai",
     "version": (1, 0, 0),
     "blender": (5, 2, 1),

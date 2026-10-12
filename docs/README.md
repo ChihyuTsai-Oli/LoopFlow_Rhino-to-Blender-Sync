@@ -8,7 +8,7 @@ This page is the **documentation entry** opened from Rhino `RBOpen` and Blender 
 |---|---|
 | One-minute overview | [Open](./USER_GUIDE.md) |
 | Rhino / Blender commands | [Open](./COMMANDS.md) |
-| LoopFlow ToolBox (optional Blender add-on) | [Open](./TOOLBOX.md) |
+| R2B ToolBox (optional Blender add-on) | [Open](./TOOLBOX.md) |
 | Tutorials | [YouTube](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8) |
 
 ---
@@ -23,5 +23,5 @@ This page is the **documentation entry** opened from Rhino `RBOpen` and Blender 
 |---|---|
 | 一分鐘總覽 | [開啟](./USER_GUIDE_zh-TW.md) |
 | Rhino／Blender 指令 | [開啟](./COMMANDS_zh-TW.md) |
-| LoopFlow ToolBox（選配 Blender add-on） | [開啟](./TOOLBOX_zh-TW.md) |
+| R2B ToolBox（選配 Blender add-on） | [開啟](./TOOLBOX_zh-TW.md) |
 | 教學影片 | [YouTube](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8) |

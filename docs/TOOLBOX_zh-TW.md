@@ -1,4 +1,4 @@
-# LoopFlow ToolBox
+# R2B ToolBox
 
 [English](./TOOLBOX.md)
 
@@ -17,7 +17,7 @@ Rhino to Blender Sync 的說明見 [使用說明入口](./README.md)。
 
 1. Edit → Preferences → Add-ons → **Install from Disk**（不要用 Get Extensions）
 2. 只選上述 zip
-3. 列表勾選 **LoopFlow ToolBox**
+3. 列表勾選 **R2B ToolBox**
 4. 不要與舊版 **LoopFlow Toolkit** 同時當正式專案使用
 
 與 Sync 可同時啟用：同一個 LoopFlow 標籤會看到 **Rhino to Blender Sync** 和 **ToolBox**。請在 **OBJECT** 模式操作。

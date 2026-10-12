@@ -63,7 +63,7 @@ class ToolboxAddonTests(unittest.TestCase):
                     if isinstance(target, ast.Name) and target.id == "bl_info":
                         bl_info = ast.literal_eval(node.value)
         self.assertIsNotNone(bl_info)
-        self.assertEqual(bl_info["name"], "LoopFlow ToolBox")
+        self.assertEqual(bl_info["name"], "R2B ToolBox")
         self.assertEqual(bl_info["author"], "Chihyu Tsai")
         self.assertEqual(bl_info["blender"], (5, 2, 1))
         self.assertEqual(bl_info["version"], (1, 0, 0))
@@ -106,7 +106,7 @@ class ToolboxAddonTests(unittest.TestCase):
         self.assertNotIn("templates", pack)
         link = (WIP / "tools" / "link_dev_toolbox.ps1").read_text(encoding="utf-8")
         self.assertIn("loopflow_toolbox", link)
-        self.assertIn("LoopFlow ToolBox", link)
+        self.assertIn("R2B ToolBox", link)
 
 
 if __name__ == "__main__":

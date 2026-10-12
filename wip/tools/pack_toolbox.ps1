@@ -1,5 +1,5 @@
 #Requires -Version 5.1
-# Pack LoopFlow ToolBox as a traditional Blender add-on zip (not yak).
+# Pack R2B ToolBox as a traditional Blender add-on zip (not yak).
 $ErrorActionPreference = "Stop"
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
