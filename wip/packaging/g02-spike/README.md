@@ -1,6 +1,6 @@
 # R2B 3.0 yak 建置
 
-正式版號 **`3.0.7`**（`v3.0.0`～`v3.0.6` 永不移動）。這個套件不再附上會自動開啟的工具列；按鈕在共用分頁 **LoopFlow R2X**（套件 `loopflow-R2X-Toolbar`）。yak 含 Blender Sync zip（`templates/`）；第一次跑任一產品指令拷到「文件\LoopFlow\Rhino to Blender Sync」。換版時先填暫存資料夾，成功後才換成產品資料夾。zip 為傳統 Add-on（無 `blender_manifest.toml`），內附 `foundation`；啟用前先把該目錄加入 `sys.path`。
+正式版號 **`3.0.8`**（`v3.0.0`～`v3.0.7` 永不移動）。分頁名是 **LoopFlow R2B**。yak 含 Blender Sync zip（`templates/`）；第一次跑任一產品指令拷到「文件\LoopFlow\Rhino to Blender Sync」。換版時先填暫存資料夾，成功後才換成產品資料夾。zip 為傳統 Add-on（無 `blender_manifest.toml`），內附 `foundation`；啟用前先把該目錄加入 `sys.path`。工具列 RUI 進包時改成與 `.rhp` 同名，Rhino 才會自動載入。
 
 畫面名（已凍）：`loopflow Rhino to Blender Sync`  
 機器名：`loopflow-rhino-to-blender-sync`
@@ -45,6 +45,6 @@ cd wip/packaging/g02-spike
 .\build.ps1
 ```
 
-腳本會刪掉 RhinoCode 自動產生的 `.rui`，只複製 `icon.png`。不要把與 `.rhp` 同名的 RUI 放進 yak。產出 `.yak` 不進 Git。
+腳本會刪掉 RhinoCode 自動產生的 `.rui`，若 `wip/docs/toolbar/` 有產品 RUI／`icon.png` 再複製進去。進包時 RUI 檔名必須與 `.rhp` 相同。產出 `.yak` 不進 Git。
 
-裝完須**完全關 Rhino 再開**。不要跟 2.x 開發按鈕混測。正式上架打新 tag（現行 `v3.0.7`）；永不覆寫 `v3.0.0`～`v3.0.6` 與 `v2.0.0`。
+裝完須**完全關 Rhino 再開**。不要跟 2.x 開發按鈕混測。正式上架打新 tag（現行 `v3.0.8`）；永不覆寫 `v3.0.0`～`v3.0.7` 與 `v2.0.0`。

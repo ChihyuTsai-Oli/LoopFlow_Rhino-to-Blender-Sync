@@ -76,7 +76,7 @@ class G02SpikeTests(unittest.TestCase):
     def test_manifest_spike_identity(self):
         text = MANIFEST.read_text(encoding="utf-8")
         self.assertIn("name: loopflow-rhino-to-blender-sync", text)
-        self.assertIn("version: 3.0.7", text)
+        self.assertIn("version: 3.0.8", text)
         self.assertIn("Chihyu Tsai", text)
         self.assertIn("github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync", text)
         self.assertIn("guid:860a0589-cda5-46a6-97ef-d538db8e0db3", text)
@@ -90,6 +90,7 @@ class G02SpikeTests(unittest.TestCase):
         self.assertIn("Remove-Item", build)
         self.assertIn(".rui", build)
         self.assertIn("yak", build.lower())
+        self.assertIn("docs\\toolbar", build)
         self.assertIn("build\\rh8", build)
         self.assertIn("yak-stage", build)
         self.assertIn("templates", build)
@@ -98,7 +99,7 @@ class G02SpikeTests(unittest.TestCase):
         self.assertIn("_vendor", build)
         self.assertIn("foundation", build)
         self.assertIn("blender_manifest.toml", build)
-        self.assertIn("refusing to ship an auto-loaded toolbar", build)
+        self.assertIn("matches rhp", build)
 
     def test_command_locate_compiles(self):
         py_compile.compile(str(SPIKE / "command_locate.py"), doraise=True)

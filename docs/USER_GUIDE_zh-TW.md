@@ -36,7 +36,7 @@ Blender 的 Work Folder 請指到**與 `.3dm` 同一層**（不是指進 `_LoopF
 | 燈光位置 | `RBLight` 開／關；右鍵 `RBLightPush` 推一次 | Light Auto On／Off／Sync Lights |
 | 看設定與說明 | `RBOpen` | Open / Health；Open Docs |
 
-共用分頁 **LoopFlow R2X** 有這四顆鈕：左鍵是上表主功能，右鍵是 Objects／Camera Push／Light Push。請安裝 `loopflow-R2X-Toolbar`。這個套件不再自己開分頁。
+Rhino 分頁 **LoopFlow R2B** 有四顆鈕：左鍵是上表主功能，右鍵是 Objects／Camera Push／Light Push。
 
 Blender 3D 視窗 N 面板：標籤 **LoopFlow**，bar **Rhino to Blender Sync**。著色輔助在 Shader Editor 同一個標籤、bar **Box Projection**，不進同步。選配的 [R2B ToolBox](./TOOLBOX_zh-TW.md) 是另一個 add-on，同一標籤、bar **ToolBox**。
 

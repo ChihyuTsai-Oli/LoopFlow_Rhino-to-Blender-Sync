@@ -41,9 +41,9 @@ Not every tutorial video is updated yet.
 
 1. Open Rhino 8 and run `PackageManager`.
 2. Search for **`loopflow Rhino to Blender Sync`** and install.
-3. Or download `loopflow-rhino-to-blender-sync-3.0.7-rh8_0-win.yak` from [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) and install from file.
+3. Or download `loopflow-rhino-to-blender-sync-3.0.8-rh8_0-win.yak` from [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) and install from file.
 4. **Quit Rhino completely and reopen it.**
-5. The buttons are on the **LoopFlow R2X** tab. Install `loopflow-R2X-Toolbar` as well. This package does not open its own tab. If an older **LoopFlow R2B** tab is still open, close it. If the commands are missing: **Tools → Options → Plug-ins**, enable **Rhino to Blender Sync**, then type `RBOpen` once.
+5. Use the **LoopFlow R2B** tab. If it does not appear: **Tools → Options → Plug-ins**, enable **Rhino to Blender Sync**. If it still does not show, type `RBOpen` once.
 
 Any formal command (toolbar or `RBOpen`) copies the Blender zip to `Documents\LoopFlow\Rhino to Blender Sync`. If that default folder is missing (for example you moved it), the command copies it again. After you install a new version, that command empties this product folder and copies the official files from the package. The same version does nothing while the folder is still there.
 
