@@ -1,5 +1,9 @@
 # Changelog
 
+## [toolbox-1.1.1] - 2026-11-03
+
+ToolBox Export USD uses `collection` and `evaluation_mode=VIEWPORT`. Blender 5.2 removed `visible_objects_only`. This does not change R2B `v3.0.9`. Do not overwrite `toolbox-1.1.0`, and do not mark this tag as the repository latest.
+
 ## [3.0.9] - 2026-10-12
 
 The toolbar group in Rhino's toolbar list is **LoopFlow R2B**, the same name as the tab. The plug-in checkbox uses that name too. Blender's list name stays **Rhino to Blender Sync**. Do not overwrite `v3.0.8`.

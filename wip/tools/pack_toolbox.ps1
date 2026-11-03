@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $AddonSrc = Join-Path $RepoRoot "wip\src\blender\r2b_toolbox"
 $OutDir = Join-Path $RepoRoot "wip\packaging\toolbox\build"
-$ZipName = "r2b_toolbox-1.1.0.zip"
+$ZipName = "r2b_toolbox-1.1.1.zip"
 $InnerName = "r2b_toolbox"
 
 if (-not (Test-Path -LiteralPath $AddonSrc)) {

@@ -2,7 +2,7 @@
 
 [繁體中文](./TOOLBOX_zh-TW.md)
 
-A separate Blender add-on (**1.1.0**). It is not Rhino sync and is **not** in the R2B `.yak`.
+A separate Blender add-on (**1.1.1**). It is not Rhino sync and is **not** in the R2B `.yak`.
 
 N-panel: tab **LoopFlow**, bar **ToolBox**. Buttons are English.
 
@@ -12,8 +12,8 @@ Rhino to Blender Sync docs: [documentation entry](./README.md).
 
 Download the zip from a **fixed tag**. Do **not** use this repo’s [latest Release](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/latest) (that is the R2B sync product):
 
-- Tag: [`toolbox-1.1.0`](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/toolbox-1.1.0)
-- File: `r2b_toolbox-1.1.0.zip`
+- Tag: [`toolbox-1.1.1`](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases/tag/toolbox-1.1.1)
+- File: `r2b_toolbox-1.1.1.zip`
 
 1. Quit Blender. Delete any old `loopflow_toolbox` folder under `scripts\addons`.
 2. Edit → Preferences → Add-ons → **Install from Disk** (not Get Extensions)

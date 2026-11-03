@@ -66,7 +66,7 @@ class ToolboxAddonTests(unittest.TestCase):
         self.assertEqual(bl_info["name"], "R2B ToolBox")
         self.assertEqual(bl_info["author"], "Chihyu Tsai")
         self.assertEqual(bl_info["blender"], (5, 2, 1))
-        self.assertEqual(bl_info["version"], (1, 1, 0))
+        self.assertEqual(bl_info["version"], (1, 1, 1))
         self.assertIn("ToolBox", bl_info["location"])
 
     def test_parent_panel_and_operator_prefix(self):
@@ -103,7 +103,7 @@ class ToolboxAddonTests(unittest.TestCase):
 
     def test_pack_and_link_scripts(self):
         pack = (WIP / "tools" / "pack_toolbox.ps1").read_text(encoding="utf-8")
-        self.assertIn("r2b_toolbox-1.1.0.zip", pack)
+        self.assertIn("r2b_toolbox-1.1.1.zip", pack)
         self.assertIn("Install from Disk", pack)
         self.assertNotIn("yak.exe", pack)
         self.assertNotIn("templates", pack)
