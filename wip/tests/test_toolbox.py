@@ -87,6 +87,9 @@ class ToolboxAddonTests(unittest.TestCase):
         self.assertNotIn("r2b_sync", blob)
         self.assertNotIn("from foundation", blob)
         self.assertNotIn("import_3dm", blob)
+        self.assertNotIn("visible_objects_only", blob)
+        self.assertIn("collection=target_col.name", blob)
+        self.assertIn('evaluation_mode="VIEWPORT"', blob)
         self.assertFalse((ADDON / "blender_manifest.toml").is_file())
 
     def test_addon_compiles(self):

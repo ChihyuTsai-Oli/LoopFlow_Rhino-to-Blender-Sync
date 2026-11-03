@@ -15,7 +15,7 @@
 ## 行為
 
 1. 選輸出資料夾。
-2. 每個目標 Collection 各出一份 `{安全檔名}.usdz`（`wm.usd_export`：無動畫、含 UV／法線／材質、instancing、只可見物件）。
+2. 每個目標 Collection 各出一份 `{安全檔名}.usdz`（`wm.usd_export`：指定該 Collection、無動畫、含 UV／法線／材質、instancing、`evaluation_mode=VIEWPORT`。Blender 5.2 已無 `visible_objects_only`）。
 3. 匯出前：隱藏其他頂層 Collection；把該 Collection 內無父（或不在同一批裡）的根物件移到世界原點。
 4. 匯出後：還原位置與顯隱。
 5. 無 MESH／CURVE／SURFACE／META／FONT 則略過該 Collection。

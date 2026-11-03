@@ -78,12 +78,13 @@ def run_collection_export(context, target_col, output_dir):
 
     bpy.ops.wm.usd_export(
         filepath=filepath,
+        collection=target_col.name,
         export_animation=False,
         export_uvmaps=True,
         export_normals=True,
         export_materials=True,
         use_instancing=True,
-        visible_objects_only=True,
+        evaluation_mode="VIEWPORT",
     )
 
     restore_roots_from_history(all_objs, pos_history)
