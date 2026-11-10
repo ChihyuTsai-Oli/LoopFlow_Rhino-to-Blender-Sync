@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.0.10] - 2026-11-10
+
+Toolbar buttons now have dedicated light and dark SVG artwork for Rhino 8 themes. Do not overwrite `v3.0.9`. Quit Rhino completely after install.
+
 ## [toolbox-1.1.1] - 2026-11-03
 
 ToolBox Export USD uses `collection` and `evaluation_mode=VIEWPORT`. Blender 5.2 removed `visible_objects_only`. This does not change R2B `v3.0.9`. Do not overwrite `toolbox-1.1.0`, and do not mark this tag as the repository latest.
