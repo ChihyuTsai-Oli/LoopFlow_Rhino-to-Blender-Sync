@@ -82,10 +82,125 @@ def _fresh_attributes(Rhino, src_attr, layer_index: int, *, assign_layer_materia
         except Exception:
             pass
     try:
-        attr.Mode = src_attr.Mode
+        attr.Visible = True
     except Exception:
         pass
     return attr
+
+
+def display_mesh_needed(vertex_counts) -> bool:
+    """沒有面，或任一面沒有頂點，就要補顯示網格。"""
+    counts = list(vertex_counts or [])
+    if not counts:
+        return True
+    return any(int(count) <= 0 for count in counts)
+
+
+def _mesh_vertex_count(mesh) -> int:
+    if mesh is None:
+        return 0
+    try:
+        return int(mesh.Vertices.Count)
+    except Exception:
+        return 0
+
+
+def _mesh_list(meshes) -> list:
+    if not meshes:
+        return []
+    try:
+        return [mesh for mesh in meshes if mesh is not None]
+    except Exception:
+        return []
+
+
+def _join_meshes(Rhino, meshes):
+    joined = Rhino.Geometry.Mesh()
+    for mesh in meshes:
+        try:
+            joined.Append(mesh)
+        except Exception:
+            continue
+    if _mesh_vertex_count(joined) <= 0:
+        return None
+    return joined
+
+
+def _brep_face_vertex_counts(brep, MeshType) -> list:
+    try:
+        faces = brep.Faces
+        count = int(faces.Count)
+    except Exception:
+        return []
+    counts = []
+    for index in range(count):
+        try:
+            mesh = faces[index].GetMesh(MeshType.Any)
+        except Exception:
+            mesh = None
+        counts.append(_mesh_vertex_count(mesh))
+    return counts
+
+
+def _mesh_brep_copy(Rhino, brep):
+    """複本缺顯示網格時補上。面數對得上就掛回 Brep，否則回傳合併 Mesh。"""
+    MeshType = Rhino.Geometry.MeshType
+    if not display_mesh_needed(_brep_face_vertex_counts(brep, MeshType)):
+        return brep
+    try:
+        created = Rhino.Geometry.Mesh.CreateFromBrep(
+            brep, Rhino.Geometry.MeshingParameters.Default
+        )
+    except Exception:
+        return brep
+    meshes = _mesh_list(created)
+    if not meshes:
+        return brep
+    face_counts = _brep_face_vertex_counts(brep, MeshType)
+    if len(meshes) == len(face_counts) and face_counts:
+        try:
+            for index, mesh in enumerate(meshes):
+                brep.Faces[index].SetMesh(MeshType.Render, mesh)
+            return brep
+        except Exception:
+            pass
+    joined = _join_meshes(Rhino, meshes)
+    return joined if joined is not None else brep
+
+
+def _with_display_mesh(Rhino, geom):
+    """關閉圖層的 Brep／Extrusion 常常沒有顯示網格。只處理呼叫端傳來的複本。"""
+    if geom is None:
+        return geom
+    try:
+        object_type = geom.ObjectType
+    except Exception:
+        return geom
+    ObjectType = Rhino.DocObjects.ObjectType
+    if object_type == ObjectType.Extrusion:
+        MeshType = Rhino.Geometry.MeshType
+        try:
+            existing = geom.GetMesh(MeshType.Any)
+        except Exception:
+            existing = None
+        if _mesh_vertex_count(existing) > 0:
+            return geom
+        brep = None
+        try:
+            brep = geom.ToBrep()
+        except Exception:
+            brep = None
+        if brep is None:
+            try:
+                brep = geom.ToBrep(False)
+            except Exception:
+                return geom
+        if brep is None:
+            return geom
+        return _mesh_brep_copy(Rhino, brep)
+    if object_type == ObjectType.Brep:
+        return _mesh_brep_copy(Rhino, geom)
+    return geom
 
 
 def _is_instance_ref(robj, ObjectType) -> bool:
@@ -476,7 +591,7 @@ def export_ids_to_3dm(
                             dst.Color = color
                         except Exception:
                             pass
-                    for attr in ("PlotColor", "PlotWeight", "IsVisible", "IsLocked"):
+                    for attr in ("PlotColor", "PlotWeight"):
                         try:
                             setattr(dst, attr, getattr(layer, attr))
                         except Exception:
@@ -543,6 +658,19 @@ def export_ids_to_3dm(
         except Exception:
             pass
 
+        for new_idx in old_index_to_new.values():
+            layer_out = _layer_at(new_idx)
+            if layer_out is None:
+                continue
+            try:
+                layer_out.IsVisible = True
+            except Exception:
+                pass
+            try:
+                layer_out.IsLocked = False
+            except Exception:
+                pass
+
         used_new_layers: Set[int] = set()
         added = 0
         skip_layer = 0
@@ -572,10 +700,15 @@ def export_ids_to_3dm(
                         except Exception:
                             pass
                 geom = robj.Geometry
+                dup = None
                 try:
                     dup = geom.Duplicate()
                 except Exception:
+                    dup = None
+                if dup is None:
                     dup = geom
+                else:
+                    dup = _with_display_mesh(Rhino, dup)
                 out.Objects.Add(dup, attr)
                 used_new_layers.add(new_li)
                 added += 1
@@ -606,7 +739,7 @@ def export_ids_to_3dm(
                                 piece_attr.SetUserString(str(key), str(value))
                             except Exception:
                                 pass
-                    out.Objects.Add(geom, piece_attr)
+                    out.Objects.Add(_with_display_mesh(Rhino, geom), piece_attr)
                     used_new_layers.add(mapped)
                     count += 1
             except Exception as exc:
