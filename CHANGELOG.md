@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.1.0] - 2026-11-15
+
+Rhino 8 and Rhino 9 install the same `rh8_0` package. On Rhino 9, `RBModels` lists only the top layer, then opens a centered checklist. Choosing that layer still exports its sublayers. Objects on a turned-off layer are included and show up in the Blender scene. The first Rhino 9 command looks in `packages\9.0`. Do not overwrite `v3.0.10`. Quit Rhino completely after install.
+
 ## [3.0.10] - 2026-11-10
 
 Toolbar buttons now have dedicated light and dark SVG artwork for Rhino 8 themes. Do not overwrite `v3.0.9`. Quit Rhino completely after install.

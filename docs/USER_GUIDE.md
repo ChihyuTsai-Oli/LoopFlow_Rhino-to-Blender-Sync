@@ -38,6 +38,8 @@ Point Blender’s Work Folder at the **same folder as the `.3dm`** (not inside `
 
 The Rhino tab **LoopFlow R2B** has four buttons. Left-click hover names are **R2B Config**, **R2B Model** (the button face says **R2B Models**), **R2B Camera**, and **R2B Light**. Right-click hover names are **R2B Objects**, **R2B Camera Push**, and **R2B Light Push**.
 
+Rhino 8 and Rhino 9 use the same package. On Rhino 9, `RBModels` lists only the top layer; its sublayers still export. The geometry checklist is a centered set of checkboxes. Objects on a turned-off layer are exported and appear in the Blender scene.
+
 Blender 3D View N-panel: tab **LoopFlow**, bar **Rhino to Blender Sync**. Shading help lives in the Shader Editor under the same tab, bar **Box Projection**. It is not part of sync. Optional [R2B ToolBox](./TOOLBOX.md) is a separate add-on: same tab, bar **ToolBox**.
 
 ## Terms

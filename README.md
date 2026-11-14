@@ -26,7 +26,7 @@ Each channel is independent. You do not have to run them in a fixed order.
 
 ## System requirements
 
-- **Rhino 8** (Windows)
+- **Rhino 8 and Rhino 9** (Windows). Both install the same package. `rh8_0` in the filename is the package tag; Rhino 9 installs this file too.
 - **Blender 5.2.1** (development target)
 
 Rhino dialogs and the Blender panel are English. This page is English; a Traditional Chinese edition is linked above.
@@ -39,9 +39,9 @@ Not every tutorial video is updated yet.
 
 **Rhino**
 
-1. Open Rhino 8 and run `PackageManager`.
+1. Open Rhino 8 or Rhino 9 and run `PackageManager`.
 2. Search for **`loopflow Rhino to Blender Sync`** and install.
-3. Or download `loopflow-rhino-to-blender-sync-3.0.10-rh8_0-win.yak` from [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) and install from file.
+3. Or download `loopflow-rhino-to-blender-sync-3.1.0-rh8_0-win.yak` from [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) and install from file.
 4. **Quit Rhino completely and reopen it.**
 5. Use the **LoopFlow R2B** tab. If it does not appear: **Tools → Options → Plug-ins**, enable **LoopFlow R2B**. If it still does not show, type `RBOpen` once.
 
