@@ -35,6 +35,27 @@ def layer_path_is_excluded(
     return token in (full_path or "")
 
 
+def top_level_layer_paths(paths: Sequence[str]) -> tuple:
+    """只留沒有 `::` 的最上層圖層。順序維持原清單。"""
+    out = []
+    seen = set()
+    for path in paths:
+        text = str(path or "").strip()
+        if not text or "::" in text or text in seen:
+            continue
+        seen.add(text)
+        out.append(text)
+    return tuple(out)
+
+
+def top_level_of(path: str) -> str:
+    """子圖層路徑改回最上層名稱。空白回空字串。"""
+    text = str(path or "").strip()
+    if not text:
+        return ""
+    return text.split("::", 1)[0]
+
+
 def layer_subtree_paths(
     all_paths: Sequence[str],
     root: str,

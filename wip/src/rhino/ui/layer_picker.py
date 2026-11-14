@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Optional, Sequence
 
+from rhino.platform.collect import top_level_layer_paths, top_level_of
+
 
 def _pick_layer_listbox(
     layer_paths: Sequence[str],
@@ -31,6 +33,153 @@ def _pick_layer_listbox(
     return str(layer_paths[idx])
 
 
+def dialog_button_row(ok, cancel):
+    """OK／Cancel 維持系統按鈕高度，不跟著視窗被拉高。"""
+    import Eto.Drawing as drawing  # type: ignore
+    import Eto.Forms as forms  # type: ignore
+
+    spacer = forms.Label()
+    spacer.Text = ""
+    row = forms.TableRow()
+    row.ScaleHeight = False
+    row.Cells.Add(forms.TableCell(spacer, True))
+    row.Cells.Add(forms.TableCell(ok, False))
+    row.Cells.Add(forms.TableCell(cancel, False))
+    buttons = forms.TableLayout()
+    buttons.Spacing = drawing.Size(8, 0)
+    buttons.Rows.Add(row)
+    return buttons
+
+
+def show_centered_dialog(dialog) -> None:
+    """視窗放在螢幕工作區正中，不把 Rhino 主視窗當 owner。"""
+    import Eto.Drawing as drawing  # type: ignore
+    import Eto.Forms as forms  # type: ignore
+
+    def _place(sender, _event):
+        try:
+            area = forms.Screen.PrimaryScreen.WorkingArea
+            width = int(getattr(sender, "Width", 0) or 0)
+            height = int(getattr(sender, "Height", 0) or 0)
+            if width <= 0:
+                width = int(sender.ClientSize.Width)
+            if height <= 0:
+                height = int(sender.ClientSize.Height)
+            sender.Location = drawing.Point(
+                int(area.X + max(0, (area.Width - width) / 2)),
+                int(area.Y + max(0, (area.Height - height) / 2)),
+            )
+        except Exception:
+            pass
+
+    try:
+        dialog.Owner = None
+    except Exception:
+        pass
+    try:
+        dialog.Shown += _place
+    except Exception:
+        pass
+    _place(dialog, None)
+    dialog.ShowModal()
+
+
+def _rhino_major() -> int:
+    try:
+        import Rhino  # type: ignore
+
+        return int(Rhino.RhinoApp.Version.Major)
+    except Exception:
+        return 0
+
+
+def _pick_layer_rhino9(
+    layer_paths: Sequence[str],
+    *,
+    default_path: Optional[str],
+    title: str,
+    message: str,
+) -> Optional[str]:
+    """Rhino 9：只列最上層。TreeGridView 點選會閃退，例外接不到。"""
+    import Eto.Drawing as drawing  # type: ignore
+    import Eto.Forms as forms  # type: ignore
+    from System.Collections.Generic import List as NetList  # type: ignore
+
+    paths = list(top_level_layer_paths(layer_paths))
+    if not paths:
+        return None
+    preferred = top_level_of(default_path or "")
+    if preferred not in paths:
+        preferred = paths[0]
+
+    class RootLayerDialog(forms.Dialog):
+        def __init__(self):
+            forms.Dialog.__init__(self)
+            self.Title = title
+            self.Padding = drawing.Padding(8)
+            self.Resizable = False
+            self.ClientSize = drawing.Size(280, 360)
+            self.selected_path = None
+
+            label = forms.Label()
+            label.Text = message
+            store = NetList[str]()
+            for name in paths:
+                store.Add(name)
+            listing = forms.ListBox()
+            listing.DataStore = store
+            listing.Height = 260
+            listing.SelectedIndex = paths.index(preferred)
+            self._listing = listing
+            listing.MouseDoubleClick += self._on_double_click
+
+            ok = forms.Button()
+            ok.Text = "OK"
+            cancel = forms.Button()
+            cancel.Text = "Cancel"
+            ok.Click += self._on_ok
+            cancel.Click += self._on_cancel
+            self.DefaultButton = ok
+            self.AbortButton = cancel
+
+            layout = forms.DynamicLayout()
+            layout.DefaultSpacing = drawing.Size(4, 6)
+            layout.AddRow(label)
+            layout.Add(listing, yscale=True, xscale=True)
+            layout.Add(dialog_button_row(ok, cancel), yscale=False)
+            self.Content = layout
+
+        def _selected(self):
+            try:
+                index = int(self._listing.SelectedIndex)
+            except (TypeError, ValueError):
+                return None
+            if index < 0 or index >= len(paths):
+                return None
+            return paths[index]
+
+        def _on_ok(self, sender, e):
+            path = self._selected()
+            if not path:
+                return
+            self.selected_path = path
+            self.Close()
+
+        def _on_cancel(self, sender, e):
+            self.selected_path = None
+            self.Close()
+
+        def _on_double_click(self, sender, e):
+            path = self._selected()
+            if path:
+                self.selected_path = path
+                self.Close()
+
+    dialog = RootLayerDialog()
+    show_centered_dialog(dialog)
+    return dialog.selected_path
+
+
 def pick_layer_path(
     layer_paths: Sequence[str],
     *,
@@ -38,10 +187,24 @@ def pick_layer_path(
     title: str = "R2B Models",
     message: str = "Select the model layer (includes sublayers)",
 ) -> Optional[str]:
-    """優先 Eto TreeGridView；失敗則縮排 ListBox。"""
+    """Rhino 8 用圖層樹。Rhino 9 只用最上層清單，避免點選閃退。"""
     paths = [str(p) for p in layer_paths if p]
     if not paths:
         return None
+
+    if _rhino_major() >= 9:
+        try:
+            return _pick_layer_rhino9(
+                paths, default_path=default_path, title=title, message=message
+            )
+        except Exception:
+            roots = list(top_level_layer_paths(paths)) or paths
+            return _pick_layer_listbox(
+                roots,
+                default_path=top_level_of(default_path or ""),
+                title=title,
+                message=message,
+            )
 
     try:
         return _pick_layer_eto(paths, default_path=default_path, title=title, message=message)

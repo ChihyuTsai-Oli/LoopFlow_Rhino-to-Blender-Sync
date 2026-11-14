@@ -11,12 +11,23 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from foundation.result import Result
-from rhino.platform.collect import collect_ids_under_layer, layer_subtree_paths
+from rhino.platform.collect import (
+    collect_ids_under_layer,
+    layer_subtree_paths,
+    top_level_layer_paths,
+    top_level_of,
+)
 from rhino.platform.guard import run_guarded
 from rhino.platform.memory import MemorySession
 
 
 class LayerCollectTests(unittest.TestCase):
+    def test_top_level_paths(self):
+        all_paths = ("A", "A::B", "Other", "A::B::C", "A")
+        self.assertEqual(top_level_layer_paths(all_paths), ("A", "Other"))
+        self.assertEqual(top_level_of("A::B::C"), "A")
+        self.assertEqual(top_level_of(""), "")
+
     def test_subtree_paths(self):
         all_paths = ("A", "A::B", "A::B::C", "Other", "A2")
         self.assertEqual(layer_subtree_paths(all_paths, "A"), ("A", "A::B", "A::B::C"))

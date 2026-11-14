@@ -71,7 +71,7 @@ def _prompt_layer(
     default_layer: Optional[str],
     exclude_token: str,
 ) -> Optional[str]:
-    """階層圖層樹＋捲軸選取（Eto TreeGridView）；依排除標記過濾。"""
+    """圖層選取。Rhino 8 用樹；Rhino 9 只列最上層。依排除標記過濾。"""
     from rhino.ui.layer_picker import pick_layer_path
 
     paths = [
