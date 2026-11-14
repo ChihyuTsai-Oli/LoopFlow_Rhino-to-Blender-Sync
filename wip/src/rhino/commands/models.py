@@ -110,14 +110,75 @@ def checklist_defaults(last_labels: Optional[Sequence[str]] = None) -> List[Tupl
     return rows
 
 
+def _show_type_checklist_rhino9(checklist: Sequence[Tuple[str, bool]]):
+    """Rhino 9 用置中的勾選方塊。原生 CheckListBox 會閃退。"""
+    import Eto.Drawing as drawing  # type: ignore
+    import Eto.Forms as forms  # type: ignore
+
+    from rhino.ui.layer_picker import dialog_button_row, show_centered_dialog
+
+    class TypeDialog(forms.Dialog):
+        def __init__(self):
+            forms.Dialog.__init__(self)
+            self.Title = "RBModels"
+            self.Padding = drawing.Padding(8)
+            self.Resizable = False
+            self.ClientSize = drawing.Size(420, 72 + 22 * max(1, len(checklist)))
+            self.flags = None
+            self._boxes = []
+
+            label = forms.Label()
+            label.Text = "Select geometry types to export"
+            rows = forms.DynamicLayout()
+            rows.DefaultSpacing = drawing.Size(4, 4)
+            for text, checked in checklist:
+                box = forms.CheckBox()
+                box.Text = str(text)
+                box.Checked = bool(checked)
+                self._boxes.append(box)
+                rows.AddRow(box)
+
+            ok = forms.Button()
+            ok.Text = "OK"
+            cancel = forms.Button()
+            cancel.Text = "Cancel"
+            ok.Click += self._on_ok
+            cancel.Click += self._on_cancel
+            self.DefaultButton = ok
+            self.AbortButton = cancel
+
+            gap = forms.Label()
+            gap.Text = ""
+            rows.Add(gap, yscale=True)
+
+            layout = forms.DynamicLayout()
+            layout.DefaultSpacing = drawing.Size(4, 8)
+            layout.AddRow(label)
+            layout.Add(rows, yscale=True, xscale=True)
+            layout.Add(dialog_button_row(ok, cancel), yscale=False)
+            self.Content = layout
+
+        def _on_ok(self, sender, e):
+            self.flags = [(box.Text, bool(box.Checked)) for box in self._boxes]
+            self.Close()
+
+        def _on_cancel(self, sender, e):
+            self.flags = None
+            self.Close()
+
+    dialog = TypeDialog()
+    show_centered_dialog(dialog)
+    return dialog.flags
+
+
 def _prompt_type_flags(
     session: LiveSession,
     layer: str,
     exclude_token: str,
     last_labels: Optional[Sequence[str]] = None,
 ) -> Result:
-    """CheckListBox：勾選框 [數量] 類別名。"""
-    import rhinoscriptsyntax as rs  # type: ignore
+    """勾選框 [數量] 類別名。Rhino 9 用置中視窗，Rhino 8 用 CheckListBox。"""
+    from rhino.ui.layer_picker import _rhino_major
 
     counts = _count_kinds_under_layer(session, layer, exclude_token)
     checklist: List[Tuple[str, bool]] = []
@@ -130,11 +191,16 @@ def _prompt_type_flags(
         row_kinds.append(kinds)
         labels.append(label)
 
-    chosen = rs.CheckListBox(
-        checklist,
-        message="Select geometry types to export",
-        title="RBModels",
-    )
+    if _rhino_major() >= 9:
+        chosen = _show_type_checklist_rhino9(checklist)
+    else:
+        import rhinoscriptsyntax as rs  # type: ignore
+
+        chosen = rs.CheckListBox(
+            checklist,
+            message="Select geometry types to export",
+            title="RBModels",
+        )
     if chosen is None:
         return Result.blocked("Geometry type selection cancelled", stage="models_types")
 
@@ -183,7 +249,7 @@ def publish_models_once(
     """
     發布 models/R2B.3dm。
 
-    interactive=True：排除標記 → 階層圖層樹 → CheckListBox 選類別。
+    interactive=True：排除標記 → 圖層選取 → 勾選幾何類別。
     FullPath 含排除標記的圖層不匯出（預設 `//`）。
     """
     session = open_session()
