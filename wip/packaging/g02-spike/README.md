@@ -1,6 +1,6 @@
 # R2B 3.0 yak 建置
 
-正式版號 **`3.1.0`**。`v3.0.0`～`v3.0.10` 與 `v3.1.0` 永不移動。Rhino 8 與 Rhino 9 裝同一份 `rh8_0`，不另發 `rh9_0`。分頁與工具列群組都是 **LoopFlow R2B**。yak 含 Blender Sync zip（`templates/`）；第一次跑任一產品指令拷到「文件\LoopFlow\Rhino to Blender Sync」。換版時先填暫存資料夾，成功後才換成產品資料夾。zip 為傳統 Add-on（無 `blender_manifest.toml`），內附 `foundation`；啟用前先把該目錄加入 `sys.path`。工具列 RUI 進包時改成與 `.rhp` 同名（`LoopFlow R2B.rui`），Rhino 才會自動載入，工具列清單也才會顯示這個名稱。
+正式版號 **`3.1.1`**。`v3.0.0`～`v3.1.0` 永不移動。Rhino 8 與 Rhino 9 裝同一份 `rh8_0`，不另發 `rh9_0`。分頁與工具列群組都是 **LoopFlow R2B**。yak 含 Blender Sync zip（`templates/`）；第一次跑任一產品指令拷到「文件\LoopFlow\Rhino to Blender Sync」。換版時先填暫存資料夾，成功後才換成產品資料夾。zip 為傳統 Add-on（無 `blender_manifest.toml`），內附 `foundation`；啟用前先把該目錄加入 `sys.path`。工具列 RUI 進包時改成與 `.rhp` 同名（`LoopFlow R2B.rui`），Rhino 才會自動載入，工具列清單也才會顯示這個名稱。
 
 畫面名（已凍）：`loopflow Rhino to Blender Sync`  
 機器名：`loopflow-rhino-to-blender-sync`
@@ -47,4 +47,4 @@ cd wip/packaging/g02-spike
 
 腳本會刪掉 RhinoCode 自動產生的 `.rui`，若 `wip/docs/toolbar/` 有產品 RUI／`icon.png` 再複製進去。進包時 RUI 檔名必須與 `.rhp` 相同。產出 `.yak` 不進 Git。
 
-裝完須**完全關 Rhino 再開**。不要跟 2.x 開發按鈕混測。正式進版打 `v3.1.0`；永不覆寫 `v3.0.0`～`v3.0.10`。Rhino 8 與 Rhino 9 裝同一份 `rh8_0`，不另發 `rh9_0`。
+裝完須**完全關 Rhino 再開**。不要跟 2.x 開發按鈕混測。正式進版打 `v3.1.1`；永不覆寫 `v3.0.0`～`v3.1.0`。Rhino 8 與 Rhino 9 裝同一份 `rh8_0`，不另發 `rh9_0`。
