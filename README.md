@@ -75,6 +75,8 @@ Every step is started by you. If one channel fails, rerun that channel. You do n
 - **Rhino 8 and Rhino 9** (Windows). Both install the same package. `rh8_0` in the filename is the package tag; Rhino 9 installs this file too.
 - **Blender 5.2.1** (development target)
 
+This page supports Windows only. For macOS, see the [Mac version by Ruslan F](https://github.com/guzel-hairdressers/LoopFlow-Mac-Port).
+
 Rhino dialogs and the Blender panel are English. This page is English; a Traditional Chinese edition is linked above.
 
 ## What changed from older versions

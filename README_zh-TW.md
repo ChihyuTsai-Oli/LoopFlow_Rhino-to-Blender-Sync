@@ -75,6 +75,8 @@ Rhino 端裝一份 `.yak`（內含 Blender Sync zip）。跑正式指令後，zi
 - **Rhino 8 與 Rhino 9**（Windows）。兩邊安裝同一份套件。檔名裡的 `rh8_0` 是套件標記，Rhino 9 也裝這個檔。
 - **Blender 5.2.1**（開發環境）
 
+本頁只支援 Windows。若需要 macOS，歡迎參閱 [Ruslan F 建立的 Mac 版本](https://github.com/guzel-hairdressers/LoopFlow-Mac-Port)。
+
 Rhino 對話框與 Blender 面板為英文；本說明為正體中文。
 
 ## 與舊版的差異
