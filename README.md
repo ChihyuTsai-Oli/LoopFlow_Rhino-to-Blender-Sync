@@ -6,13 +6,9 @@ An open-source workflow automation tool developed by **蔡智聿 (Chihyu Tsai)**
 
 # LoopFlow｜Rhino to Blender Sync
 
-> Do not mix old toolbars, packages, or the Blender add-on in the same project.
-
 Push Rhino models, cameras, and light points one way into Blender. You stay in control of every step; LoopFlow only writes what you ask for.
 
 Rhino installs as a single `.yak`. A formal product command copies the Blender Sync zip to `Documents\LoopFlow\Rhino to Blender Sync`.
-
-[▶ Documentation](./docs/README.md) · [▶ Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases) · [▶ Tutorials](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8)
 
 ## Features
 
@@ -24,16 +20,11 @@ Rhino installs as a single `.yak`. A formal product command copies the Blender S
 
 Each channel is independent. You do not have to run them in a fixed order.
 
-## System requirements
-
-- **Rhino 8 and Rhino 9** (Windows). Both install the same package. `rh8_0` in the filename is the package tag; Rhino 9 installs this file too.
-- **Blender 5.2.1** (development target)
-
-Rhino dialogs and the Blender panel are English. This page is English; a Traditional Chinese edition is linked above.
+Full command notes: [documentation](./docs/README.md).
 
 ## Quick start
 
-Not every tutorial video is updated yet.
+- [Tutorial playlist](https://www.youtube.com/playlist?list=PLiJmu8T_uzJJTnDl6HLSOFZ3DimkI9bV8) (not every video is updated yet)
 
 ### Installation
 
@@ -69,8 +60,6 @@ Use **Edit → Preferences → Add-ons → Install from Disk** (legacy Add-ons).
 
 If Windows says the file is in use: quit Blender, pause Dropbox, delete the leftover folders, and install again.
 
-Full command notes: [documentation](./docs/README.md).
-
 ## Basic workflow
 
 1. Save the `.3dm` (unpublished files cannot publish).
@@ -81,11 +70,22 @@ Full command notes: [documentation](./docs/README.md).
 
 Every step is started by you. If one channel fails, rerun that channel. You do not have to rebuild the whole scene.
 
+## System requirements
+
+- **Rhino 8 and Rhino 9** (Windows). Both install the same package. `rh8_0` in the filename is the package tag; Rhino 9 installs this file too.
+- **Blender 5.2.1** (development target)
+
+Rhino dialogs and the Blender panel are English. This page is English; a Traditional Chinese edition is linked above.
+
+## What changed from older versions
+
+Do not mix old toolbars, packages, or the Blender add-on in the same project.
+
 ## Support
 
-- [Discussions](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/discussions)
-- [Issues](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/issues)
-- [Releases](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/releases)
+- [Discussions](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/discussions): ask questions and share your experience
+- [Issues](https://github.com/ChihyuTsai-Oli/LoopFlow_Rhino-to-Blender-Sync/issues): report bugs or suggest improvements
+- [Changelog](./CHANGELOG.md): review released changes
 
 LoopFlow is a solo project by an architect and interior designer. AI assists with code and documentation; workflow, design decisions, and production checks stay with the author.
 
